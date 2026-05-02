@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IT Report Dashboard · เมษายน 2569</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --bg: #0d0f14;
+    --bg2: #13161e;
+    --bg3: #1a1e28;
+    --border: rgba(255,255,255,0.07);
+    --accent: #3b82f6;
+    --accent2: #10b981;
+    --accent3: #f59e0b;
+    --accent4: #8b5cf6;
+    --text: #f1f5f9;
+    --text2: #94a3b8;
+    --text3: #475569;
+    --network: #3b82f6;
+    --hardware: #f59e0b;
+    --software: #10b981;
+    --backup: #8b5cf6;
+    --other: #64748b;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  .header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .header-left { display:flex; align-items:center; gap:16px; }
+  .logo {
+    width: 36px; height: 36px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex; align-items:center; justify-content:center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px; font-weight: 500; color: #fff;
+  }
+  .header h1 { font-size: 16px; font-weight: 500; }
+  .header p { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .live-badge {
+    display: flex; align-items:center; gap:6px;
+    background: rgba(16,185,129,0.1);
+    border: 1px solid rgba(16,185,129,0.3);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px; color: var(--accent2);
+  }
+  .live-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent2);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+  .main { padding: 24px 32px; max-width: 1200px; margin: 0 auto; }
+
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .kpi-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .kpi-card.blue::before { background: var(--accent); }
+  .kpi-card.green::before { background: var(--accent2); }
+  .kpi-card.amber::before { background: var(--accent3); }
+  .kpi-card.purple::before { background: var(--accent4); }
+  .kpi-label { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+  .kpi-val { font-size: 32px; font-weight: 600; font-family: 'IBM Plex Mono', monospace; line-height: 1; }
+  .kpi-val.blue { color: var(--accent); }
+  .kpi-val.green { color: var(--accent2); }
+  .kpi-val.amber { color: var(--accent3); }
+  .kpi-val.purple { color: var(--accent4); }
+  .kpi-sub { font-size: 11px; color: var(--text3); margin-top: 6px; }
+
+  .charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .card-title {
+    font-size: 12px; color: var(--text2);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    margin-bottom: 16px;
+  }
+  .chart-wrap { position: relative; height: 200px; }
+
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    margin-top: 12px;
+  }
+  .legend-item {
+    display: flex; align-items:center; gap:5px;
+    font-size: 11px; color: var(--text2);
+  }
+  .legend-dot {
+    width: 8px; height: 8px; border-radius: 2px;
+  }
+
+  .table-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .table-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items:center; justify-content:space-between;
+  }
+  .table-header .card-title { margin: 0; }
+  .filter-wrap { display:flex; gap:6px; }
+  .filter-btn {
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    font-size: 11px; padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: transparent; color: var(--text2);
+    cursor: pointer; transition: all .15s;
+  }
+  .filter-btn.active, .filter-btn:hover {
+    background: var(--accent); border-color: var(--accent);
+    color: #fff;
+  }
+  table { width: 100%; border-collapse: collapse; }
+  th {
+    font-size: 11px; font-weight: 500;
+    color: var(--text3); text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 10px 20px; text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 11px 20px;
+    font-size: 13px; color: var(--text);
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+  .date-cell { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text2); white-space:nowrap; }
+  .badge {
+    font-size: 10px; padding: 2px 8px; border-radius: 20px;
+    font-weight: 500;
+  }
+  .badge-network  { background:rgba(59,130,246,.15); color:#93c5fd; }
+  .badge-hardware { background:rgba(245,158,11,.15); color:#fcd34d; }
+  .badge-software { background:rgba(16,185,129,.15); color:#6ee7b7; }
+  .badge-backup   { background:rgba(139,92,246,.15); color:#c4b5fd; }
+  .badge-other    { background:rgba(100,116,139,.15); color:#94a3b8; }
+  .badge-success  { background:rgba(16,185,129,.15); color:#6ee7b7; }
+
+  .plan-section {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .plan-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .plan-grid {
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 0;
+  }
+  .plan-week {
+    padding: 16px 20px;
+    border-right: 1px solid var(--border);
+  }
+  .plan-week:last-child { border-right: none; }
+  .plan-week-label {
+    font-size: 10px; color: var(--text3);
+    text-transform: uppercase; letter-spacing: .08em;
+    margin-bottom: 10px;
+  }
+  .plan-item {
+    display: flex; align-items:flex-start; gap:6px;
+    margin-bottom: 8px;
+  }
+  .plan-check {
+    width: 14px; height: 14px; border-radius: 50%;
+    background: rgba(16,185,129,.2);
+    border: 1px solid var(--accent2);
+    display: flex; align-items:center; justify-content:center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .plan-check svg { width:8px; height:8px; }
+  .plan-item-text { font-size: 12px; color: var(--text2); line-height: 1.4; }
+
+  .footer {
+    text-align: center; padding: 20px 32px;
+    font-size: 11px; color: var(--text3);
+    border-top: 1px solid var(--border);
+  }
+  #timestamp { color: var(--text2); }
+
+  @media (max-width: 768px) {
+    .main { padding: 16px; }
+    .header { padding: 14px 16px; }
+    .kpi-grid { grid-template-columns: repeat(2,1fr); }
+    .charts-grid { grid-template-columns: 1fr; }
+    .plan-grid { grid-template-columns: 1fr 1fr; }
+    .filter-wrap { flex-wrap:wrap; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="logo">IT</div>
+    <div>
+      <h1>IT Report Dashboard</h1>
+      <p>เมษายน 2569 · ธนา พิทยธนาดล</p>
+    </div>
+  </div>
+  <div class="live-badge">
+    <span class="live-dot"></span>
+    <span id="timestamp"></span>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="kpi-grid">
+    <div class="kpi-card blue">
+      <div class="kpi-label">งานทั้งหมด</div>
+      <div class="kpi-val blue" id="kpi-total">—</div>
+      <div class="kpi-sub">รายการในเดือน เม.ย 69</div>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-label">สำเร็จ</div>
+      <div class="kpi-val green" id="kpi-done">—</div>
+      <div class="kpi-sub">ดำเนินการเสร็จสมบูรณ์</div>
+    </div>
+    <div class="kpi-card amber">
+      <div class="kpi-label">อัตราสำเร็จ</div>
+      <div class="kpi-val amber" id="kpi-rate">—</div>
+      <div class="kpi-sub">ของงานทั้งหมด</div>
+    </div>
+    <div class="kpi-card purple">
+      <div class="kpi-label">งานมากสุด</div>
+      <div class="kpi-val purple" style="font-size:20px; padding-top:6px;" id="kpi-top">—</div>
+      <div class="kpi-sub" id="kpi-top-count">ประเภทที่ทำมากที่สุด</div>
+    </div>
+  </div>
+
+  <div class="charts-grid">
+    <div class="card">
+      <div class="card-title">งานแต่ละวัน</div>
+      <div class="chart-wrap">
+        <canvas id="barChart" role="img" aria-label="Bar chart งานแต่ละวัน"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">สัดส่วนประเภทงาน</div>
+      <div class="chart-wrap">
+        <canvas id="dntChart" role="img" aria-label="Donut chart ประเภทงาน"></canvas>
+      </div>
+      <div class="legend" id="legend"></div>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-header">
+      <div class="card-title">รายการงานทั้งหมด</div>
+      <div class="filter-wrap">
+        <button class="filter-btn active" onclick="filterTable('')">ทั้งหมด</button>
+        <button class="filter-btn" onclick="filterTable('network')">Network</button>
+        <button class="filter-btn" onclick="filterTable('hardware')">Hardware</button>
+        <button class="filter-btn" onclick="filterTable('software')">Software</button>
+        <button class="filter-btn" onclick="filterTable('backup')">Backup</button>
+      </div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:110px">วันที่</th>
+          <th>หัวข้องาน</th>
+          <th style="width:90px">ประเภท</th>
+          <th style="width:80px">สถานะ</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+  <div class="plan-section">
+    <div class="plan-header">
+      <div class="card-title" style="margin:0">แผน 30 วันแรก · ผลการดำเนินงาน</div>
+    </div>
+    <div class="plan-grid" id="planGrid"></div>
+  </div>
+
+</div>
+
+<div class="footer">
+  IT Report · เมษายน 2569 · ดึงข้อมูลจาก Google Sheets · It report
+</div>
+
+<script>
+const DATA = [
+  {date:'23-3 เม.ย',topic:'สำรวจปรับปรุ่งสร้างความเสถียรระบบ',type:'network'},
+  {date:'23-3 เม.ย',topic:'งานเน็ตเวิร์ก MikroTik / VPN / NAS',type:'network'},
+  {date:'23-3 เม.ย',topic:'งานลิขสิทธิ์ซอฟต์แวร์ STAAD.Pro',type:'software'},
+  {date:'23-3 เม.ย',topic:'จัดทำสิทธิ์ user Mikrotik / NAS',type:'software'},
+  {date:'23-3 เม.ย',topic:'งานซ่อมบำรุง Hardware / ระบบปริ้น',type:'hardware'},
+  {date:'23-3 เม.ย',topic:'ความร้อนสะสม Router / Switch / Server',type:'hardware'},
+  {date:'23-3 เม.ย',topic:'สาย Land คู่สายไม่ครบ',type:'network'},
+  {date:'4 เม.ย',topic:'Password Reset NB-RST-66-058',type:'software'},
+  {date:'4 เม.ย',topic:'Switch ห้องโรโบติก ลดความร้อน',type:'hardware'},
+  {date:'4 เม.ย',topic:'ตรวจเช็ค keyboard ปุ่มเสีย',type:'hardware'},
+  {date:'4 เม.ย',topic:'Backup NAS และ Mikrotik',type:'backup'},
+  {date:'4 เม.ย',topic:'ตรวจเช็คปริ้นเตอร์หลายเครื่อง',type:'hardware'},
+  {date:'6 เม.ย',topic:'ตรวจสอบ Network / Esy Account ค้าง',type:'network'},
+  {date:'6 เม.ย',topic:'แก้ปัญหาคอขวด Orbi34',type:'network'},
+  {date:'6 เม.ย',topic:'เติมหมึก / Set Wifi Notebook',type:'hardware'},
+  {date:'7 เม.ย',topic:'ย้าย Land Orbi34 ต่อเข้า Mikrotik',type:'network'},
+  {date:'7 เม.ย',topic:'Notebook Robotics Repair Loop',type:'software'},
+  {date:'8 เม.ย',topic:'Fix IP Notebook + Printer ห้องบริหาร',type:'network'},
+  {date:'8 เม.ย',topic:'จัดหาโปรแกรมทดแทน Anydesk (Rustdesk)',type:'software'},
+  {date:'8 เม.ย',topic:'เปลี่ยนสาย Land Cat5 → Cat6 ห้องบัญชี',type:'network'},
+  {date:'8 เม.ย',topic:'Notebook Robotics Card wifi ไม่เห็น',type:'hardware'},
+  {date:'8 เม.ย',topic:'ทำความสะอาด Printer MFC-T1710w',type:'hardware'},
+  {date:'9 เม.ย',topic:'Printer wifi รับ network ผิดวง ห้อง Marketing',type:'network'},
+  {date:'9 เม.ย',topic:'Fix IP แผนก Service',type:'network'},
+  {date:'9 เม.ย',topic:'Support พนักงานปริ้นไม่ออก',type:'hardware'},
+  {date:'10 เม.ย',topic:'Router offline ไฟฟ้าไม่เข้า ห้องทวงหนี้',type:'network'},
+  {date:'10 เม.ย',topic:'Fix IP แผนก Access',type:'network'},
+  {date:'10 เม.ย',topic:'ตรวจสอบ site-to-site Mikrotik ping tool',type:'network'},
+  {date:'10 เม.ย',topic:'Backup NAS Robotics / Mikrotik',type:'backup'},
+  {date:'11 เม.ย',topic:'สำรวจ Router ห้อง Robotics Mode AP,Bride',type:'network'},
+  {date:'11 เม.ย',topic:'Backup Config VSM CCTV',type:'backup'},
+  {date:'11 เม.ย',topic:'Support แผนก ปริ้นเตอร์ / config พื้นฐาน',type:'hardware'},
+  {date:'16 เม.ย',topic:'เปลี่ยน Switch ห้องบริการ → Smart Switch PoE',type:'network'},
+  {date:'17 เม.ย',topic:'Shared Center แผนก Robotics ไม่ได้ (RJ45 ไม่แน่น)',type:'network'},
+  {date:'27 เม.ย',topic:'HR Code error โปรแกรม Bplus/Ztk (SQL Automatic)',type:'software'},
+  {date:'28 เม.ย',topic:'ตรวจสอบ Automatic Service โปรแกรม HR',type:'software'},
+  {date:'28 เม.ย',topic:'Notebook ห้องบริการเปิดเครื่องไม่ติด (Adapter)',type:'hardware'},
+  {date:'28 เม.ย',topic:'ตรวจเช็ค Drum / Printer',type:'hardware'},
+  {date:'29 เม.ย',topic:'ปริ้นเตอร์สาขาตระการ ปริ้น A5 / ตรวจ Yanma',type:'hardware'},
+  {date:'29 เม.ย',topic:'E-Business Plus HR ผู้จัดการสาขาเข้าไม่ได้',type:'software'},
+  {date:'29 เม.ย',topic:'ตั้งค่า Router Aruba ห้องบริการ Hard Reset',type:'network'},
+  {date:'29 เม.ย',topic:'Config เครื่องสแกนนิ้วมือสาขา ไม่มี Gateway',type:'network'},
+  {date:'30 เม.ย',topic:'เน็ตสาขาตระการใช้งานไม่ได้',type:'network'},
+  {date:'30 เม.ย',topic:'Esyslip / Esyplus ใช้งานไม่ได้',type:'software'},
+  {date:'30 เม.ย',topic:'Notebook Robotics โปรแกรมเสียง / จอดำ',type:'software'},
+  {date:'30 เม.ย',topic:'ตรวจเช็ค computer สำรอง',type:'hardware'},
+  {date:'30 เม.ย',topic:'แผนก Service Printer code error',type:'hardware'},
+  {date:'30 เม.ย',topic:'Standby Support / เรียนรู้โปรแกรมสำนักงาน',type:'software'},
+];
+
+const PLAN = [
+  {w:1,items:[{t:'Audit Network',d:'สำรวจ Router, Switch, AP'},{t:'Account Inventory',d:'รวบรวม Admin Accounts'},{t:'ISP Service Audit',d:'เช็คสัญญาเน็ต CCcome/Toto'}]},
+  {w:2,items:[{t:'Backup Link Proposal',d:'แผนเน็ตสำรอง Failover'},{t:'Cloud Security',d:'จำกัดสิทธิ์ NAS/Mikrotik'},{t:'Backup Verification',d:'ทดสอบ Restore ข้อมูล'}]},
+  {w:3,items:[{t:'Branch Connection',d:'ทดสอบ VPN ระหว่างสาขา'},{t:'IT Support Channel',d:'ช่องทางแจ้งซ่อม Line'},{t:'Hardware Asset',d:'ทะเบียนอุปกรณ์ไอที'}]},
+  {w:4,items:[{t:'Gap Analysis Report',d:'สรุปปัญหาและแนวทางแก้ไข'}]},
+];
+
+const COLORS = {network:'#3b82f6',hardware:'#f59e0b',software:'#10b981',backup:'#8b5cf6',other:'#64748b'};
+const TYPE_TH = {network:'Network',hardware:'Hardware',software:'Software',backup:'Backup',other:'อื่นๆ'};
+
+function classifyType(t){
+  const s = t.toLowerCase();
+  if(s.includes('backup')||s.includes('nas ')) return 'backup';
+  if(s.includes('network')||s.includes('ip')||s.includes('router')||s.includes('mikrotik')||s.includes('vpn')||s.includes('สาย')||s.includes('เน็ต')||s.includes('orbi')||s.includes('switch')||s.includes('lan')||s.includes('wifi')||s.includes('shared')||s.includes('gateway')||s.includes('aruba')||s.includes('config เครื่อง')) return 'network';
+  if(s.includes('โปรแกรม')||s.includes('software')||s.includes('ลิขสิทธิ์')||s.includes('password')||s.includes('user')||s.includes('windows')||s.includes('repair')||s.includes('esy')||s.includes('hr')||s.includes('sql')||s.includes('code error')||s.includes('rustdesk')||s.includes('anydesk')||s.includes('staad')||s.includes('e-business')||s.includes('standby')) return 'software';
+  return 'hardware';
+}
+
+let currentFilter = '';
+
+function renderKPI(){
+  const total = DATA.length;
+  const tc={};
+  DATA.forEach(d=>{ const t=d.type||classifyType(d.topic); tc[t]=(tc[t]||0)+1; });
+  const top = Object.entries(tc).sort((a,b)=>b[1]-a[1])[0];
+  document.getElementById('kpi-total').textContent = total;
+  document.getElementById('kpi-done').textContent = total;
+  document.getElementById('kpi-rate').textContent = '100%';
+  document.getElementById('kpi-top').textContent = TYPE_TH[top[0]];
+  document.getElementById('kpi-top-count').textContent = top[1]+' รายการ';
+}
+
+let barInst, dntInst;
+function renderCharts(){
+  const dc={};
+  DATA.forEach(d=>{ dc[d.date]=(dc[d.date]||0)+1; });
+  if(barInst) barInst.destroy();
+  barInst = new Chart(document.getElementById('barChart'),{
+    type:'bar',
+    data:{labels:Object.keys(dc),datasets:[{data:Object.values(dc),backgroundColor:'#3b82f6',borderWidth:0,borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{color:'#64748b',font:{size:9},maxRotation:40,autoSkip:false},grid:{color:'rgba(255,255,255,0.04)'}},
+              y:{ticks:{color:'#64748b',stepSize:2},grid:{color:'rgba(255,255,255,0.04)'}}}}
+  });
+  const tc={};
+  DATA.forEach(d=>{ const t=d.type||classifyType(d.topic); tc[t]=(tc[t]||0)+1; });
+  const tL=Object.keys(tc), tV=Object.values(tc), tC=tL.map(t=>COLORS[t]||'#64748b');
+  if(dntInst) dntInst.destroy();
+  dntInst = new Chart(document.getElementById('dntChart'),{
+    type:'doughnut',
+    data:{labels:tL,datasets:[{data:tV,backgroundColor:tC,borderWidth:0,hoverOffset:4}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false}}}
+  });
+  document.getElementById('legend').innerHTML=tL.map((l,i)=>
+    `<div class="legend-item"><span class="legend-dot" style="background:${tC[i]}"></span>${TYPE_TH[l]||l} <strong style="color:#f1f5f9;margin-left:2px">${tV[i]}</strong></div>`
+  ).join('');
+}
+
+function filterTable(type){
+  currentFilter = type;
+  document.querySelectorAll('.filter-btn').forEach(b=>{
+    b.classList.toggle('active', b.textContent.toLowerCase()===type||(type===''&&b.textContent==='ทั้งหมด'));
+  });
+  renderTable();
+}
+
+function renderTable(){
+  const rows = currentFilter ? DATA.filter(d=>(d.type||classifyType(d.topic))===currentFilter) : DATA;
+  document.getElementById('tableBody').innerHTML = rows.map(d=>{
+    const t = d.type||classifyType(d.topic);
+    return `<tr>
+      <td class="date-cell">${d.date}</td>
+      <td>${d.topic}</td>
+      <td><span class="badge badge-${t}">${TYPE_TH[t]}</span></td>
+      <td><span class="badge badge-success">สำเร็จ</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderPlan(){
+  document.getElementById('planGrid').innerHTML = PLAN.map(p=>`
+    <div class="plan-week">
+      <div class="plan-week-label">สัปดาห์ที่ ${p.w}</div>
+      ${p.items.map(i=>`
+        <div class="plan-item">
+          <div class="plan-check">
+            <svg viewBox="0 0 8 8" fill="none"><polyline points="1,4 3,6 7,2" stroke="#10b981" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div>
+            <div class="plan-item-text" style="color:#f1f5f9;font-weight:500;">${i.t}</div>
+            <div class="plan-item-text">${i.d}</div>
+          </div>
+        </div>`).join('')}
+    </div>`).join('');
+}
+
+function updateTime(){
+  const now = new Date();
+  document.getElementById('timestamp').textContent =
+    'อัปเดต '+now.toLocaleString('th-TH',{day:'numeric',month:'short',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+}
+
+renderKPI();
+renderCharts();
+renderTable();
+renderPlan();
+updateTime();
+setInterval(updateTime, 60000);
+</script>
+</body>
+</html>
