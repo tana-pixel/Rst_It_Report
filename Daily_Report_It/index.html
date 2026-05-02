@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT Daily Report - บันทึกรายงานประจำวัน</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            border: none;
+            background: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-btn:hover {
+            color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="date"],
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            display: none;
+        }
+
+        .upload-btn {
+            display: inline-block;
+            padding: 12px 20px;
+            background: #f5f5f5;
+            border: 2px dashed #667eea;
+            border-radius: 6px;
+            color: #667eea;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            text-align: center;
+        }
+
+        .upload-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .image-preview {
+            margin-top: 12px;
+            display: none;
+        }
+
+        .image-preview img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-success {
+            background: #4caf50;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #45a049;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th {
+            background: #f5f5f5;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #ddd;
+            font-size: 14px;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+
+        tr:hover {
+            background: #f9f9f9;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-completed {
+            background: #c8e6c9;
+            color: #2e7d32;
+        }
+
+        .status-pending {
+            background: #fff9c4;
+            color: #f57f17;
+        }
+
+        .status-inprogress {
+            background: #bbdefb;
+            color: #1565c0;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .alert-success {
+            background: #c8e6c9;
+            color: #2e7d32;
+            border-left: 4px solid #4caf50;
+        }
+
+        .alert-error {
+            background: #ffcdd2;
+            color: #c62828;
+            border-left: 4px solid #f44336;
+        }
+
+        .alert-info {
+            background: #bbdefb;
+            color: #0d47a1;
+            border-left: 4px solid #2196f3;
+        }
+
+        .monthly-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .summary-card h3 {
+            font-size: 14px;
+            margin-bottom: 10px;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .summary-card .number {
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .connect-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: #f0f4ff;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #4caf50;
+        }
+
+        .status-dot.disconnected {
+            background: #f44336;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 IT Daily Report</h1>
+            <p>บันทึกรายงานประจำวันเชื่อมต่อกับ Google Sheet</p>
+        </div>
+
+        <div class="content">
+            <!-- Connection Status -->
+            <div class="connect-status" id="connectStatus">
+                <span class="status-dot"></span>
+                <span>เชื่อมต่อกับ Google Sheet: <strong id="connectionText">ตัวอย่างโหมด</strong></span>
+            </div>
+
+            <!-- Tabs Navigation -->
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('daily')">📝 บันทึกรายวัน</button>
+                <button class="tab-btn" onclick="switchTab('history')">📊 ประวัติการบันทึก</button>
+                <button class="tab-btn" onclick="switchTab('report')">📈 Monthly Report</button>
+                <button class="tab-btn" onclick="switchTab('settings')">⚙️ การตั้งค่า</button>
+            </div>
+
+            <!-- TAB 1: Daily Entry -->
+            <div id="daily" class="tab-content active">
+                <h2 style="margin-bottom: 20px; color: #333;">บันทึกรายงานประจำวัน</h2>
+                
+                <form id="dailyForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="entryDate">วันที่</label>
+                            <input type="date" id="entryDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="status">สถานะ</label>
+                            <select id="status" required>
+                                <option value="">-- เลือกสถานะ --</option>
+                                <option value="สำเร็จ">✓ สำเร็จ</option>
+                                <option value="อยู่ระหว่างดำเนินการ">⏳ อยู่ระหว่างดำเนินการ</option>
+                                <option value="รอดำเนินการ">⏸ รอดำเนินการ</option>
+                                <option value="ติดขัด">❌ ติดขัด</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="title">หัวข้องาน</label>
+                        <input type="text" id="title" placeholder="เช่น: สร้างโปรแกรมบันทึก" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="details">รายละเอียด</label>
+                        <textarea id="details" placeholder="บรรยายรายละเอียดของงานที่ทำไป..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="remark">หมายเหตุ</label>
+                        <textarea id="remark" placeholder="เพิ่มเติม / ข้อเสนอ / ปัญหา" style="min-height: 60px;"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>รูปภาพหลักฐาน</label>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="imageFile" accept="image/*" multiple>
+                            <div class="upload-btn">📸 อัปโหลดรูปภาพ (ลาก-วาง หรือ คลิก)</div>
+                        </div>
+                        <div class="image-preview" id="imagePreview"></div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary">💾 บันทึกลง Google Sheet</button>
+                        <button type="reset" class="btn btn-secondary">🔄 ล้างข้อมูล</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- TAB 2: History -->
+            <div id="history" class="tab-content">
+                <h2 style="margin-bottom: 20px; color: #333;">ประวัติการบันทึก</h2>
+                
+                <div style="margin-bottom: 20px;">
+                    <input type="date" id="filterDate" placeholder="กรองตามวันที่">
+                    <button class="btn btn-secondary" onclick="filterByDate()" style="margin-top: 10px; width: auto;">🔍 ค้นหา</button>
+                </div>
+
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>วันที่</th>
+                                <th>หัวข้อ</th>
+                                <th>สถานะ</th>
+                                <th>รายละเอียด</th>
+                                <th>การกระทำ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTable">
+                            <tr>
+                                <td colspan="5" class="no-data">
+                                    ยังไม่มีข้อมูลการบันทึก กรุณาบันทึกข้อมูลจากแท็บ "บันทึกรายวัน"
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 3: Monthly Report -->
+            <div id="report" class="tab-content">
+                <h2 style="margin-bottom: 20px; color: #333;">Monthly Report</h2>
+
+                <div class="form-group">
+                    <label for="reportMonth">เลือกเดือน</label>
+                    <input type="month" id="reportMonth">
+                </div>
+
+                <button class="btn btn-primary" onclick="generateMonthlyReport()" style="width: 100%; margin-bottom: 20px;">
+                    📊 สร้าง Monthly Report
+                </button>
+
+                <div id="reportContent" style="display: none;">
+                    <div class="monthly-summary">
+                        <div class="summary-card">
+                            <h3>งานทั้งหมด</h3>
+                            <div class="number" id="totalTasks">0</div>
+                        </div>
+                        <div class="summary-card">
+                            <h3>งานสำเร็จ</h3>
+                            <div class="number" id="completedTasks">0</div>
+                        </div>
+                        <div class="summary-card">
+                            <h3>อัตราสำเร็จ</h3>
+                            <div class="number" id="successRate">0%</div>
+                        </div>
+                        <div class="summary-card">
+                            <h3>วันที่ทำงาน</h3>
+                            <div class="number" id="workDays">0</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 30px;">
+                        <h3 style="margin-bottom: 15px; color: #333;">รายละเอียดตามสถานะ</h3>
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>สถานะ</th>
+                                        <th>จำนวน</th>
+                                        <th>เปอร์เซนต์</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="statusTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 30px;">
+                        <button class="btn btn-success" onclick="downloadReport()" style="width: 100%;">
+                            ⬇️ ดาวน์โหลด Report (PDF)
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: Settings -->
+            <div id="settings" class="tab-content">
+                <h2 style="margin-bottom: 20px; color: #333;">การตั้งค่า</h2>
+
+                <div class="alert alert-info">
+                    ℹ️ เพื่อเชื่อมต่อกับ Google Sheet โปรดทำตามขั้นตอนด้านล่าง
+                </div>
+
+                <h3 style="margin-top: 20px; margin-bottom: 15px;">🔗 วิธีการเชื่อมต่อ Google Sheet</h3>
+
+                <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <ol style="line-height: 1.8; color: #333;">
+                        <li><strong>สร้าง Google Sheet ใหม่</strong> เพื่อเก็บข้อมูล Daily Report</li>
+                        <li><strong>เปิด Apps Script</strong> ไปที่ Extensions → Apps Script</li>
+                        <li><strong>คัดลอกโค้ด Google Apps Script</strong> (ดูรายละเอียดด้านล่าง)</li>
+                        <li><strong>ตั้งค่า Sheet ID และ Folder ID</strong> ในค่าตัวแปร</li>
+                        <li><strong>Deploy เป็น Web App</strong> และคัดลอก Web App URL</li>
+                        <li><strong>วางลิงค์ Web App URL ไปด้านล่าง</strong></li>
+                    </ol>
+                </div>
+
+                <div class="form-group">
+                    <label for="googleScriptUrl">Web App URL (จาก Google Apps Script)</label>
+                    <input type="text" id="googleScriptUrl" placeholder="https://script.google.com/macros/s/..." style="font-family: monospace; font-size: 12px;">
+                </div>
+
+                <div class="form-group">
+                    <label for="googleSheetId">Google Sheet ID</label>
+                    <input type="text" id="googleSheetId" placeholder="คัดลอกจาก URL ของ Sheet">
+                </div>
+
+                <div class="form-group">
+                    <label for="googleFolderId">Google Drive Folder ID (สำหรับเก็บรูปภาพ)</label>
+                    <input type="text" id="googleFolderId" placeholder="คัดลอกจาก URL ของ Folder">
+                </div>
+
+                <button class="btn btn-primary" onclick="saveSettings()" style="width: 100%; margin-top: 20px;">
+                    💾 บันทึกการตั้งค่า
+                </button>
+
+                <hr style="margin: 30px 0;">
+
+                <h3 style="margin-bottom: 15px;">📋 Google Apps Script Code</h3>
+                <p style="margin-bottom: 15px; font-size: 13px; color: #666;">
+                    ต่อไปนี้คือโค้ด Google Apps Script ที่ต้องวาง ไปที่ Extensions → Apps Script
+                </p>
+
+                <pre style="background: #2d2d2d; color: #f8f8f2; padding: 20px; border-radius: 8px; overflow-x: auto; font-size: 12px; line-height: 1.4;">
+<code>// ตั้งค่าตัวแปร
+const SHEET_ID = "YOUR_SHEET_ID";
+const FOLDER_ID = "YOUR_FOLDER_ID";
+
+function doPost(e) {
+  try {
+    const data = JSON.parse(e.postData.contents);
+    const sheet = SpreadsheetApp.openById(SHEET_ID).getActiveSheet();
+    
+    // แปลงวันที่
+    const dateObj = new Date(data.date);
+    const thaiDate = Utilities.formatDate(dateObj, "Asia/Bangkok", "dd/MM/yyyy");
+    
+    // เพิ่มแถวใหม่
+    sheet.appendRow([
+      thaiDate,
+      data.title,
+      data.details,
+      data.status,
+      data.remark,
+      data.imageUrl || ""
+    ]);
+    
+    return ContentService.createTextOutput(JSON.stringify({
+      success: true,
+      message: "บันทึกสำเร็จ"
+    })).setMimeType(ContentService.MimeType.JSON);
+    
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({
+      success: false,
+      error: error.toString()
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function uploadImage(imageData) {
+  const folder = DriveApp.getFolderById(FOLDER_ID);
+  const blob = Utilities.newBlob(imageData, "image/jpeg", "report_image.jpg");
+  const file = folder.createFile(blob);
+  file.setSharing(DriveApp.Access.ANYONE, DriveApp.Permission.VIEW);
+  return file.getUrl();
+}</code>
+                </pre>
+
+                <button class="btn btn-secondary" onclick="copyCode()" style="width: 100%; margin-top: 15px;">
+                    📋 คัดลอกโค้ด
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Set today's date as default
+        document.getElementById('entryDate').valueAsDate = new Date();
+        document.getElementById('reportMonth').valueAsDate = new Date();
+
+        // Tab switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Image upload with preview
+        document.getElementById('imageFile').addEventListener('change', function(e) {
+            const preview = document.getElementById('imagePreview');
+            preview.innerHTML = '';
+            
+            for (let file of this.files) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = document.createElement('img');
+                    img.src = event.target.result;
+                    img.style.marginRight = '10px';
+                    img.style.marginBottom = '10px';
+                    preview.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            }
+            preview.style.display = this.files.length > 0 ? 'block' : 'none';
+        });
+
+        // Drag and drop for images
+        const fileInput = document.getElementById('imageFile');
+        const uploadBtn = document.querySelector('.upload-btn');
+
+        uploadBtn.parentElement.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadBtn.style.background = '#667eea';
+            uploadBtn.style.color = 'white';
+        });
+
+        uploadBtn.parentElement.addEventListener('dragleave', () => {
+            uploadBtn.style.background = '#f5f5f5';
+            uploadBtn.style.color = '#667eea';
+        });
+
+        uploadBtn.parentElement.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileInput.files = e.dataTransfer.files;
+            const event = new Event('change', { bubbles: true });
+            fileInput.dispatchEvent(event);
+        });
+
+        uploadBtn.parentElement.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // Form submission
+        document.getElementById('dailyForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const data = {
+                date: document.getElementById('entryDate').value,
+                title: document.getElementById('title').value,
+                details: document.getElementById('details').value,
+                status: document.getElementById('status').value,
+                remark: document.getElementById('remark').value
+            };
+
+            // Simulate form submission
+            const formData = {
+                date: data.date,
+                title: data.title,
+                details: data.details,
+                status: data.status,
+                remark: data.remark,
+                timestamp: new Date().toLocaleString('th-TH')
+            };
+
+            // Store in localStorage (เวลายังไม่เชื่อมต่อ)
+            let records = JSON.parse(localStorage.getItem('dailyRecords') || '[]');
+            records.push(formData);
+            localStorage.setItem('dailyRecords', JSON.stringify(records));
+
+            // Show success message
+            alert('✓ บันทึกสำเร็จ! ข้อมูลได้ถูกบันทึกแล้ว');
+            
+            // Reset form
+            this.reset();
+            document.getElementById('entryDate').valueAsDate = new Date();
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('imagePreview').innerHTML = '';
+
+            // Refresh history
+            loadHistory();
+        });
+
+        // Load history from localStorage
+        function loadHistory() {
+            const records = JSON.parse(localStorage.getItem('dailyRecords') || '[]');
+            const tbody = document.getElementById('historyTable');
+            
+            if (records.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="no-data">ยังไม่มีข้อมูลการบันทึก</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = records.map((record, index) => `
+                <tr>
+                    <td>${record.date}</td>
+                    <td><strong>${record.title}</strong></td>
+                    <td>
+                        <span class="status-badge status-${getStatusClass(record.status)}">
+                            ${record.status}
+                        </span>
+                    </td>
+                    <td>${record.details.substring(0, 30)}...</td>
+                    <td>
+                        <button class="btn btn-secondary" onclick="deleteRecord(${index})" style="width: auto; padding: 6px 12px; font-size: 12px;">🗑️ ลบ</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function getStatusClass(status) {
+            if (status === 'สำเร็จ') return 'completed';
+            if (status === 'อยู่ระหว่างดำเนินการ') return 'inprogress';
+            return 'pending';
+        }
+
+        function deleteRecord(index) {
+            if (confirm('ต้องการลบข้อมูลนี้ใช่หรือไม่?')) {
+                let records = JSON.parse(localStorage.getItem('dailyRecords') || '[]');
+                records.splice(index, 1);
+                localStorage.setItem('dailyRecords', JSON.stringify(records));
+                loadHistory();
+            }
+        }
+
+        function filterByDate() {
+            const filterDate = document.getElementById('filterDate').value;
+            if (!filterDate) {
+                loadHistory();
+                return;
+            }
+
+            const records = JSON.parse(localStorage.getItem('dailyRecords') || '[]');
+            const filtered = records.filter(r => r.date === filterDate);
+            const tbody = document.getElementById('historyTable');
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="no-data">ไม่พบข้อมูลสำหรับวันที่นี้</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filtered.map((record, index) => `
+                <tr>
+                    <td>${record.date}</td>
+                    <td><strong>${record.title}</strong></td>
+                    <td>
+                        <span class="status-badge status-${getStatusClass(record.status)}">
+                            ${record.status}
+                        </span>
+                    </td>
+                    <td>${record.details.substring(0, 30)}...</td>
+                    <td>
+                        <button class="btn btn-secondary" onclick="deleteRecord(${index})" style="width: auto; padding: 6px 12px; font-size: 12px;">🗑️ ลบ</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Monthly Report
+        function generateMonthlyReport() {
+            const month = document.getElementById('reportMonth').value;
+            if (!month) {
+                alert('กรุณาเลือกเดือน');
+                return;
+            }
+
+            const records = JSON.parse(localStorage.getItem('dailyRecords') || '[]');
+            const monthRecords = records.filter(r => r.date.startsWith(month));
+
+            if (monthRecords.length === 0) {
+                alert('ไม่พบข้อมูลสำหรับเดือนนี้');
+                return;
+            }
+
+            // Calculate statistics
+            const total = monthRecords.length;
+            const completed = monthRecords.filter(r => r.status === 'สำเร็จ').length;
+            const inProgress = monthRecords.filter(r => r.status === 'อยู่ระหว่างดำเนินการ').length;
+            const pending = monthRecords.filter(r => r.status === 'รอดำเนินการ').length;
+            const failed = monthRecords.filter(r => r.status === 'ติดขัด').length;
+            const successRate = Math.round((completed / total) * 100);
+            const workDays = new Set(monthRecords.map(r => r.date)).size;
+
+            // Update summary cards
+            document.getElementById('totalTasks').textContent = total;
+            document.getElementById('completedTasks').textContent = completed;
+            document.getElementById('successRate').textContent = successRate + '%';
+            document.getElementById('workDays').textContent = workDays;
+
+            // Update status table
+            const statusTable = document.getElementById('statusTable');
+            statusTable.innerHTML = `
+                <tr>
+                    <td><strong>สำเร็จ</strong></td>
+                    <td>${completed}</td>
+                    <td>${Math.round((completed/total)*100)}%</td>
+                </tr>
+                <tr>
+                    <td><strong>อยู่ระหว่างดำเนินการ</strong></td>
+                    <td>${inProgress}</td>
+                    <td>${Math.round((inProgress/total)*100)}%</td>
+                </tr>
+                <tr>
+                    <td><strong>รอดำเนินการ</strong></td>
+                    <td>${pending}</td>
+                    <td>${Math.round((pending/total)*100)}%</td>
+                </tr>
+                <tr>
+                    <td><strong>ติดขัด</strong></td>
+                    <td>${failed}</td>
+                    <td>${Math.round((failed/total)*100)}%</td>
+                </tr>
+            `;
+
+            document.getElementById('reportContent').style.display = 'block';
+        }
+
+        // Download Report as CSV/PDF
+        function downloadReport() {
+            const month = document.getElementById('reportMonth').value;
+            const records = JSON.parse(localStorage.getItem('dailyRecords') || '[]');
+            const monthRecords = records.filter(r => r.date.startsWith(month));
+
+            // Create CSV
+            let csv = 'วันที่,หัวข้องาน,สถานะ,รายละเอียด,หมายเหตุ\n';
+            monthRecords.forEach(record => {
+                csv += `"${record.date}","${record.title}","${record.status}","${record.details}","${record.remark}"\n`;
+            });
+
+            // Download
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Monthly_Report_${month}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+
+        // Settings
+        function saveSettings() {
+            const settings = {
+                googleScriptUrl: document.getElementById('googleScriptUrl').value,
+                googleSheetId: document.getElementById('googleSheetId').value,
+                googleFolderId: document.getElementById('googleFolderId').value
+            };
+
+            localStorage.setItem('dailyReportSettings', JSON.stringify(settings));
+            alert('✓ บันทึกการตั้งค่าสำเร็จ!');
+        }
+
+        function copyCode() {
+            const code = document.querySelector('pre code').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                alert('✓ คัดลอกโค้ดสำเร็จ');
+            });
+        }
+
+        // Load settings on page load
+        window.addEventListener('load', () => {
+            const settings = JSON.parse(localStorage.getItem('dailyReportSettings') || '{}');
+            if (settings.googleScriptUrl) {
+                document.getElementById('googleScriptUrl').value = settings.googleScriptUrl;
+                document.getElementById('googleSheetId').value = settings.googleSheetId;
+                document.getElementById('googleFolderId').value = settings.googleFolderId;
+                document.getElementById('connectionText').textContent = '✓ เชื่อมต่อแล้ว';
+                document.querySelector('.status-dot').classList.remove('disconnected');
+            }
+            loadHistory();
+        });
+    </script>
+</body>
+</html>
