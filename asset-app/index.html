@@ -289,7 +289,7 @@ tbody tr:hover td{background:rgba(255,255,255,.02);cursor:pointer;}
         <div class="card-head"><div class="card-title">รายการซ่อมบำรุง</div></div>
         <div style="overflow-x:auto;">
           <table>
-            <thead><tr><th>รหัส</th><th>อุปกรณ์</th><th>หมายเหตุ</th><th>สถานะ</th><th>วันที่</th></tr></thead>
+            <thead><tr><th>รหัส</th><th>อุปกรณ์</th><th>หมายเหตุ</th><th>สถานะ</th><th>วันที่</th><th></th></tr></thead>
             <tbody id="rBody"></tbody>
           </table>
         </div>
@@ -578,10 +578,17 @@ function renderRepair(){
   if(!items.length){document.getElementById('rBody').innerHTML='';empty.style.display='block';return;}
   empty.style.display='none';
   document.getElementById('rBody').innerHTML=items.map(x=>`
-    <tr><td class="mono">${x.id}</td><td>${x.brand?x.brand+' ':''}${x.model||x.type}</td>
-    <td style="color:var(--text2);">${x.note||'—'}</td>
-    <td><span class="badge badge-${x.status}">${sTH(x.status)}</span></td>
-    <td class="mono" style="font-size:11px;color:var(--text3);">${x.date||'—'}</td></tr>`).join('');
+    <tr onclick="openEdit('${x._key||x.id}')">
+      <td class="mono">${x.id}</td>
+      <td>${x.brand?x.brand+' ':''}${x.model||x.type}</td>
+      <td style="color:var(--text2);">${x.note||'—'}</td>
+      <td><span class="badge badge-${x.status}">${sTH(x.status)}</span></td>
+      <td class="mono" style="font-size:11px;color:var(--text3);">${x.date||'—'}</td>
+      <td onclick="event.stopPropagation()"><div class="acts">
+        <button class="ico-btn" onclick="openEdit('${x._key||x.id}')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l2.5 2.5-7 7L1 11l.5-2.5z"/></svg></button>
+        <button class="ico-btn del" onclick="delAsset('${x._key||x.id}')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4M3 3l.5 7h5L9 3"/></svg></button>
+      </div></td>
+    </tr>`).join('');
 }
 
 // ─── MODAL ───
@@ -594,8 +601,14 @@ function clearForm(){
 }
 function openAdd(){editId=null;document.getElementById('mTitle').textContent='เพิ่มทรัพย์สินใหม่';clearForm();document.getElementById('overlay').classList.add('show');}
 function openEdit(key){
-  const x=assets.find(a=>a._key===key);if(!x)return;
-  editId=key;document.getElementById('mTitle').textContent='แก้ไขทรัพย์สิน';
+  // รองรับทั้ง _key และ id (สำหรับข้อมูลเก่าที่ไม่มี _key)
+  let x=assets.find(a=>a._key===key);
+  if(!x) x=assets.find(a=>a.id===key);
+  if(!x)return;
+  // ถ้าข้อมูลเก่าไม่มี _key ให้สร้างให้เลย
+  if(!x._key){ x._key=x.id+'_'+Date.now(); save(); }
+  editId=x._key;
+  document.getElementById('mTitle').textContent='แก้ไขทรัพย์สิน';
   document.getElementById('fId').value=x.id;
   document.getElementById('fType').value=x.type||'';
   document.getElementById('fBrand').value=x.brand||'';
