@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IT Asset · RuamsinthaiGroup</title>
+<title>IT Asset · RST Robotics</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -185,7 +185,7 @@ tbody tr:hover td{background:rgba(255,255,255,.02);cursor:pointer;}
 <aside class="sidebar">
   <div class="sidebar-logo">
     <div class="logo-icon">IT</div>
-    <div><div class="logo-text">IT Asset</div><div class="logo-sub">RST RuamsinthaiGroup</div></div>
+    <div><div class="logo-text">IT Asset</div><div class="logo-sub">RST Robotics</div></div>
   </div>
   <nav class="nav">
     <div class="nav-section">เมนูหลัก</div>
@@ -421,15 +421,16 @@ let editId=null, fType='';
 const COLORS=['#4f8ef7','#22c55e','#f59e0b','#a78bfa','#22d3ee','#f43f5e','#84cc16','#fb923c'];
 
 if(assets.length===0){
+  const ts = Date.now();
   assets=[
-    {id:'PC-FUJI-001',type:'คอมพิวเตอร์',brand:'FUJI',model:'Desktop',user:'ธนา พิทยธนาดล',dept:'IT',status:'active',date:'2026-03-18',serial:'',price:25000,note:'ผู้จัดการฝ่าย IT',synced:false},
-    {id:'NB-RST-001',type:'Notebook',brand:'ASUS',model:'Vivobook',user:'',dept:'Robotics',status:'active',date:'2026-03-18',serial:'',price:22000,note:'ห้อง Robotics',synced:false},
-    {id:'PR-MFC-001',type:'Printer',brand:'Brother',model:'MFC-T4500DW',user:'',dept:'ส่วนกลาง',status:'active',date:'2026-03-18',serial:'',price:8500,note:'',synced:false},
-    {id:'PR-MFC-002',type:'Printer',brand:'Brother',model:'MFC-T1710W',user:'',dept:'ส่วนกลาง',status:'active',date:'2026-03-18',serial:'',price:4500,note:'',synced:false},
-    {id:'NW-MK-001',type:'Network',brand:'MikroTik',model:'Router RB750Gr3',user:'',dept:'IT',status:'active',date:'2026-03-18',serial:'',price:3200,note:'Router หลัก',synced:false},
-    {id:'NW-ARUBA-001',type:'Network',brand:'Aruba',model:'AP Access Point',user:'',dept:'ส่วนกลาง',status:'repair',date:'2026-03-18',serial:'',price:4500,note:'ปรับ Mode AP',synced:false},
-    {id:'NW-ORBI-001',type:'Network',brand:'Netgear',model:'Orbi34',user:'',dept:'IT',status:'active',date:'2026-03-18',serial:'',price:5800,note:'ย้าย Land ต่อ Mikrotik',synced:false},
-    {id:'NB-RST-002',type:'Notebook',brand:'',model:'ห้องบริการ',user:'',dept:'Service',status:'repair',date:'2026-03-18',serial:'',price:0,note:'Adapter/Jack เสีย',synced:false},
+    {_key:'PC-FUJI-001_'+ts,id:'PC-FUJI-001',type:'คอมพิวเตอร์',brand:'FUJI',model:'Desktop',user:'ธนา พิทยธนาดล',dept:'IT',status:'active',date:'2026-03-18',serial:'',price:25000,note:'ผู้จัดการฝ่าย IT',synced:false},
+    {_key:'NB-RST-001_'+(ts+1),id:'NB-RST-001',type:'Notebook',brand:'ASUS',model:'Vivobook',user:'',dept:'Robotics',status:'active',date:'2026-03-18',serial:'',price:22000,note:'ห้อง Robotics',synced:false},
+    {_key:'PR-MFC-001_'+(ts+2),id:'PR-MFC-001',type:'Printer',brand:'Brother',model:'MFC-T4500DW',user:'',dept:'ส่วนกลาง',status:'active',date:'2026-03-18',serial:'',price:8500,note:'',synced:false},
+    {_key:'PR-MFC-002_'+(ts+3),id:'PR-MFC-002',type:'Printer',brand:'Brother',model:'MFC-T1710W',user:'',dept:'ส่วนกลาง',status:'active',date:'2026-03-18',serial:'',price:4500,note:'',synced:false},
+    {_key:'NW-MK-001_'+(ts+4),id:'NW-MK-001',type:'Network',brand:'MikroTik',model:'Router RB750Gr3',user:'',dept:'IT',status:'active',date:'2026-03-18',serial:'',price:3200,note:'Router หลัก',synced:false},
+    {_key:'NW-ARUBA-001_'+(ts+5),id:'NW-ARUBA-001',type:'Network',brand:'Aruba',model:'AP Access Point',user:'',dept:'ส่วนกลาง',status:'repair',date:'2026-03-18',serial:'',price:4500,note:'ปรับ Mode AP',synced:false},
+    {_key:'NW-ORBI-001_'+(ts+6),id:'NW-ORBI-001',type:'Network',brand:'Netgear',model:'Orbi34',user:'',dept:'IT',status:'active',date:'2026-03-18',serial:'',price:5800,note:'ย้าย Land ต่อ Mikrotik',synced:false},
+    {_key:'NB-RST-002_'+(ts+7),id:'NB-RST-002',type:'Notebook',brand:'',model:'ห้องบริการ',user:'',dept:'Service',status:'repair',date:'2026-03-18',serial:'',price:0,note:'Adapter/Jack เสีย',synced:false},
   ];
   save();
 }
@@ -475,7 +476,7 @@ function jsonpCall(params, cb){
 
 async function syncOne(a, action){
   if(!scriptUrl) return false;
-  const res = await jsonpCall({action, id:a.id, type:a.type, brand:a.brand, model:a.model, user:a.user, dept:a.dept, status:a.status, date:a.date, serial:a.serial, price:a.price, note:a.note});
+  const res = await jsonpCall({action, key:a._key||a.id, id:a.id, type:a.type, brand:a.brand, model:a.model, user:a.user, dept:a.dept, status:a.status, date:a.date, serial:a.serial, price:a.price, note:a.note});
   return res && res.status==='ok';
 }
 
@@ -555,7 +556,7 @@ function renderTbl(){
   if(!rows.length){document.getElementById('tBody').innerHTML='';empty.style.display='block';return;}
   empty.style.display='none';
   document.getElementById('tBody').innerHTML=rows.map(x=>`
-    <tr onclick="openEdit('${x.id}')">
+    <tr onclick="openEdit('${x._key||x.id}')">
       <td class="mono">${x.id}</td>
       <td><span class="badge badge-type">${x.type}</span></td>
       <td style="color:var(--text2);">${x.brand?'<strong style="color:var(--text)">'+x.brand+'</strong> ':''}${x.model||''}</td>
@@ -564,8 +565,8 @@ function renderTbl(){
       <td><span class="badge badge-${x.status}">${sTH(x.status)}</span></td>
       <td><span class="badge ${x.synced?'badge-ok':'badge-wait'}">${x.synced?'✓ Synced':'⏳ Pending'}</span></td>
       <td onclick="event.stopPropagation()"><div class="acts">
-        <button class="ico-btn" onclick="openEdit('${x.id}')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l2.5 2.5-7 7L1 11l.5-2.5z"/></svg></button>
-        <button class="ico-btn del" onclick="delAsset('${x.id}')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4M3 3l.5 7h5L9 3"/></svg></button>
+        <button class="ico-btn" onclick="openEdit('${x._key||x.id}')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l2.5 2.5-7 7L1 11l.5-2.5z"/></svg></button>
+        <button class="ico-btn del" onclick="delAsset('${x._key||x.id}')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4M3 3l.5 7h5L9 3"/></svg></button>
       </div></td>
     </tr>`).join('');
 }
@@ -592,9 +593,9 @@ function clearForm(){
   document.getElementById('fDate').value=new Date().toISOString().split('T')[0];
 }
 function openAdd(){editId=null;document.getElementById('mTitle').textContent='เพิ่มทรัพย์สินใหม่';clearForm();document.getElementById('overlay').classList.add('show');}
-function openEdit(id){
-  const x=assets.find(a=>a.id===id);if(!x)return;
-  editId=id;document.getElementById('mTitle').textContent='แก้ไขทรัพย์สิน';
+function openEdit(key){
+  const x=assets.find(a=>a._key===key);if(!x)return;
+  editId=key;document.getElementById('mTitle').textContent='แก้ไขทรัพย์สิน';
   document.getElementById('fId').value=x.id;
   document.getElementById('fType').value=x.type||'';
   document.getElementById('fBrand').value=x.brand||'';
@@ -615,22 +616,23 @@ async function saveAsset(){
   if(!id){toast('⚠ กรุณากรอกรหัสอุปกรณ์','warn');return;}
   const obj={id,type:document.getElementById('fType').value,brand:document.getElementById('fBrand').value.trim(),model:document.getElementById('fModel').value.trim(),user:document.getElementById('fUser').value.trim(),dept:document.getElementById('fDept').value,status:document.getElementById('fStatus').value,date:document.getElementById('fDate').value,serial:document.getElementById('fSerial').value.trim(),price:parseFloat(document.getElementById('fPrice').value)||0,note:document.getElementById('fNote').value.trim(),synced:false};
   const action=editId?'update':'add';
-  if(editId){const i=assets.findIndex(a=>a.id===editId);if(i>=0)assets[i]=obj;}
-  else{if(assets.find(a=>a.id===id)){toast('⚠ รหัสนี้มีอยู่แล้ว','warn');return;}assets.push(obj);}
+  if(editId){const i=assets.findIndex(a=>a._key===editId);if(i>=0)assets[i]={...obj,_key:editId};}
+  else{obj._key=id+'_'+Date.now();assets.push(obj);}
   save();closeM();renderTbl();renderDash();
 
   if(scriptUrl){
     toast('⟳ กำลัง Sync ไป Sheets...');
     const ok=await syncOne(obj,action);
-    if(ok){const i=assets.findIndex(a=>a.id===id);if(i>=0){assets[i].synced=true;save();renderTbl();}toast('✓ บันทึกและ Sync Sheets สำเร็จ!');}
+    if(ok){const i=assets.findIndex(a=>a._key===obj._key);if(i>=0){assets[i].synced=true;save();renderTbl();}toast('✓ บันทึกและ Sync Sheets สำเร็จ!');}
     else toast('✓ บันทึกแล้ว — Sync ไม่สำเร็จ ลอง Sync อีกครั้ง','warn');
   } else toast('✓ บันทึกสำเร็จ (ตั้งค่า Sheets เพื่อ Sync)');
 }
 
-async function delAsset(id){
-  if(!confirm('ยืนยันลบ '+id+' ?'))return;
-  if(scriptUrl) await jsonpCall({action:'delete',id});
-  assets=assets.filter(a=>a.id!==id);
+async function delAsset(key){
+  if(!confirm('ยืนยันลบ?'))return;
+  const a=assets.find(x=>x._key===key);
+  if(a&&scriptUrl) await jsonpCall({action:'delete',id:a.id});
+  assets=assets.filter(x=>x._key!==key);
   save();renderTbl();renderDash();toast('ลบเรียบร้อย');
 }
 
