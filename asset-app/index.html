@@ -1394,20 +1394,20 @@ function toast(msg,type='ok'){
 // PIN LOGIN & ROLE SYSTEM
 // ═══════════════════════════════
 const PINS = {
-  '1111': { role:'admin',    label:'IT Admin',   color:'var(--blue)',   icon:'🔵' },
-  '2222': { role:'manager',  label:'ผู้จัดการ',   color:'var(--amber)',  icon:'🟡' },
-  '3333': { role:'staff',    label:'พนักงาน',    color:'var(--green)',  icon:'🟢' },
+  '1111': { role:'admin',   label:'IT Admin',  icon:'🔵' },
+  '2222': { role:'manager', label:'ผู้จัดการ',  icon:'🟡' },
+  '3333': { role:'staff',   label:'พนักงาน',   icon:'🟢' },
 };
-let currentRole = null;
-let pinBuffer = '';
 
-// Check session
+// currentRole เป็น global variable - ต้องไม่ถูก reset โดยอะไรก็ตาม
+var currentRole = null;
+var pinBuffer = '';
+
 function checkSession(){
-  const saved = sessionStorage.getItem('it_role');
+  var saved = sessionStorage.getItem('it_role');
   if(saved && PINS[saved]){
-    applyRole(saved);
+    doLogin(saved);
   }
-  // else stay on login screen
 }
 
 function pinPress(n){
@@ -1416,89 +1416,66 @@ function pinPress(n){
   updateDots();
   if(pinBuffer.length === 4) setTimeout(checkPin, 150);
 }
-
-function pinBack(){
-  pinBuffer = pinBuffer.slice(0,-1);
-  updateDots();
-}
-
-function pinClear(){
-  pinBuffer = '';
-  updateDots();
-}
-
+function pinBack(){ pinBuffer=pinBuffer.slice(0,-1); updateDots(); }
+function pinClear(){ pinBuffer=''; updateDots(); }
 function updateDots(){
-  for(let i=0;i<4;i++){
-    document.getElementById('d'+i).classList.toggle('filled', i < pinBuffer.length);
+  for(var i=0;i<4;i++){
+    document.getElementById('d'+i).classList.toggle('filled', i<pinBuffer.length);
   }
 }
-
 function checkPin(){
-  const match = PINS[pinBuffer];
-  if(match){
+  if(PINS[pinBuffer]){
     sessionStorage.setItem('it_role', pinBuffer);
-    applyRole(pinBuffer);
+    doLogin(pinBuffer);
   } else {
-    // Shake and clear
-    document.querySelectorAll('.pin-dot').forEach(d=>{
+    document.querySelectorAll('.pin-dot').forEach(function(d){
       d.classList.add('shake');
-      setTimeout(()=>d.classList.remove('shake'),300);
+      setTimeout(function(){d.classList.remove('shake');},300);
     });
     pinBuffer='';
     setTimeout(updateDots,300);
-    toast('⚠ PIN ไม่ถูกต้อง กรุณาลองใหม่','warn');
+    toast('⚠ PIN ไม่ถูกต้อง','warn');
   }
 }
 
-function applyRole(pin){
-  const r = PINS[pin];
-  currentRole = r.role;
+function doLogin(pin){
+  var r = PINS[pin];
+  currentRole = r.role;  // <-- set ก่อนทุกอย่าง
 
-  // Hide login screen
   document.getElementById('loginScreen').classList.add('hidden');
 
-  // Show role badge in topbar - simple inline style
-  const badge = document.getElementById('roleBadge');
+  // Badge
+  var badge = document.getElementById('roleBadge');
   badge.textContent = r.icon + ' ' + r.label;
 
-  // Apply permissions + navigate
-  applyPermissions();
+  // Sidebar permissions
+  var isAdmin   = (currentRole==='admin');
+  var isManager = (currentRole==='manager');
+  var isStaff   = (currentRole==='staff');
 
-  // Init app
-  updateNav(); renderKPI();
-  populateAssetSelect('tr-asset');
-  populateAssetSelect('tk-asset');
-}
-
-function applyPermissions(){
-  const isAdmin   = currentRole === 'admin';
-  const isManager = currentRole === 'manager';
-  const isStaff   = currentRole === 'staff';
-
-  // Sidebar: ซ่อน เพิ่มทรัพย์สิน + ตั้งค่า ถ้าไม่ใช่ admin
-  document.querySelectorAll('.ni').forEach(n=>{
-    const txt = n.textContent.trim();
-    if(txt.includes('เพิ่มทรัพย์สิน') || txt.includes('ตั้งค่า Sheets')){
+  document.querySelectorAll('.ni').forEach(function(n){
+    var txt = n.textContent.trim();
+    if(txt.indexOf('เพิ่มทรัพย์สิน')>=0 || txt.indexOf('ตั้งค่า')>=0){
       n.style.display = isAdmin ? '' : 'none';
     }
-    if(txt.includes('ทรัพย์สินทั้งหมด') || txt.includes('ซ่อมบำรุง')){
+    if(txt.indexOf('ทรัพย์สินทั้งหมด')>=0 || txt.indexOf('ซ่อมบำรุง')>=0){
       n.style.display = isStaff ? 'none' : '';
     }
   });
 
-  // Quick add + Sync button
-  document.getElementById('quickAddBtn').style.display = isStaff ? 'none' : '';
   document.getElementById('syncBtn').style.display = isAdmin ? '' : 'none';
+  document.getElementById('quickAddBtn').style.display = isStaff ? 'none' : '';
 
-  // Navigate to default view by role
-  const firstNi = document.querySelector('.ni');
-  if(isAdmin){
-    gv('kpi', firstNi);
-  } else if(isManager){
-    gv('kpi', firstNi);
-    document.getElementById('quickAddBtn').textContent = 'สร้างใบเบิก/โอน';
-  } else if(isStaff){
+  // Init
+  updateNav(); renderKPI();
+  populateAssetSelect('tr-asset');
+  populateAssetSelect('tk-asset');
+
+  // Navigate
+  if(isStaff){
     gv('ticket', document.querySelector('.ni[onclick*="ticket"]'));
+  } else {
+    gv('kpi', document.querySelector('.ni'));
   }
 }
 
@@ -1509,24 +1486,23 @@ function logout(){
   pinBuffer = '';
   updateDots();
   document.getElementById('loginScreen').classList.remove('hidden');
-  document.getElementById('roleBadge').innerHTML='';
+  document.getElementById('roleBadge').textContent = '';
 }
 
-// Override delete buttons based on role
-function canDelete(){
-  if(!currentRole){ toast('⚠ กรุณา Login ก่อน','warn'); return false; }
+function canEdit(){
   if(currentRole==='admin') return true;
-  toast('⚠ เฉพาะ IT Admin เท่านั้น','warn'); return false;
+  toast('⚠ เฉพาะ IT Admin เท่านั้น','warn');
+  return false;
+}
+function canDelete(){
+  if(currentRole==='admin') return true;
+  toast('⚠ เฉพาะ IT Admin เท่านั้น','warn');
+  return false;
 }
 function canApprove(){
-  if(!currentRole){ toast('⚠ กรุณา Login ก่อน','warn'); return false; }
   if(currentRole==='admin'||currentRole==='manager') return true;
-  toast('⚠ ต้องเป็น Admin หรือ ผู้จัดการ','warn'); return false;
-}
-function canEdit(){
-  if(!currentRole){ toast('⚠ กรุณา Login ก่อน','warn'); return false; }
-  if(currentRole==='admin') return true;
-  toast('⚠ เฉพาะ IT Admin เท่านั้น','warn'); return false;
+  toast('⚠ ต้องเป็น Admin หรือ ผู้จัดการ','warn');
+  return false;
 }
 
 // ═══════════════════════════════
