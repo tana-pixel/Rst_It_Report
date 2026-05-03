@@ -1019,8 +1019,10 @@ function renderAssets(){
   const empty=document.getElementById('assetEmpty');
   if(!rows.length){document.getElementById('assetTbl').innerHTML='';empty.style.display='block';return;}
   empty.style.display='none';
-  document.getElementById('assetTbl').innerHTML=rows.map(a=>`
-    <tr onclick="openAssetEdit('${a._k}')">
+  document.getElementById('assetTbl').innerHTML=rows.map(a=>{
+    const idx=assets.indexOf(a);
+    return `
+    <tr onclick="openAssetEdit(${idx})">
       <td class="mono">${a.id}</td>
       <td><span class="badge b-type">${a.type}</span></td>
       <td style="color:var(--text2);">${a.brand?'<strong style="color:var(--text)">'+a.brand+'</strong> ':''}${a.model||''}</td>
@@ -1029,18 +1031,18 @@ function renderAssets(){
       <td><span class="badge b-${a.status}">${aStatusTH(a.status)}</span></td>
       <td><span class="badge ${a.synced?'b-ok':'b-pend'}">${a.synced?'✓':'⏳'}</span></td>
       <td onclick="event.stopPropagation()"><div class="acts">
-        <button class="ib" onclick="openAssetEdit('${a._k}')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l2.5 2.5-7 7L1 11l.5-2.5z"/></svg></button>
-        <button class="ib del" onclick="delAsset('${a._k}')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4M3 3l.5 7h5L9 3"/></svg></button>
+        <button class="ib" onclick="openAssetEdit(${idx})"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l2.5 2.5-7 7L1 11l.5-2.5z"/></svg></button>
+        <button class="ib del" onclick="delAsset(${idx})"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4M3 3l.5 7h5L9 3"/></svg></button>
       </div></td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
 }
 
 function openAssetAdd(){editAssetKey=null;document.getElementById('assetMTitle').textContent='เพิ่มทรัพย์สิน';['a-id','a-brand','a-model','a-user','a-serial','a-note'].forEach(i=>document.getElementById(i).value='');['a-type','a-dept','a-branch'].forEach(i=>document.getElementById(i).value='');document.getElementById('a-status').value='active';document.getElementById('a-price').value='';document.getElementById('a-date').value=new Date().toISOString().split('T')[0];document.getElementById('assetOverlay').classList.add('show');}
-function openAssetEdit(key){
-  let a=assets.find(x=>x._k===key)||assets.find(x=>x.id===key);
+function openAssetEdit(idx){
+  const a=assets[idx];
   if(!a)return;
-  if(!a._k){a._k=a.id+'_'+Date.now();saveAll();}
-  editAssetKey=a._k;
+  editAssetKey=idx;
   document.getElementById('assetMTitle').textContent='แก้ไขทรัพย์สิน';
   ['id','brand','model','user','serial','note'].forEach(f=>document.getElementById('a-'+f).value=a[f]||'');
   ['type','dept','branch','status'].forEach(f=>document.getElementById('a-'+f).value=a[f]||'');
@@ -1052,9 +1054,14 @@ async function saveAsset(){
   if(currentRole!=='admin'){toast('เฉพาะ IT Admin เท่านั้น','warn');return;}
   const id=document.getElementById('a-id').value.trim();
   if(!id){toast('กรุณากรอกรหัสอุปกรณ์','warn');return;}
-  const obj={_k:editAssetKey||(id+'_'+Date.now()),id,type:g('a-type'),brand:g('a-brand'),model:g('a-model'),user:g('a-user'),dept:g('a-dept'),branch:g('a-branch'),status:g('a-status'),date:g('a-date'),serial:g('a-serial'),price:parseFloat(g('a-price'))||0,note:g('a-note'),synced:false};
-  const action=editAssetKey?'update':'add';
-  if(editAssetKey){const i=assets.findIndex(a=>a._k===editAssetKey);if(i>=0)assets[i]=obj;}
+  const obj={
+    _k:(editAssetKey!==null&&assets[editAssetKey])?assets[editAssetKey]._k||(id+'_'+Date.now()):(id+'_'+Date.now()),
+    id,type:g('a-type'),brand:g('a-brand'),model:g('a-model'),user:g('a-user'),
+    dept:g('a-dept'),branch:g('a-branch'),status:g('a-status'),date:g('a-date'),
+    serial:g('a-serial'),price:parseFloat(g('a-price'))||0,note:g('a-note'),synced:false
+  };
+  const action=(editAssetKey!==null&&assets[editAssetKey])?'update':'add';
+  if(action==='update') assets[editAssetKey]=obj;
   else assets.push(obj);
   saveAll();closeM('asset');renderAssets();renderKPI();
   if(scriptUrl){
@@ -1064,12 +1071,12 @@ async function saveAsset(){
     toast(ok?'✓ บันทึกและ Sync สำเร็จ':'✓ บันทึกแล้ว (Sync ไม่สำเร็จ)',ok?'ok':'warn');
   } else toast('✓ บันทึกสำเร็จ');
 }
-async function delAsset(key){
+async function delAsset(idx){
   if(currentRole!=='admin'){toast('เฉพาะ IT Admin เท่านั้น','warn');return;}
-  let a=assets.find(x=>x._k===key)||assets.find(x=>x.id===key);
+  const a=assets[idx];
   if(!a||!confirm('ยืนยันลบ '+a.id+'?'))return;
   if(scriptUrl)await jsonp({action:'delete',sheet:'Assets',key:a._k||a.id});
-  assets=assets.filter(x=>x._k!==key&&x.id!==key);
+  assets.splice(idx,1);
   saveAll();renderAssets();renderKPI();toast('ลบเรียบร้อย');
 }
 
@@ -1317,18 +1324,21 @@ function renderRepair(){
   const empty=document.getElementById('rpEmpty');
   if(!items.length){document.getElementById('rpTbl').innerHTML='';empty.style.display='block';return;}
   empty.style.display='none';
-  document.getElementById('rpTbl').innerHTML=items.map(a=>`
-    <tr onclick="openAssetEdit('${a._k}')">
+  document.getElementById('rpTbl').innerHTML=items.map(a=>{
+    const idx=assets.indexOf(a);
+    return `
+    <tr onclick="openAssetEdit(${idx})">
       <td class="mono">${a.id}</td>
       <td>${a.brand?a.brand+' ':''}${a.model||a.type}</td>
       <td style="color:var(--text2);">${a.note||'—'}</td>
       <td><span class="badge b-${a.status}">${aStatusTH(a.status)}</span></td>
       <td class="mono" style="font-size:11px;color:var(--text3);">${a.date||'—'}</td>
       <td onclick="event.stopPropagation()"><div class="acts">
-        <button class="ib" onclick="openAssetEdit('${a._k}')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l2.5 2.5-7 7L1 11l.5-2.5z"/></svg></button>
+        <button class="ib" onclick="openAssetEdit(${idx})"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l2.5 2.5-7 7L1 11l.5-2.5z"/></svg></button>
         <button class="ib grn" onclick="openTicketAdd()" title="สร้าง Ticket"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 2h10a1 1 0 011 1v7a1 1 0 01-1 1H1a1 1 0 01-1-1V3a1 1 0 011-1z"/><path d="M3 5h6M3 7h4"/></svg></button>
       </div></td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
 }
 
 // ═══════════════════════════════
