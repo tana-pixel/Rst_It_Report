@@ -10,361 +10,486 @@
   --bg:#080a0f;--bg2:#0e1117;--bg3:#151921;--bg4:#1c2230;
   --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.12);
   --text:#e8edf5;--text2:#7a8aaa;--text3:#3d4a60;
-  --blue:#4f8ef7;--green:#22c55e;--amber:#f59e0b;--red:#ef4444;--purple:#a78bfa;--cyan:#22d3ee;
+  --blue:#4f8ef7;--green:#22c55e;--amber:#f59e0b;--red:#ef4444;--purple:#a78bfa;--cyan:#22d3ee;--pink:#f472b6;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'IBM Plex Sans Thai',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
 
 /* SYNC BAR */
-.sync-bar{background:rgba(34,197,94,0.08);border-bottom:1px solid rgba(34,197,94,0.2);padding:8px 28px;display:flex;align-items:center;gap:10px;font-size:12px;}
-.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--amber);flex-shrink:0;}
-.sync-dot.live{background:var(--green);animation:pulse 2s infinite;}
+.sync-bar{background:rgba(34,197,94,0.08);border-bottom:1px solid rgba(34,197,94,0.2);padding:7px 24px;display:flex;align-items:center;gap:10px;font-size:12px;position:sticky;top:0;z-index:200;}
+.sdot{width:7px;height:7px;border-radius:50%;background:var(--amber);flex-shrink:0;}
+.sdot.live{background:var(--green);animation:pulse 2s infinite;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.sync-bar a{color:var(--green);text-decoration:none;font-family:'IBM Plex Mono',monospace;font-size:11px;}
-#sync-status{margin-left:auto;font-size:11px;color:var(--text2);}
+.sync-bar a{color:var(--green);text-decoration:none;font-size:11px;font-family:'IBM Plex Mono',monospace;}
+#sStatus{margin-left:auto;font-size:11px;color:var(--text2);}
 
-/* SIDEBAR */
-.sidebar{position:fixed;top:0;left:0;bottom:0;width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:100;}
-.sidebar-logo{padding:20px 20px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
-.logo-icon{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--blue),var(--cyan));display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:#fff;flex-shrink:0;}
-.logo-text{font-size:13px;font-weight:600;line-height:1.2;}
-.logo-sub{font-size:10px;color:var(--text2);}
-.nav{padding:12px 0;flex:1;}
-.nav-section{font-size:9px;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;padding:10px 20px 4px;}
-.nav-item{display:flex;align-items:center;gap:10px;padding:9px 20px;cursor:pointer;font-size:13px;color:var(--text2);transition:all .15s;border-left:2px solid transparent;margin:1px 0;}
-.nav-item:hover{color:var(--text);background:rgba(255,255,255,.04);}
-.nav-item.active{color:var(--blue);background:rgba(79,142,247,.08);border-left-color:var(--blue);}
-.nav-item .ico{width:16px;height:16px;flex-shrink:0;opacity:.7;}
-.nav-item.active .ico{opacity:1;}
-.nav-badge{margin-left:auto;font-size:10px;padding:1px 6px;border-radius:10px;background:rgba(79,142,247,.2);color:var(--blue);font-family:'IBM Plex Mono',monospace;}
-.sidebar-footer{padding:16px 20px;border-top:1px solid var(--border);font-size:11px;color:var(--text3);}
-
-/* MAIN */
+/* LAYOUT */
+.sidebar{position:fixed;top:36px;left:0;bottom:0;width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:100;overflow-y:auto;}
+.slogo{padding:18px 20px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.lico{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--blue),var(--cyan));display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:#fff;flex-shrink:0;}
+.ltxt{font-size:13px;font-weight:600;line-height:1.2;}
+.lsub{font-size:10px;color:var(--text2);}
+.nav{padding:10px 0;flex:1;}
+.nsec{font-size:9px;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;padding:10px 20px 4px;}
+.ni{display:flex;align-items:center;gap:10px;padding:8px 20px;cursor:pointer;font-size:13px;color:var(--text2);border-left:2px solid transparent;margin:1px 0;transition:.15s;}
+.ni:hover{color:var(--text);background:rgba(255,255,255,.04);}
+.ni.on{color:var(--blue);background:rgba(79,142,247,.08);border-left-color:var(--blue);}
+.nico{width:16px;height:16px;flex-shrink:0;opacity:.7;}
+.ni.on .nico{opacity:1;}
+.nbadge{margin-left:auto;font-size:10px;padding:1px 6px;border-radius:10px;background:rgba(79,142,247,.2);color:var(--blue);font-family:'IBM Plex Mono',monospace;}
+.nbadge.red{background:rgba(239,68,68,.2);color:var(--red);}
+.sfooter{padding:14px 20px;border-top:1px solid var(--border);font-size:11px;color:var(--text3);}
 .main{margin-left:220px;min-height:100vh;display:flex;flex-direction:column;}
-.topbar{padding:0 28px;height:56px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
-.page-title{font-size:14px;font-weight:500;}
-.topbar-right{display:flex;align-items:center;gap:10px;}
-.search-box{display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 12px;width:200px;transition:.15s;}
-.search-box:focus-within{border-color:var(--blue);}
-.search-box input{background:none;border:none;outline:none;font-family:'IBM Plex Sans Thai',sans-serif;font-size:13px;color:var(--text);width:100%;}
-.search-box input::placeholder{color:var(--text3);}
-.btn{font-family:'IBM Plex Sans Thai',sans-serif;font-size:12px;padding:7px 14px;border-radius:7px;border:none;cursor:pointer;transition:.15s;font-weight:500;display:flex;align-items:center;gap:6px;}
-.btn-primary{background:var(--blue);color:#fff;}
-.btn-primary:hover{background:#6ba3f9;}
-.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border);}
-.btn-ghost:hover{border-color:var(--border2);color:var(--text);}
-.btn-green{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3);}
-.btn-green:hover{background:rgba(34,197,94,.25);}
-
-.content{padding:24px 28px;flex:1;}
+.topbar{padding:0 24px;height:52px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:36px;z-index:50;}
+.ptitle{font-size:14px;font-weight:500;}
+.tright{display:flex;align-items:center;gap:8px;}
+.sbox{display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:5px 12px;width:190px;}
+.sbox:focus-within{border-color:var(--blue);}
+.sbox input{background:none;border:none;outline:none;font-family:'IBM Plex Sans Thai',sans-serif;font-size:13px;color:var(--text);width:100%;}
+.sbox input::placeholder{color:var(--text3);}
+.btn{font-family:'IBM Plex Sans Thai',sans-serif;font-size:12px;padding:6px 14px;border-radius:7px;border:none;cursor:pointer;font-weight:500;display:flex;align-items:center;gap:5px;transition:.15s;}
+.btn-p{background:var(--blue);color:#fff;}.btn-p:hover{background:#6ba3f9;}
+.btn-g{background:transparent;color:var(--text2);border:1px solid var(--border);}.btn-g:hover{color:var(--text);border-color:var(--border2);}
+.btn-grn{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3);}.btn-grn:hover{background:rgba(34,197,94,.25);}
+.btn-amb{background:rgba(245,158,11,.15);color:var(--amber);border:1px solid rgba(245,158,11,.3);}.btn-amb:hover{background:rgba(245,158,11,.25);}
+.content{padding:22px 24px;flex:1;}
 
 /* KPI */
-.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:22px;}
-.kpi{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px;position:relative;overflow:hidden;}
-.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;}
-.kpi.k1::after{background:linear-gradient(90deg,var(--blue),transparent);}
-.kpi.k2::after{background:linear-gradient(90deg,var(--green),transparent);}
-.kpi.k3::after{background:linear-gradient(90deg,var(--amber),transparent);}
-.kpi.k4::after{background:linear-gradient(90deg,var(--red),transparent);}
-.kpi.k5::after{background:linear-gradient(90deg,var(--purple),transparent);}
-.kpi-label{font-size:11px;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em;}
-.kpi-val{font-size:28px;font-weight:600;font-family:'IBM Plex Mono',monospace;line-height:1;}
-.kpi.k1 .kpi-val{color:var(--blue);}
-.kpi.k2 .kpi-val{color:var(--green);}
-.kpi.k3 .kpi-val{color:var(--amber);}
-.kpi.k4 .kpi-val{color:var(--red);}
-.kpi.k5 .kpi-val{color:var(--purple);}
-.kpi-sub{font-size:11px;color:var(--text3);margin-top:5px;}
+.krow{display:grid;gap:10px;margin-bottom:18px;}
+.krow.c5{grid-template-columns:repeat(5,1fr);}
+.krow.c4{grid-template-columns:repeat(4,1fr);}
+.krow.c3{grid-template-columns:repeat(3,1fr);}
+.kcard{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;position:relative;overflow:hidden;}
+.kcard::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;}
+.kcard.b::after{background:linear-gradient(90deg,var(--blue),transparent);}
+.kcard.g::after{background:linear-gradient(90deg,var(--green),transparent);}
+.kcard.a::after{background:linear-gradient(90deg,var(--amber),transparent);}
+.kcard.r::after{background:linear-gradient(90deg,var(--red),transparent);}
+.kcard.p::after{background:linear-gradient(90deg,var(--purple),transparent);}
+.kcard.c::after{background:linear-gradient(90deg,var(--cyan),transparent);}
+.klbl{font-size:11px;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;}
+.kval{font-size:26px;font-weight:600;font-family:'IBM Plex Mono',monospace;line-height:1;}
+.kcard.b .kval{color:var(--blue);}
+.kcard.g .kval{color:var(--green);}
+.kcard.a .kval{color:var(--amber);}
+.kcard.r .kval{color:var(--red);}
+.kcard.p .kval{color:var(--purple);}
+.kcard.c .kval{color:var(--cyan);}
+.ksub{font-size:11px;color:var(--text3);margin-top:4px;}
 
-/* STATS */
-.stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px;}
-.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px;}
-.stat-title{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;}
-.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
-.bar-label{font-size:12px;color:var(--text2);width:80px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.bar-wrap{flex:1;height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;}
-.bar-fill{height:100%;border-radius:3px;transition:width .6s ease;}
-.bar-count{font-size:11px;color:var(--text3);font-family:'IBM Plex Mono',monospace;width:24px;text-align:right;}
-
-/* CARD + TABLE */
-.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:20px;}
-.card-head{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
-.card-title{font-size:13px;font-weight:500;}
+/* CARD */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px;}
+.ch{padding:12px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.ctitle{font-size:13px;font-weight:500;}
 .chips{display:flex;gap:6px;flex-wrap:wrap;}
-.chip{font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;transition:.15s;font-family:'IBM Plex Sans Thai',sans-serif;}
+.chip{font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:'IBM Plex Sans Thai',sans-serif;transition:.15s;}
 .chip.on{background:var(--blue);border-color:var(--blue);color:#fff;}
+
+/* TABLE */
 table{width:100%;border-collapse:collapse;}
-thead th{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);font-weight:500;padding:10px 16px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;}
-tbody td{padding:12px 16px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.03);vertical-align:middle;}
+thead th{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);font-weight:500;padding:9px 14px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;}
+tbody td{padding:11px 14px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.03);vertical-align:middle;}
 tbody tr:last-child td{border-bottom:none;}
 tbody tr:hover td{background:rgba(255,255,255,.02);cursor:pointer;}
-.mono{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text2);}
-.badge{font-size:10px;padding:3px 8px;border-radius:20px;font-weight:500;white-space:nowrap;}
-.badge-active{background:rgba(34,197,94,.12);color:#4ade80;border:1px solid rgba(34,197,94,.2);}
-.badge-repair{background:rgba(245,158,11,.12);color:#fbbf24;border:1px solid rgba(245,158,11,.2);}
-.badge-broken{background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.2);}
-.badge-storage{background:rgba(167,139,250,.12);color:#c4b5fd;border:1px solid rgba(167,139,250,.2);}
-.badge-type{background:rgba(79,142,247,.1);color:#93c5fd;border:1px solid rgba(79,142,247,.15);}
-.badge-ok{background:rgba(34,197,94,.1);color:#4ade80;border:1px solid rgba(34,197,94,.15);font-family:'IBM Plex Mono',monospace;}
-.badge-wait{background:rgba(245,158,11,.1);color:#fbbf24;border:1px solid rgba(245,158,11,.15);font-family:'IBM Plex Mono',monospace;}
-.acts{display:flex;gap:6px;}
-.ico-btn{width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s;color:var(--text2);}
-.ico-btn:hover{border-color:var(--border2);color:var(--text);background:var(--bg3);}
-.ico-btn.del:hover{border-color:rgba(239,68,68,.4);color:var(--red);background:rgba(239,68,68,.06);}
+.mono{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text2);}
+
+/* BADGES */
+.badge{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500;white-space:nowrap;}
+.b-active{background:rgba(34,197,94,.12);color:#4ade80;border:1px solid rgba(34,197,94,.2);}
+.b-repair{background:rgba(245,158,11,.12);color:#fbbf24;border:1px solid rgba(245,158,11,.2);}
+.b-broken{background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.2);}
+.b-storage{background:rgba(167,139,250,.12);color:#c4b5fd;border:1px solid rgba(167,139,250,.2);}
+.b-type{background:rgba(79,142,247,.1);color:#93c5fd;border:1px solid rgba(79,142,247,.15);}
+.b-ok{background:rgba(34,197,94,.1);color:#4ade80;border:1px solid rgba(34,197,94,.15);}
+.b-pend{background:rgba(245,158,11,.1);color:#fbbf24;border:1px solid rgba(245,158,11,.15);}
+.b-open{background:rgba(79,142,247,.12);color:#93c5fd;border:1px solid rgba(79,142,247,.2);}
+.b-progress{background:rgba(245,158,11,.12);color:#fbbf24;border:1px solid rgba(245,158,11,.2);}
+.b-closed{background:rgba(34,197,94,.12);color:#4ade80;border:1px solid rgba(34,197,94,.2);}
+.b-high{background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.2);}
+.b-med{background:rgba(245,158,11,.12);color:#fbbf24;border:1px solid rgba(245,158,11,.2);}
+.b-low{background:rgba(34,197,94,.12);color:#4ade80;border:1px solid rgba(34,197,94,.2);}
+.b-transfer{background:rgba(34,211,238,.12);color:#67e8f9;border:1px solid rgba(34,211,238,.2);}
+.b-issue{background:rgba(244,114,182,.12);color:#f9a8d4;border:1px solid rgba(244,114,182,.2);}
+
+/* ICON BTNS */
+.acts{display:flex;gap:5px;}
+.ib{width:26px;height:26px;border-radius:6px;border:1px solid var(--border);background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);transition:.15s;}
+.ib:hover{border-color:var(--border2);color:var(--text);background:var(--bg3);}
+.ib.del:hover{border-color:rgba(239,68,68,.4);color:var(--red);background:rgba(239,68,68,.06);}
+.ib.grn:hover{border-color:rgba(34,197,94,.4);color:var(--green);background:rgba(34,197,94,.06);}
 
 /* MODAL */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:.2s;}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:300;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:.2s;}
 .overlay.show{opacity:1;pointer-events:all;}
-.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;width:560px;max-width:95vw;max-height:90vh;overflow-y:auto;transform:translateY(12px);transition:.2s;}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;width:580px;max-width:96vw;max-height:92vh;overflow-y:auto;transform:translateY(12px);transition:.2s;}
 .overlay.show .modal{transform:translateY(0);}
-.modal-head{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
-.modal-title{font-size:15px;font-weight:500;}
-.modal-body{padding:24px;}
-.fg{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-.fi{display:flex;flex-direction:column;gap:6px;}
+.mh{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.mtitle{font-size:15px;font-weight:500;}
+.mb{padding:22px;}
+.mf{padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.fi{display:flex;flex-direction:column;gap:5px;}
 .fi.full{grid-column:1/-1;}
 .fl{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;}
-.fn,.fs,.ft{font-family:'IBM Plex Sans Thai',sans-serif;font-size:13px;padding:9px 12px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);color:var(--text);outline:none;transition:.15s;width:100%;}
+.fn,.fs,.ft{font-family:'IBM Plex Sans Thai',sans-serif;font-size:13px;padding:8px 11px;border-radius:7px;background:var(--bg3);border:1px solid var(--border);color:var(--text);outline:none;width:100%;transition:.15s;}
 .fn:focus,.fs:focus,.ft:focus{border-color:var(--blue);}
 .fs option{background:var(--bg2);}
-.ft{resize:vertical;min-height:80px;}
-.modal-foot{padding:16px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;}
+.ft{resize:vertical;min-height:72px;}
 
-/* SETUP */
-.setup-wrap{max-width:620px;}
-.setup-card{background:var(--bg2);border:1px solid rgba(79,142,247,.25);border-radius:12px;padding:24px;margin-bottom:14px;}
-.setup-card h3{font-size:14px;font-weight:500;color:var(--blue);margin-bottom:4px;}
-.setup-card .desc{font-size:12px;color:var(--text2);margin-bottom:20px;line-height:1.7;}
-.step{display:flex;gap:12px;margin-bottom:16px;}
-.snum{width:24px;height:24px;border-radius:50%;background:var(--blue);color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
-.sbody{font-size:13px;color:var(--text2);line-height:1.7;}
-.sbody a{color:var(--blue);text-decoration:none;}
-.sbody code{font-family:'IBM Plex Mono',monospace;font-size:11px;background:var(--bg3);padding:1px 6px;border-radius:3px;color:var(--cyan);}
-.script-box{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:16px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#93c5fd;white-space:pre;overflow-x:auto;line-height:1.8;margin:10px 0;position:relative;}
-.copy-btn{position:absolute;top:8px;right:8px;font-size:10px;padding:3px 10px;border-radius:4px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);cursor:pointer;font-family:'IBM Plex Sans Thai',sans-serif;}
-.copy-btn:hover{color:var(--text);}
-.url-row{display:flex;gap:8px;margin-top:16px;}
-.url-in{flex:1;font-family:'IBM Plex Mono',monospace;font-size:12px;padding:9px 12px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);color:var(--text);outline:none;}
-.url-in:focus{border-color:var(--blue);}
-.setup-msg{font-size:12px;margin-top:10px;min-height:18px;}
+/* STATS */
+.srow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.srow.c3{grid-template-columns:repeat(3,1fr);}
+.sc{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;}
+.stitle{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;}
+.br{display:flex;align-items:center;gap:8px;margin-bottom:5px;}
+.blbl{font-size:12px;color:var(--text2);width:90px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.bwrap{flex:1;height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;}
+.bfill{height:100%;border-radius:3px;transition:width .6s ease;}
+.bcnt{font-size:11px;color:var(--text3);font-family:'IBM Plex Mono',monospace;width:24px;text-align:right;}
+
+/* TICKET DETAIL */
+.ticket-detail{display:grid;gap:14px;}
+.td-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.td-field{display:flex;flex-direction:column;gap:4px;}
+.td-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;}
+.td-value{font-size:13px;color:var(--text);}
+.img-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-top:8px;}
+.img-item{aspect-ratio:1;border-radius:8px;background:var(--bg3);border:1px solid var(--border);overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;}
+.img-item img{width:100%;height:100%;object-fit:cover;}
+.img-placeholder{font-size:22px;opacity:.4;}
+.img-add{border:1px dashed var(--border2);background:transparent;cursor:pointer;flex-direction:column;gap:4px;font-size:11px;color:var(--text3);}
+.img-add:hover{border-color:var(--blue);color:var(--blue);}
+.file-input{display:none;}
+
+/* TIMELINE */
+.timeline{display:grid;gap:0;}
+.tl-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+.tl-item:last-child{border-bottom:none;}
+.tl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+.tl-content{flex:1;}
+.tl-title{font-size:13px;font-weight:500;color:var(--text);}
+.tl-time{font-size:11px;color:var(--text3);margin-top:2px;}
+
+/* PROGRESS BAR */
+.prog-wrap{height:8px;background:var(--bg4);border-radius:4px;overflow:hidden;margin:8px 0;}
+.prog-fill{height:100%;border-radius:4px;transition:width .6s ease;}
 
 /* TOAST */
-.toast{position:fixed;bottom:24px;right:24px;z-index:999;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:12px 16px;font-size:13px;color:var(--text);display:flex;align-items:center;gap:8px;transform:translateY(20px);opacity:0;transition:.3s;pointer-events:none;box-shadow:0 8px 32px rgba(0,0,0,.4);}
+.toast{position:fixed;bottom:22px;right:22px;z-index:999;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:11px 16px;font-size:13px;display:flex;align-items:center;gap:8px;transform:translateY(20px);opacity:0;transition:.3s;pointer-events:none;box-shadow:0 8px 32px rgba(0,0,0,.5);}
 .toast.show{transform:translateY(0);opacity:1;}
 .tdot{width:8px;height:8px;border-radius:50%;}
 
-.empty{padding:60px 20px;text-align:center;color:var(--text3);}
-.empty-icon{font-size:40px;margin-bottom:12px;}
-.empty p{font-size:14px;margin-bottom:8px;color:var(--text2);}
+.empty{padding:50px 20px;text-align:center;color:var(--text3);}
+.empty-ico{font-size:36px;margin-bottom:10px;}
+.empty p{font-size:14px;margin-bottom:6px;color:var(--text2);}
 
 .view{display:none;}
-.view.active{display:block;}
+.view.on{display:block;}
+
+/* SETUP */
+.setup-wrap{max-width:600px;}
+.setup-card{background:var(--bg2);border:1px solid rgba(79,142,247,.25);border-radius:12px;padding:22px;margin-bottom:12px;}
+.setup-card h3{font-size:14px;font-weight:500;color:var(--blue);margin-bottom:4px;}
+.sdesc{font-size:12px;color:var(--text2);margin-bottom:18px;line-height:1.7;}
+.step{display:flex;gap:10px;margin-bottom:14px;}
+.snum{width:22px;height:22px;border-radius:50%;background:var(--blue);color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.sbody{font-size:13px;color:var(--text2);line-height:1.7;}
+.sbody a{color:var(--blue);text-decoration:none;}
+.sbody code{font-family:'IBM Plex Mono',monospace;font-size:11px;background:var(--bg3);padding:1px 6px;border-radius:3px;color:var(--cyan);}
+.codebox{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:14px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#93c5fd;white-space:pre;overflow-x:auto;line-height:1.8;margin:10px 0;position:relative;}
+.cbtn{position:absolute;top:8px;right:8px;font-size:10px;padding:3px 10px;border-radius:4px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);cursor:pointer;font-family:'IBM Plex Sans Thai',sans-serif;}
+.cbtn:hover{color:var(--text);}
+.url-row{display:flex;gap:8px;margin-top:14px;}
+.url-in{flex:1;font-family:'IBM Plex Mono',monospace;font-size:12px;padding:8px 11px;border-radius:7px;background:var(--bg3);border:1px solid var(--border);color:var(--text);outline:none;}
+.url-in:focus{border-color:var(--blue);}
+.smsg{font-size:12px;margin-top:8px;min-height:16px;}
 
 @media(max-width:900px){
-  .sidebar{width:60px;}
-  .sidebar-logo .logo-text,.sidebar-footer,.nav-section,.nav-item span,.nav-badge{display:none;}
-  .main{margin-left:60px;}
-  .nav-item{padding:12px;justify-content:center;}
-  .kpi-row{grid-template-columns:repeat(2,1fr);}
-  .stats-row{grid-template-columns:1fr;}
-  .fg{grid-template-columns:1fr;}
-  .topbar{padding:0 16px;}
-  .content{padding:16px;}
+  .sidebar{width:56px;}
+  .slogo .ltxt,.sfooter,.nsec,.ni span,.nbadge{display:none;}
+  .main{margin-left:56px;}
+  .ni{padding:10px;justify-content:center;}
+  .krow.c5,.krow.c4{grid-template-columns:repeat(2,1fr);}
+  .srow,.srow.c3,.td-row,.fg{grid-template-columns:1fr;}
+  .topbar{padding:0 14px;}
+  .content{padding:14px;}
+  .sbox{width:130px;}
 }
 </style>
 </head>
 <body>
 
+<!-- SYNC BAR -->
 <div class="sync-bar">
-  <span class="sync-dot" id="sDot"></span>
-  <span id="sLabel" style="color:var(--text2);">Google Sheets</span>
-  <a href="https://docs.google.com/spreadsheets/d/1lHKMQPfDY7NvH9l44JPjKsSfOXECJ37wgrKTLlF0k5E/edit" target="_blank">📊 เปิด Sheets</a>
-  <span id="sync-status"></span>
+  <span class="sdot" id="sDot"></span>
+  <span style="color:var(--text2);font-size:11px;">IT Asset System</span>
+  <a href="https://docs.google.com/spreadsheets/d/1lHKMQPfDY7NvH9l44JPjKsSfOXECJ37wgrKTLlF0k5E/edit" target="_blank">📊 Asset DB</a>
+  <a href="https://docs.google.com/spreadsheets/d/1YqVTSe7TyWrwMlU_lvqiMG2_yzh8GtOuwan0t3HUJQc/edit" target="_blank">🎫 Ticket DB</a>
+  <span id="sStatus"></span>
 </div>
 
+<!-- SIDEBAR -->
 <aside class="sidebar">
-  <div class="sidebar-logo">
-    <div class="logo-icon">IT</div>
-    <div><div class="logo-text">IT Asset</div><div class="logo-sub">RST Robotics</div></div>
+  <div class="slogo">
+    <div class="lico">IT</div>
+    <div><div class="ltxt">IT Asset</div><div class="lsub">RST Robotics</div></div>
   </div>
   <nav class="nav">
-    <div class="nav-section">เมนูหลัก</div>
-    <div class="nav-item active" onclick="gv('dashboard',this)">
-      <svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1.5"/><rect x="9" y="1" width="6" height="6" rx="1.5"/><rect x="1" y="9" width="6" height="6" rx="1.5"/><rect x="9" y="9" width="6" height="6" rx="1.5"/></svg>
-      <span>Dashboard</span>
+    <div class="nsec">ภาพรวม</div>
+    <div class="ni on" onclick="gv('kpi',this)">
+      <svg class="nico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1.5"/><rect x="9" y="1" width="6" height="6" rx="1.5"/><rect x="1" y="9" width="6" height="6" rx="1.5"/><rect x="9" y="9" width="6" height="6" rx="1.5"/></svg>
+      <span>KPI Dashboard</span>
     </div>
-    <div class="nav-item" onclick="gv('assets',this)">
-      <svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="14" height="10" rx="1.5"/><path d="M1 7h14"/></svg>
+    <div class="nsec">ทรัพย์สิน</div>
+    <div class="ni" onclick="gv('assets',this)">
+      <svg class="nico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="14" height="10" rx="1.5"/><path d="M1 7h14"/></svg>
       <span>ทรัพย์สินทั้งหมด</span>
-      <span class="nav-badge" id="nTotal">0</span>
+      <span class="nbadge" id="nAsset">0</span>
     </div>
-    <div class="nav-item" onclick="gv('repair',this)">
-      <svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 3l-7 7-3-3 7-7 3 3z"/><path d="M6 10l-3 3"/></svg>
-      <span>ซ่อมบำรุง</span>
-      <span class="nav-badge" id="nRepair">0</span>
+    <div class="ni" onclick="gv('transfer',this)">
+      <svg class="nico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h10M9 4l4 4-4 4"/><path d="M7 4L3 8l4 4" opacity=".4"/></svg>
+      <span>เบิก / โอนทรัพย์สิน</span>
+      <span class="nbadge" id="nTransfer">0</span>
     </div>
-    <div class="nav-section">จัดการ</div>
-    <div class="nav-item" onclick="openAdd()">
-      <svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="7"/><path d="M8 5v6M5 8h6"/></svg>
+    <div class="nsec">งานซ่อม</div>
+    <div class="ni" onclick="gv('ticket',this)">
+      <svg class="nico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2H3a1 1 0 00-1 1v10a1 1 0 001 1h10a1 1 0 001-1V3a1 1 0 00-1-1z"/><path d="M5 6h6M5 9h4"/></svg>
+      <span>แจ้งซ่อม / Ticket</span>
+      <span class="nbadge red" id="nTicket">0</span>
+    </div>
+    <div class="ni" onclick="gv('repair',this)">
+      <svg class="nico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 3l-7 7-3-3 7-7 3 3z"/><path d="M6 10l-3 3"/></svg>
+      <span>งานซ่อมบำรุง</span>
+    </div>
+    <div class="nsec">จัดการ</div>
+    <div class="ni" onclick="openAssetAdd()">
+      <svg class="nico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="7"/><path d="M8 5v6M5 8h6"/></svg>
       <span>เพิ่มทรัพย์สิน</span>
     </div>
-    <div class="nav-item" onclick="gv('setup',this)">
-      <svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.5 3.5l1.4 1.4M11.1 11.1l1.4 1.4M3.5 12.5l1.4-1.4M11.1 4.9l1.4-1.4"/></svg>
+    <div class="ni" onclick="gv('setup',this)">
+      <svg class="nico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2"/></svg>
       <span>ตั้งค่า Sheets</span>
     </div>
   </nav>
-  <div class="sidebar-footer">v3.0 · JSONP Sync</div>
+  <div class="sfooter">v4.0 · Full System</div>
 </aside>
 
+<!-- MAIN -->
 <div class="main">
   <div class="topbar">
-    <span class="page-title" id="pTitle">Dashboard</span>
-    <div class="topbar-right">
-      <div class="search-box">
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#3d4a60" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
-        <input type="text" placeholder="ค้นหา..." id="qSearch" oninput="renderTbl()">
+    <span class="ptitle" id="pTitle">KPI Dashboard</span>
+    <div class="tright">
+      <div class="sbox">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#3d4a60" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+        <input type="text" placeholder="ค้นหา..." id="qSearch" oninput="onSearch()">
       </div>
-      <button class="btn btn-green" onclick="syncPending()" id="syncBtn">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 2a6 6 0 11-3.5 10.5"/><path d="M10 6V2H6"/></svg>
-        Sync Sheets
+      <button class="btn btn-grn" onclick="syncAll()" id="syncBtn">
+        <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 2a6 6 0 11-3.5 10.5"/><path d="M10 6V2H6"/></svg>
+        Sync
       </button>
-      <button class="btn btn-primary" onclick="openAdd()">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 1v10M1 6h10"/></svg>
-        เพิ่มทรัพย์สิน
+      <button class="btn btn-p" onclick="quickAdd()" id="quickAddBtn">
+        <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 1v10M1 6h10"/></svg>
+        <span id="quickAddLbl">เพิ่มทรัพย์สิน</span>
       </button>
     </div>
   </div>
 
   <div class="content">
 
-    <!-- DASHBOARD -->
-    <div class="view active" id="view-dashboard">
-      <div class="kpi-row">
-        <div class="kpi k1"><div class="kpi-label">ทั้งหมด</div><div class="kpi-val" id="kT">0</div><div class="kpi-sub">รายการในระบบ</div></div>
-        <div class="kpi k2"><div class="kpi-label">ใช้งานได้</div><div class="kpi-val" id="kA">0</div><div class="kpi-sub">พร้อมใช้งาน</div></div>
-        <div class="kpi k3"><div class="kpi-label">ซ่อมบำรุง</div><div class="kpi-val" id="kR">0</div><div class="kpi-sub">รอดำเนินการ</div></div>
-        <div class="kpi k4"><div class="kpi-label">เสียหาย</div><div class="kpi-val" id="kB">0</div><div class="kpi-sub">ต้องดำเนินการ</div></div>
-        <div class="kpi k5"><div class="kpi-label">เก็บคลัง</div><div class="kpi-val" id="kS">0</div><div class="kpi-sub">ไม่ได้ใช้งาน</div></div>
+    <!-- ═══ KPI DASHBOARD ═══ -->
+    <div class="view on" id="view-kpi">
+      <div class="krow c5" style="margin-bottom:14px;">
+        <div class="kcard b"><div class="klbl">ทรัพย์สินทั้งหมด</div><div class="kval" id="ka-total">0</div><div class="ksub">รายการในระบบ</div></div>
+        <div class="kcard g"><div class="klbl">ใช้งานได้</div><div class="kval" id="ka-active">0</div><div class="ksub">พร้อมใช้งาน</div></div>
+        <div class="kcard a"><div class="klbl">ซ่อมบำรุง</div><div class="kval" id="ka-repair">0</div><div class="ksub">รอดำเนินการ</div></div>
+        <div class="kcard r"><div class="klbl">Ticket เปิด</div><div class="kval" id="kt-open">0</div><div class="ksub">รอ IT ดำเนินการ</div></div>
+        <div class="kcard p"><div class="klbl">ปิดงานแล้ว</div><div class="kval" id="kt-closed">0</div><div class="ksub">เดือนนี้</div></div>
       </div>
-      <div class="stats-row">
-        <div class="stat-card"><div class="stat-title">แยกตามประเภท</div><div id="typeBars"></div></div>
-        <div class="stat-card"><div class="stat-title">แยกตามแผนก</div><div id="deptBars"></div></div>
-        <div class="stat-card"><div class="stat-title">รายการล่าสุด</div><div id="recentList" style="display:grid;gap:8px;"></div></div>
+      <div class="krow c3" style="margin-bottom:14px;">
+        <div class="kcard c"><div class="klbl">อัตราปิดงาน</div><div class="kval" id="kt-rate">0%</div><div class="ksub">Ticket ที่ปิดแล้ว</div></div>
+        <div class="kcard a"><div class="klbl">เวลาเฉลี่ย (ชม.)</div><div class="kval" id="kt-avg">0</div><div class="ksub">เฉลี่ยต่อ Ticket</div></div>
+        <div class="kcard g"><div class="klbl">เบิก/โอน</div><div class="kval" id="ktr-total">0</div><div class="ksub">รายการทั้งหมด</div></div>
+      </div>
+
+      <div class="srow c3">
+        <div class="sc"><div class="stitle">ปัญหาที่แจ้งมากสุด</div><div id="topIssues"></div></div>
+        <div class="sc"><div class="stitle">แผนกที่แจ้งมากสุด</div><div id="topDepts"></div></div>
+        <div class="sc"><div class="stitle">Ticket ล่าสุด</div><div id="recentTickets" style="display:grid;gap:6px;"></div></div>
+      </div>
+      <div class="srow">
+        <div class="sc"><div class="stitle">ทรัพย์สินแยกตามประเภท</div><div id="assetByType"></div></div>
+        <div class="sc"><div class="stitle">สถานะ Ticket</div><div id="ticketStatus"></div></div>
       </div>
     </div>
 
-    <!-- ASSETS -->
+    <!-- ═══ ASSETS ═══ -->
     <div class="view" id="view-assets">
       <div class="card">
-        <div class="card-head">
-          <div class="card-title" id="tblTitle">รายการทั้งหมด</div>
+        <div class="ch">
+          <div class="ctitle" id="assetTblTitle">ทรัพย์สินทั้งหมด</div>
           <div class="chips">
-            <button class="chip on" onclick="setF('',this)">ทั้งหมด</button>
-            <button class="chip" onclick="setF('คอมพิวเตอร์',this)">คอมพิวเตอร์</button>
-            <button class="chip" onclick="setF('Notebook',this)">Notebook</button>
-            <button class="chip" onclick="setF('Printer',this)">Printer</button>
-            <button class="chip" onclick="setF('Network',this)">Network</button>
-            <button class="chip" onclick="setF('อื่นๆ',this)">อื่นๆ</button>
+            <button class="chip on" onclick="setAF('',this)">ทั้งหมด</button>
+            <button class="chip" onclick="setAF('คอมพิวเตอร์',this)">คอมพิวเตอร์</button>
+            <button class="chip" onclick="setAF('Notebook',this)">Notebook</button>
+            <button class="chip" onclick="setAF('Printer',this)">Printer</button>
+            <button class="chip" onclick="setAF('Network',this)">Network</button>
+            <button class="chip" onclick="setAF('อื่นๆ',this)">อื่นๆ</button>
           </div>
         </div>
         <div style="overflow-x:auto;">
           <table>
-            <thead><tr>
-              <th>รหัส</th><th>ประเภท</th><th>ยี่ห้อ / รุ่น</th>
-              <th>ผู้ใช้งาน</th><th>แผนก</th><th>สถานะ</th><th>Sheets</th><th></th>
-            </tr></thead>
-            <tbody id="tBody"></tbody>
+            <thead><tr><th>รหัส</th><th>ประเภท</th><th>ยี่ห้อ/รุ่น</th><th>ผู้ใช้</th><th>แผนก/สาขา</th><th>สถานะ</th><th>Sync</th><th></th></tr></thead>
+            <tbody id="assetTbl"></tbody>
           </table>
         </div>
-        <div id="tEmpty" class="empty" style="display:none;">
-          <div class="empty-icon">📦</div><p>ยังไม่มีทรัพย์สิน</p>
-          <small>กด "+ เพิ่มทรัพย์สิน" เพื่อเริ่มต้น</small>
-        </div>
+        <div id="assetEmpty" class="empty" style="display:none;"><div class="empty-ico">📦</div><p>ยังไม่มีทรัพย์สิน</p></div>
       </div>
     </div>
 
-    <!-- REPAIR -->
-    <div class="view" id="view-repair">
+    <!-- ═══ TRANSFER ═══ -->
+    <div class="view" id="view-transfer">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+        <button class="btn btn-p" onclick="openTransferAdd()">
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 1v10M1 6h10"/></svg>
+          สร้างใบเบิก/โอน
+        </button>
+      </div>
       <div class="card">
-        <div class="card-head"><div class="card-title">รายการซ่อมบำรุง</div></div>
+        <div class="ch">
+          <div class="ctitle" id="trTblTitle">ประวัติการเบิก/โอนทรัพย์สิน</div>
+          <div class="chips">
+            <button class="chip on" onclick="setTRF('',this)">ทั้งหมด</button>
+            <button class="chip" onclick="setTRF('borrow',this)">เบิกให้พนักงาน</button>
+            <button class="chip" onclick="setTRF('branch',this)">โอนข้ามสาขา</button>
+            <button class="chip" onclick="setTRF('return',this)">คืนทรัพย์สิน</button>
+          </div>
+        </div>
         <div style="overflow-x:auto;">
           <table>
-            <thead><tr><th>รหัส</th><th>อุปกรณ์</th><th>หมายเหตุ</th><th>สถานะ</th><th>วันที่</th><th></th></tr></thead>
-            <tbody id="rBody"></tbody>
+            <thead><tr><th>เลขที่</th><th>ประเภท</th><th>ทรัพย์สิน</th><th>จาก</th><th>ไป</th><th>ผู้รับ</th><th>วันที่</th><th>สถานะ</th><th></th></tr></thead>
+            <tbody id="trTbl"></tbody>
           </table>
         </div>
-        <div id="rEmpty" class="empty" style="display:none;"><div class="empty-icon">🔧</div><p>ไม่มีรายการซ่อมบำรุง</p></div>
+        <div id="trEmpty" class="empty" style="display:none;"><div class="empty-ico">📋</div><p>ยังไม่มีรายการเบิก/โอน</p></div>
+      </div>
+
+      <div class="card">
+        <div class="ch"><div class="ctitle">ขั้นตอนการเบิก/โอนทรัพย์สิน</div></div>
+        <div style="padding:18px;display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+          <div>
+            <p style="font-size:12px;font-weight:500;color:var(--cyan);margin-bottom:10px;">📦 เบิกให้พนักงานใช้งาน</p>
+            <div style="display:grid;gap:8px;">
+              <div style="display:flex;gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:var(--blue);color:#fff;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</div><div style="font-size:12px;color:var(--text2);">หัวหน้าแผนกยื่น <strong style="color:var(--text)">ใบขอเบิก</strong> ผ่านระบบนี้</div></div>
+              <div style="display:flex;gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:var(--blue);color:#fff;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</div><div style="font-size:12px;color:var(--text2);">IT ตรวจสอบสต็อกและ<strong style="color:var(--text)">อนุมัติ</strong></div></div>
+              <div style="display:flex;gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:var(--blue);color:#fff;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</div><div style="font-size:12px;color:var(--text2);">IT จ่ายอุปกรณ์และอัปเดตระบบ <strong style="color:var(--text)">ผู้ใช้งาน</strong></div></div>
+              <div style="display:flex;gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:var(--green);color:#fff;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;">4</div><div style="font-size:12px;color:var(--text2);">พนักงาน<strong style="color:var(--text)">เซ็นรับ</strong>ใบส่งมอบ (เก็บในระบบ)</div></div>
+            </div>
+          </div>
+          <div>
+            <p style="font-size:12px;font-weight:500;color:var(--purple);margin-bottom:10px;">🏢 โอนข้ามสาขา</p>
+            <div style="display:grid;gap:8px;">
+              <div style="display:flex;gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:var(--purple);color:#fff;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</div><div style="font-size:12px;color:var(--text2);">IT สาขาต้นทาง<strong style="color:var(--text)">สร้างใบโอน</strong>ในระบบนี้</div></div>
+              <div style="display:flex;gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:var(--purple);color:#fff;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</div><div style="font-size:12px;color:var(--text2);">ผู้จัดการ<strong style="color:var(--text)">อนุมัติ</strong>การโอน</div></div>
+              <div style="display:flex;gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:var(--purple);color:#fff;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</div><div style="font-size:12px;color:var(--text2);">จัดส่ง + <strong style="color:var(--text)">อัปเดตสาขา</strong>ในระบบ</div></div>
+              <div style="display:flex;gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:var(--green);color:#fff;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;">4</div><div style="font-size:12px;color:var(--text2);">IT ปลายทาง<strong style="color:var(--text)">ยืนยันรับ</strong>และปิดใบโอน</div></div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- SETUP -->
+    <!-- ═══ TICKET ═══ -->
+    <div class="view" id="view-ticket">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:12px;gap:8px;">
+        <button class="btn btn-amb" onclick="gv('kpi',document.querySelector(\'.ni\'))">📊 ดู KPI</button>
+        <button class="btn btn-p" onclick="openTicketAdd()">
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 1v10M1 6h10"/></svg>
+          แจ้งซ่อมใหม่
+        </button>
+      </div>
+      <div class="card">
+        <div class="ch">
+          <div class="ctitle" id="tkTblTitle">รายการแจ้งซ่อม</div>
+          <div class="chips">
+            <button class="chip on" onclick="setTKF('',this)">ทั้งหมด</button>
+            <button class="chip" onclick="setTKF('open',this)">เปิด</button>
+            <button class="chip" onclick="setTKF('progress',this)">กำลังดำเนินการ</button>
+            <button class="chip" onclick="setTKF('closed',this)">ปิดแล้ว</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead><tr><th>Ticket#</th><th>ผู้แจ้ง/แผนก</th><th>ประเภทปัญหา</th><th>รายละเอียด</th><th>ความเร่งด่วน</th><th>สถานะ</th><th>วันที่</th><th></th></tr></thead>
+            <tbody id="tkTbl"></tbody>
+          </table>
+        </div>
+        <div id="tkEmpty" class="empty" style="display:none;"><div class="empty-ico">🎫</div><p>ยังไม่มี Ticket</p><small>กด "แจ้งซ่อมใหม่" เพื่อเริ่มต้น</small></div>
+      </div>
+    </div>
+
+    <!-- ═══ REPAIR ═══ -->
+    <div class="view" id="view-repair">
+      <div class="card">
+        <div class="ch"><div class="ctitle">งานซ่อมบำรุงทั้งหมด</div></div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead><tr><th>รหัส</th><th>อุปกรณ์</th><th>ปัญหา</th><th>สถานะ</th><th>วันที่</th><th></th></tr></thead>
+            <tbody id="rpTbl"></tbody>
+          </table>
+        </div>
+        <div id="rpEmpty" class="empty" style="display:none;"><div class="empty-ico">🔧</div><p>ไม่มีรายการซ่อม</p></div>
+      </div>
+    </div>
+
+    <!-- ═══ SETUP ═══ -->
     <div class="view" id="view-setup">
       <div class="setup-wrap">
         <div class="setup-card">
-          <h3>⚙️ เชื่อมแอปกับ Google Sheets (ทำครั้งเดียว)</h3>
-          <div class="desc">หลังตั้งค่าเสร็จ ทุกครั้งที่เพิ่ม/แก้ไข/ลบ → บันทึกลง Sheets ทันที แอปสวยงามเหมือนเดิม 100%</div>
-
-          <div class="step"><div class="snum">1</div>
-            <div class="sbody">เปิด <a href="https://docs.google.com/spreadsheets/d/1lHKMQPfDY7NvH9l44JPjKsSfOXECJ37wgrKTLlF0k5E/edit" target="_blank">Google Sheets IT Asset Database</a> → กด <code>Extensions</code> → <code>Apps Script</code></div>
-          </div>
-          <div class="step"><div class="snum">2</div>
-            <div class="sbody">ลบ code เดิม → วาง code ด้านล่าง → Save (Ctrl+S)
-              <div class="script-box" id="scriptBox">function doGet(e) {
-  return handleReq(e);
-}
-function doPost(e) {
-  return handleReq(e);
-}
-function handleReq(e) {
-  try {
-    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-    var p = e.parameter;
-    if (p.action === 'add') {
-      sheet.appendRow([p.id,p.type,p.brand,p.model,p.user,p.dept,p.status,p.date,p.serial,p.price,p.note,new Date().toLocaleDateString('th-TH')]);
-    } else if (p.action === 'update') {
-      var v = sheet.getDataRange().getValues();
-      for (var i=1;i<v.length;i++) {
-        if (v[i][0]==p.id) {
-          sheet.getRange(i+1,1,1,12).setValues([[p.id,p.type,p.brand,p.model,p.user,p.dept,p.status,p.date,p.serial,p.price,p.note,new Date().toLocaleDateString('th-TH')]]);
-          break;
-        }
+          <h3>⚙️ เชื่อมต่อ Google Sheets (ทำครั้งเดียว)</h3>
+          <div class="sdesc">แอปจะบันทึกทุกการกระทำลง Sheets อัตโนมัติหลังตั้งค่าเสร็จ</div>
+          <div class="step"><div class="snum">1</div><div class="sbody">เปิด <a href="https://docs.google.com/spreadsheets/d/1lHKMQPfDY7NvH9l44JPjKsSfOXECJ37wgrKTLlF0k5E/edit" target="_blank">IT Asset Database</a> → <code>Extensions</code> → <code>Apps Script</code></div></div>
+          <div class="step"><div class="snum">2</div><div class="sbody">วาง code ด้านล่าง → Save → Deploy → Web app → Anyone → Copy URL
+            <div class="codebox" id="scriptCode">function doGet(e){return handleReq(e);}
+function doPost(e){return handleReq(e);}
+function handleReq(e){
+  try{
+    var ss=SpreadsheetApp.getActiveSpreadsheet();
+    var p=e.parameter;
+    var sheet=ss.getSheetByName(p.sheet||'Sheet1')||ss.getActiveSheet();
+    if(p.action==='add'){
+      sheet.appendRow(JSON.parse(p.row));
+    }else if(p.action==='update'){
+      var v=sheet.getDataRange().getValues();
+      for(var i=1;i<v.length;i++){
+        if(v[i][0]==p.key){sheet.getRange(i+1,1,1,sheet.getLastColumn()).setValues([JSON.parse(p.row)]);break;}
       }
-    } else if (p.action === 'delete') {
-      var v = sheet.getDataRange().getValues();
-      for (var i=v.length-1;i>=1;i--) {
-        if (v[i][0]==p.id) { sheet.deleteRow(i+1); break; }
+    }else if(p.action==='delete'){
+      var v=sheet.getDataRange().getValues();
+      for(var i=v.length-1;i>=1;i--){
+        if(v[i][0]==p.key){sheet.deleteRow(i+1);break;}
       }
     }
-    var res = JSON.stringify({status:'ok'});
-    return ContentService.createTextOutput(p.cb ? p.cb+'('+res+')' : res)
-      .setMimeType(p.cb ? ContentService.MimeType.JAVASCRIPT : ContentService.MimeType.JSON);
-  } catch(err) {
-    var res = JSON.stringify({status:'error',msg:err.toString()});
-    return ContentService.createTextOutput(e.parameter.cb ? e.parameter.cb+'('+res+')' : res)
+    var r=JSON.stringify({status:'ok'});
+    return ContentService.createTextOutput(p.cb?p.cb+'('+r+')':r)
+      .setMimeType(p.cb?ContentService.MimeType.JAVASCRIPT:ContentService.MimeType.JSON);
+  }catch(err){
+    var r=JSON.stringify({status:'error',msg:err.toString()});
+    return ContentService.createTextOutput(e.parameter.cb?e.parameter.cb+'('+r+')':r)
       .setMimeType(ContentService.MimeType.JAVASCRIPT);
   }
 }
-<button class="copy-btn" onclick="copyCode()">📋 Copy</button></div>
-            </div>
-          </div>
-          <div class="step"><div class="snum">3</div>
-            <div class="sbody">กด <code>Deploy</code> → <code>New deployment</code> → Type: <code>Web app</code> → Execute as: <code>Me</code> → Who has access: <code>Anyone</code> → <code>Deploy</code> → อนุญาต permissions</div>
-          </div>
-          <div class="step"><div class="snum">4</div>
-            <div class="sbody">Copy <code>Web app URL</code> ที่ได้ → วางในช่องด้านล่าง → กด บันทึก</div>
-          </div>
-
+<button class="cbtn" onclick="copyScript()">📋 Copy</button></div>
+          </div></div>
           <div class="url-row">
-            <input class="url-in" id="urlIn" placeholder="https://script.google.com/macros/s/AKfycb.../exec">
-            <button class="btn btn-primary" onclick="saveUrl()">💾 บันทึก</button>
-            <button class="btn btn-ghost" onclick="testUrl()">🔌 ทดสอบ</button>
+            <input class="url-in" id="urlIn" placeholder="https://script.google.com/macros/s/.../exec">
+            <button class="btn btn-p" onclick="saveUrl()">💾 บันทึก</button>
+            <button class="btn btn-g" onclick="testUrl()">🔌 ทดสอบ</button>
           </div>
-          <div class="setup-msg" id="setupMsg"></div>
+          <div class="smsg" id="setupMsg"></div>
         </div>
-
-        <div style="background:var(--bg2);border:1px solid rgba(34,197,94,.2);border-radius:12px;padding:16px 20px;">
-          <p style="font-size:12px;color:var(--green);font-weight:500;margin-bottom:8px;">✓ วิธีนี้ทำงานได้จริงจาก GitHub Pages</p>
-          <p style="font-size:12px;color:var(--text2);line-height:1.8;">แอปใช้ <strong style="color:var(--text)">JSONP</strong> ส่งข้อมูลผ่าน URL parameters แทน POST request ปกติ ทำให้ไม่ติด CORS และทำงานได้จากทุก domain รวมถึง GitHub Pages ครับ</p>
+        <div style="background:var(--bg2);border:1px solid rgba(34,197,94,.2);border-radius:12px;padding:14px 18px;">
+          <p style="font-size:12px;color:var(--green);font-weight:500;margin-bottom:6px;">✓ ระบบ Sheets ที่เชื่อมต่อ</p>
+          <p style="font-size:12px;color:var(--text2);line-height:1.8;">• <a href="https://docs.google.com/spreadsheets/d/1lHKMQPfDY7NvH9l44JPjKsSfOXECJ37wgrKTLlF0k5E/edit" target="_blank" style="color:var(--blue);">IT Asset Database</a> — ข้อมูลทรัพย์สิน + การเบิก/โอน<br>• <a href="https://docs.google.com/spreadsheets/d/1YqVTSe7TyWrwMlU_lvqiMG2_yzh8GtOuwan0t3HUJQc/edit" target="_blank" style="color:var(--blue);">IT Ticket Database</a> — Ticket แจ้งซ่อม + ปิดงาน</p>
         </div>
       </div>
     </div>
@@ -372,324 +497,716 @@ function handleReq(e) {
   </div>
 </div>
 
-<!-- MODAL -->
-<div class="overlay" id="overlay" onclick="if(event.target===this)closeM()">
+<!-- ═══ MODALS ═══ -->
+
+<!-- ASSET MODAL -->
+<div class="overlay" id="assetOverlay" onclick="if(event.target===this)closeM('asset')">
   <div class="modal">
-    <div class="modal-head">
-      <div class="modal-title" id="mTitle">เพิ่มทรัพย์สินใหม่</div>
-      <button class="ico-btn" onclick="closeM()"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1l10 10M11 1L1 11"/></svg></button>
-    </div>
-    <div class="modal-body">
+    <div class="mh"><div class="mtitle" id="assetMTitle">เพิ่มทรัพย์สิน</div><button class="ib" onclick="closeM('asset')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1l10 10M11 1L1 11"/></svg></button></div>
+    <div class="mb">
       <div class="fg">
-        <div class="fi"><label class="fl">รหัสอุปกรณ์ *</label><input class="fn" id="fId" placeholder="PC-001, NB-002"></div>
-        <div class="fi"><label class="fl">ประเภท *</label>
-          <select class="fs" id="fType"><option value="">เลือกประเภท</option><option>คอมพิวเตอร์</option><option>Notebook</option><option>Printer</option><option>Network</option><option>Monitor</option><option>UPS</option><option>Scanner</option><option>อื่นๆ</option></select>
-        </div>
-        <div class="fi"><label class="fl">ยี่ห้อ</label><input class="fn" id="fBrand" placeholder="ASUS, HP, Brother..."></div>
-        <div class="fi"><label class="fl">รุ่น / Spec</label><input class="fn" id="fModel" placeholder="Vivobook 15..."></div>
-        <div class="fi"><label class="fl">ผู้ใช้งาน</label><input class="fn" id="fUser" placeholder="ชื่อพนักงาน"></div>
+        <div class="fi"><label class="fl">รหัสอุปกรณ์ *</label><input class="fn" id="a-id" placeholder="PC-001, NB-002"></div>
+        <div class="fi"><label class="fl">ประเภท</label>
+          <select class="fs" id="a-type"><option value="">เลือก</option><option>คอมพิวเตอร์</option><option>Notebook</option><option>Printer</option><option>Network</option><option>Monitor</option><option>UPS</option><option>Scanner</option><option>อื่นๆ</option></select></div>
+        <div class="fi"><label class="fl">ยี่ห้อ</label><input class="fn" id="a-brand" placeholder="ASUS, HP..."></div>
+        <div class="fi"><label class="fl">รุ่น</label><input class="fn" id="a-model" placeholder="Vivobook 15..."></div>
+        <div class="fi"><label class="fl">ผู้ใช้งาน</label><input class="fn" id="a-user" placeholder="ชื่อพนักงาน"></div>
         <div class="fi"><label class="fl">แผนก</label>
-          <select class="fs" id="fDept"><option value="">เลือกแผนก</option><option>IT</option><option>Robotics</option><option>บัญชี</option><option>HR</option><option>บริหาร</option><option>Service</option><option>Marketing</option><option>ส่วนกลาง</option></select>
-        </div>
+          <select class="fs" id="a-dept"><option value="">เลือก</option><option>IT</option><option>Robotics</option><option>บัญชี</option><option>HR</option><option>บริหาร</option><option>Service</option><option>Marketing</option><option>ส่วนกลาง</option></select></div>
+        <div class="fi"><label class="fl">สาขา</label>
+          <select class="fs" id="a-branch"><option value="">เลือก</option><option>สาขาศรีเมืองใหม่</option><option>สาขาตระการ</option><option>สาขาเดชอุดม</option><option>สาขาขุขันธ์</option><option>สาขากุฉินารายณ์</option><option>สำนักงานใหญ่</option><option>สาขาเบญจลักษณ์</option><option>สาขาบางนา</option></select></div>
         <div class="fi"><label class="fl">สถานะ</label>
-          <select class="fs" id="fStatus"><option value="active">ใช้งานได้</option><option value="repair">ซ่อมบำรุง</option><option value="broken">เสียหาย</option><option value="storage">เก็บคลัง</option></select>
-        </div>
-        <div class="fi"><label class="fl">วันที่รับเข้า</label><input class="fn" type="date" id="fDate"></div>
-        <div class="fi"><label class="fl">Serial Number</label><input class="fn" id="fSerial" placeholder="S/N"></div>
-        <div class="fi"><label class="fl">ราคา (บาท)</label><input class="fn" type="number" id="fPrice" placeholder="0"></div>
-        <div class="fi full"><label class="fl">หมายเหตุ</label><textarea class="ft" id="fNote" placeholder="รายละเอียดเพิ่มเติม..."></textarea></div>
+          <select class="fs" id="a-status"><option value="active">ใช้งานได้</option><option value="repair">ซ่อมบำรุง</option><option value="broken">เสียหาย</option><option value="storage">เก็บคลัง</option></select></div>
+        <div class="fi"><label class="fl">วันที่รับเข้า</label><input class="fn" type="date" id="a-date"></div>
+        <div class="fi"><label class="fl">Serial No.</label><input class="fn" id="a-serial" placeholder="S/N"></div>
+        <div class="fi"><label class="fl">ราคา (บาท)</label><input class="fn" type="number" id="a-price" placeholder="0"></div>
+        <div class="fi full"><label class="fl">หมายเหตุ</label><textarea class="ft" id="a-note"></textarea></div>
       </div>
     </div>
-    <div class="modal-foot">
-      <button class="btn btn-ghost" onclick="closeM()">ยกเลิก</button>
-      <button class="btn btn-primary" onclick="saveAsset()">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 6l3 3 5-5"/></svg>
-        บันทึก + Sync Sheets
-      </button>
+    <div class="mf"><button class="btn btn-g" onclick="closeM('asset')">ยกเลิก</button><button class="btn btn-p" onclick="saveAsset()">💾 บันทึก</button></div>
+  </div>
+</div>
+
+<!-- TRANSFER MODAL -->
+<div class="overlay" id="trOverlay" onclick="if(event.target===this)closeM('tr')">
+  <div class="modal">
+    <div class="mh"><div class="mtitle">สร้างใบเบิก / โอนทรัพย์สิน</div><button class="ib" onclick="closeM('tr')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1l10 10M11 1L1 11"/></svg></button></div>
+    <div class="mb">
+      <div class="fg">
+        <div class="fi full"><label class="fl">ประเภทการเบิก/โอน *</label>
+          <select class="fs" id="tr-type" onchange="updateTRForm()">
+            <option value="borrow">📤 เบิกให้พนักงานใช้งาน</option>
+            <option value="branch">🏢 โอนข้ามสาขา</option>
+            <option value="return">📥 คืนทรัพย์สิน</option>
+          </select></div>
+        <div class="fi"><label class="fl">รหัสทรัพย์สิน *</label>
+          <select class="fs" id="tr-asset"><option value="">เลือกทรัพย์สิน</option></select></div>
+        <div class="fi"><label class="fl">วันที่</label><input class="fn" type="date" id="tr-date"></div>
+        <div class="fi" id="tr-from-wrap"><label class="fl">จากสาขา/แผนก</label>
+          <select class="fs" id="tr-from"><option value="">เลือก</option><option>สาขาศรีเมืองใหม่</option><option>สาขาตระการ</option><option>สาขาเดชอุดม</option><option>สาขาขุขันธ์</option><option>สาขากุฉินารายณ์</option><option>สำนักงานใหญ่</option><option>สาขาเบญจลักษณ์</option><option>สาขาบางนา</option><option>คลังกลาง</option></select></div>
+        <div class="fi" id="tr-to-wrap"><label class="fl">ไปสาขา/แผนก</label>
+          <select class="fs" id="tr-to"><option value="">เลือก</option><option>สาขาศรีเมืองใหม่</option><option>สาขาตระการ</option><option>สาขาเดชอุดม</option><option>สาขาขุขันธ์</option><option>สาขากุฉินารายณ์</option><option>สำนักงานใหญ่</option><option>สาขาเบญจลักษณ์</option><option>สาขาบางนา</option><option>คลังกลาง</option></select></div>
+        <div class="fi"><label class="fl" id="tr-recv-lbl">ผู้รับ / พนักงาน</label><input class="fn" id="tr-receiver" placeholder="ชื่อผู้รับ"></div>
+        <div class="fi"><label class="fl">ผู้อนุมัติ</label><input class="fn" id="tr-approver" placeholder="หัวหน้า/ผู้จัดการ"></div>
+        <div class="fi full"><label class="fl">หมายเหตุ / เหตุผล</label><textarea class="ft" id="tr-note" placeholder="ระบุเหตุผลการเบิก/โอน..."></textarea></div>
+      </div>
+      <div style="margin-top:14px;padding:12px;background:var(--bg3);border-radius:8px;font-size:12px;color:var(--text2);line-height:1.8;" id="tr-docs">
+        <strong style="color:var(--text);">เอกสารที่ต้องใช้:</strong><br>
+        <span id="tr-docs-list">• ใบขอเบิกอุปกรณ์ (อนุมัติหัวหน้า)<br>• ใบส่งมอบทรัพย์สิน (เซ็นรับ 2 ฝ่าย)</span>
+      </div>
+    </div>
+    <div class="mf"><button class="btn btn-g" onclick="closeM('tr')">ยกเลิก</button><button class="btn btn-p" onclick="saveTransfer()">📋 สร้างใบเบิก/โอน</button></div>
+  </div>
+</div>
+
+<!-- TICKET MODAL -->
+<div class="overlay" id="tkOverlay" onclick="if(event.target===this)closeM('tk')">
+  <div class="modal" style="width:640px;">
+    <div class="mh"><div class="mtitle" id="tkMTitle">แจ้งซ่อมใหม่</div><button class="ib" onclick="closeM('tk')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1l10 10M11 1L1 11"/></svg></button></div>
+    <div class="mb">
+      <div class="fg">
+        <div class="fi"><label class="fl">ผู้แจ้ง *</label><input class="fn" id="tk-reporter" placeholder="ชื่อผู้แจ้ง"></div>
+        <div class="fi"><label class="fl">แผนก/สาขา</label>
+          <select class="fs" id="tk-dept"><option value="">เลือก</option><option>IT</option><option>Robotics</option><option>บัญชี</option><option>HR</option><option>บริหาร</option><option>Service</option><option>Marketing</option><option>ส่วนกลาง</option><option>สาขาศรีเมืองใหม่</option><option>สาขาตระการ</option><option>สาขาเดชอุดม</option><option>สาขาขุขันธ์</option><option>สาขากุฉินารายณ์</option><option>สำนักงานใหญ่</option><option>สาขาเบญจลักษณ์</option><option>สาขาบางนา</option></select></div>
+        <div class="fi"><label class="fl">ประเภทปัญหา *</label>
+          <select class="fs" id="tk-category">
+            <option value="">เลือกประเภท</option>
+            <option>คอมพิวเตอร์/Notebook</option>
+            <option>Printer/สแกนเนอร์</option>
+            <option>เครือข่าย/อินเทอร์เน็ต</option>
+            <option>โปรแกรม/ซอฟต์แวร์</option>
+            <option>Email/บัญชีผู้ใช้</option>
+            <option>กล้อง CCTV</option>
+            <option>เครื่องสแกนนิ้ว</option>
+            <option>อื่นๆ</option>
+          </select></div>
+        <div class="fi"><label class="fl">รหัสอุปกรณ์</label>
+          <select class="fs" id="tk-asset"><option value="">เลือก (ถ้ามี)</option></select></div>
+        <div class="fi"><label class="fl">ความเร่งด่วน</label>
+          <select class="fs" id="tk-priority">
+            <option value="low">🟢 ปกติ</option>
+            <option value="med">🟡 ด่วน</option>
+            <option value="high">🔴 เร่งด่วนมาก</option>
+          </select></div>
+        <div class="fi"><label class="fl">สถานะ (IT กรอก)</label>
+          <select class="fs" id="tk-status">
+            <option value="open">เปิด</option>
+            <option value="progress">กำลังดำเนินการ</option>
+            <option value="closed">ปิดงาน</option>
+          </select></div>
+        <div class="fi full"><label class="fl">รายละเอียดปัญหา *</label><textarea class="ft" id="tk-desc" placeholder="อธิบายปัญหาที่พบ..." style="min-height:80px;"></textarea></div>
+        <div class="fi" id="tk-handler-wrap"><label class="fl">IT ผู้รับผิดชอบ</label><input class="fn" id="tk-handler" placeholder="ชื่อ IT ที่รับงาน"></div>
+        <div class="fi" id="tk-solution-wrap"><label class="fl">วิธีแก้ไข (กรอกตอนปิดงาน)</label><input class="fn" id="tk-solution" placeholder="สรุปวิธีที่แก้ไข"></div>
+        <div class="fi full" id="tk-img-wrap">
+          <label class="fl">รูปภาพหลักฐานการซ่อม</label>
+          <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:14px;display:grid;gap:10px;">
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+              <a href="https://drive.google.com/drive/folders/1uahREJ_Nt20dVXXYWG50n8OuBYjDxyW6" target="_blank" class="btn btn-grn" style="text-decoration:none;font-size:12px;padding:6px 14px;">
+                📁 เปิดโฟลเดอร์ Drive เพื่ออัปโหลดรูป
+              </a>
+              <span style="font-size:11px;color:var(--text3);">อัปรูปแล้ว copy link มาวางด้านล่าง</span>
+            </div>
+            <div style="display:grid;gap:6px;" id="tk-links-list"></div>
+            <div style="display:flex;gap:6px;">
+              <input class="fn" id="tk-link-input" placeholder="วาง Drive link ที่นี่ เช่น drive.google.com/file/d/..." style="font-size:12px;padding:7px 10px;">
+              <button class="btn btn-p" onclick="addDriveLink()" style="white-space:nowrap;padding:6px 12px;font-size:12px;">+ เพิ่ม</button>
+            </div>
+            <div id="tk-img-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:6px;"></div>
+            <input type="file" id="tk-file" class="file-input" accept="image/*" multiple onchange="addTicketImages(this)">
+            <button class="btn btn-g" onclick="document.getElementById('tk-file').click()" style="font-size:11px;padding:5px 10px;width:fit-content;">
+              📷 หรือแนบรูปจากเครื่อง (เก็บใน browser)
+            </button>
+            <p style="font-size:10px;color:var(--text3);margin-top:-4px;">⚠ รูปจากเครื่องจะเห็นแค่บน browser นี้ · แนะนำใช้ Drive link เพื่อให้ทุกคนเห็น</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-g" onclick="closeM('tk')">ยกเลิก</button>
+      <button class="btn btn-amb" id="tkCloseBtn" onclick="closeTicket()" style="display:none;">✓ ปิดงาน + บันทึก</button>
+      <button class="btn btn-p" onclick="saveTicket()">💾 บันทึก</button>
     </div>
   </div>
 </div>
 
+<!-- TOAST -->
 <div class="toast" id="toast"><span class="tdot" id="tdot" style="background:var(--green)"></span><span id="tMsg"></span></div>
 
 <script>
-// ─── STORE ───
-const SK='ita_v4', UK='ita_url';
-let assets=JSON.parse(localStorage.getItem(SK)||'[]');
+// ═══════════════════════════════
+// DATA STORE
+// ═══════════════════════════════
+const AK='ita_v4', TK='itk_v4', TRK='ittr_v4', UK='it_url';
+let assets=JSON.parse(localStorage.getItem(AK)||'[]');
+let tickets=JSON.parse(localStorage.getItem(TK)||'[]');
+let transfers=JSON.parse(localStorage.getItem(TRK)||'[]');
 let scriptUrl=localStorage.getItem(UK)||'';
-let editId=null, fType='';
-const COLORS=['#4f8ef7','#22c55e','#f59e0b','#a78bfa','#22d3ee','#f43f5e','#84cc16','#fb923c'];
+let editAssetKey=null, editTicketKey=null;
+let aFilter='', tkFilter='', trFilter='';
+const CLR=['#4f8ef7','#22c55e','#f59e0b','#a78bfa','#22d3ee','#f43f5e','#84cc16','#fb923c','#f472b6'];
 
+// Seed assets
 if(assets.length===0){
-  const ts = Date.now();
+  const ts=Date.now();
   assets=[
-    {_key:'PC-FUJI-001_'+ts,id:'PC-FUJI-001',type:'คอมพิวเตอร์',brand:'FUJI',model:'Desktop',user:'ธนา พิทยธนาดล',dept:'IT',status:'active',date:'2026-03-18',serial:'',price:25000,note:'ผู้จัดการฝ่าย IT',synced:false},
-    {_key:'NB-RST-001_'+(ts+1),id:'NB-RST-001',type:'Notebook',brand:'ASUS',model:'Vivobook',user:'',dept:'Robotics',status:'active',date:'2026-03-18',serial:'',price:22000,note:'ห้อง Robotics',synced:false},
-    {_key:'PR-MFC-001_'+(ts+2),id:'PR-MFC-001',type:'Printer',brand:'Brother',model:'MFC-T4500DW',user:'',dept:'ส่วนกลาง',status:'active',date:'2026-03-18',serial:'',price:8500,note:'',synced:false},
-    {_key:'PR-MFC-002_'+(ts+3),id:'PR-MFC-002',type:'Printer',brand:'Brother',model:'MFC-T1710W',user:'',dept:'ส่วนกลาง',status:'active',date:'2026-03-18',serial:'',price:4500,note:'',synced:false},
-    {_key:'NW-MK-001_'+(ts+4),id:'NW-MK-001',type:'Network',brand:'MikroTik',model:'Router RB750Gr3',user:'',dept:'IT',status:'active',date:'2026-03-18',serial:'',price:3200,note:'Router หลัก',synced:false},
-    {_key:'NW-ARUBA-001_'+(ts+5),id:'NW-ARUBA-001',type:'Network',brand:'Aruba',model:'AP Access Point',user:'',dept:'ส่วนกลาง',status:'repair',date:'2026-03-18',serial:'',price:4500,note:'ปรับ Mode AP',synced:false},
-    {_key:'NW-ORBI-001_'+(ts+6),id:'NW-ORBI-001',type:'Network',brand:'Netgear',model:'Orbi34',user:'',dept:'IT',status:'active',date:'2026-03-18',serial:'',price:5800,note:'ย้าย Land ต่อ Mikrotik',synced:false},
-    {_key:'NB-RST-002_'+(ts+7),id:'NB-RST-002',type:'Notebook',brand:'',model:'ห้องบริการ',user:'',dept:'Service',status:'repair',date:'2026-03-18',serial:'',price:0,note:'Adapter/Jack เสีย',synced:false},
+    {_k:'PC-FUJI-001_'+ts,id:'PC-FUJI-001',type:'คอมพิวเตอร์',brand:'FUJI',model:'Desktop',user:'ธนา พิทยธนาดล',dept:'IT',branch:'สำนักงานใหญ่',status:'active',date:'2026-03-18',serial:'',price:25000,note:'ผู้จัดการฝ่าย IT',synced:false},
+    {_k:'NB-RST-001_'+(ts+1),id:'NB-RST-001',type:'Notebook',brand:'ASUS',model:'Vivobook',user:'',dept:'Robotics',branch:'สำนักงานใหญ่',status:'active',date:'2026-03-18',serial:'',price:22000,note:'ห้อง Robotics',synced:false},
+    {_k:'PR-MFC-001_'+(ts+2),id:'PR-MFC-001',type:'Printer',brand:'Brother',model:'MFC-T4500DW',user:'',dept:'ส่วนกลาง',branch:'สำนักงานใหญ่',status:'active',date:'2026-03-18',serial:'',price:8500,note:'',synced:false},
+    {_k:'NW-MK-001_'+(ts+3),id:'NW-MK-001',type:'Network',brand:'MikroTik',model:'Router RB750Gr3',user:'',dept:'IT',branch:'สำนักงานใหญ่',status:'active',date:'2026-03-18',serial:'',price:3200,note:'Router หลัก',synced:false},
+    {_k:'NW-ARUBA-001_'+(ts+4),id:'NW-ARUBA-001',type:'Network',brand:'Aruba',model:'AP Access Point',user:'',dept:'ส่วนกลาง',branch:'สำนักงานใหญ่',status:'repair',date:'2026-03-18',serial:'',price:4500,note:'ปรับ Mode AP',synced:false},
+    {_k:'NW-ORBI-001_'+(ts+5),id:'NW-ORBI-001',type:'Network',brand:'Netgear',model:'Orbi34',user:'',dept:'IT',branch:'สำนักงานใหญ่',status:'active',date:'2026-03-18',serial:'',price:5800,note:'',synced:false},
+    {_k:'NB-RST-002_'+(ts+6),id:'NB-RST-002',type:'Notebook',brand:'',model:'ห้องบริการ',user:'',dept:'Service',branch:'สำนักงานใหญ่',status:'repair',date:'2026-03-18',serial:'',price:0,note:'Adapter/Jack เสีย',synced:false},
   ];
-  save();
+  saveAll();
 }
+// Seed tickets
+if(tickets.length===0){
+  const ts=Date.now();
+  tickets=[
+    {_k:'TK-001_'+ts,id:'TK-001',reporter:'สมชาย ใจดี',dept:'Robotics',category:'เครือข่าย/อินเทอร์เน็ต',asset:'NW-ARUBA-001',priority:'med',status:'open',desc:'เน็ตในห้อง Robotics ใช้งานไม่ได้',handler:'ธนา',solution:'',created:new Date(Date.now()-86400000*2).toISOString(),closed:null,images:[],synced:false},
+    {_k:'TK-002_'+(ts+1),id:'TK-002',reporter:'สมหญิง รักดี',dept:'บัญชี',category:'Printer/สแกนเนอร์',asset:'PR-MFC-001',priority:'low',status:'closed',desc:'ปริ้นเตอร์ไม่ยอมพิมพ์',handler:'ธนา',solution:'เปลี่ยน drum unit และเคลียร์ paper jam',created:new Date(Date.now()-86400000*5).toISOString(),closed:new Date(Date.now()-86400000*4).toISOString(),images:[],synced:false},
+  ];
+  saveAll();
+}
+
 if(scriptUrl) document.getElementById('urlIn').value=scriptUrl;
 updateBar(); updateNav();
 
-function save(){localStorage.setItem(SK,JSON.stringify(assets));updateNav();updateBar();}
-function updateNav(){
-  document.getElementById('nTotal').textContent=assets.length;
-  document.getElementById('nRepair').textContent=assets.filter(a=>a.status==='repair').length;
+function saveAll(){
+  localStorage.setItem(AK,JSON.stringify(assets));
+  localStorage.setItem(TK,JSON.stringify(tickets));
+  localStorage.setItem(TRK,JSON.stringify(transfers));
+  updateNav(); updateBar();
 }
+
+function updateNav(){
+  document.getElementById('nAsset').textContent=assets.length;
+  document.getElementById('nTransfer').textContent=transfers.length;
+  const open=tickets.filter(t=>t.status!=='closed').length;
+  document.getElementById('nTicket').textContent=open;
+}
+
 function updateBar(){
-  const dot=document.getElementById('sDot'), st=document.getElementById('sync-status');
+  const dot=document.getElementById('sDot'), st=document.getElementById('sStatus');
   if(scriptUrl){
-    dot.className='sync-dot live';
-    const n=assets.filter(a=>!a.synced).length;
-    st.textContent=n?`⏳ รอ Sync ${n} รายการ`:'✓ Sync ครบทุกรายการ';
+    const n=[...assets,...tickets,...transfers].filter(x=>!x.synced).length;
+    dot.className='sdot live';
+    st.textContent=n?`⏳ รอ Sync ${n} รายการ`:'✓ Sync ครบ';
     st.style.color=n?'var(--amber)':'var(--green)';
   } else {
-    dot.className='sync-dot';
-    st.textContent='⚠ ยังไม่ได้ตั้งค่า Apps Script';
+    dot.className='sdot';
+    st.textContent='⚠ ยังไม่ตั้งค่า Sheets';
     st.style.color='var(--amber)';
   }
 }
 
-// ─── JSONP SYNC ───
-function jsonpCall(params, cb){
+// ═══════════════════════════════
+// JSONP SYNC
+// ═══════════════════════════════
+function jsonp(params){
   return new Promise(resolve=>{
-    const cbName = 'cb_'+Date.now();
-    const script = document.createElement('script');
-    const q = Object.entries({...params, cb:cbName}).map(([k,v])=>k+'='+encodeURIComponent(v||'')).join('&');
-    window[cbName] = function(data){
-      delete window[cbName];
-      document.body.removeChild(script);
-      resolve(data);
-    };
-    script.src = scriptUrl+'?'+q;
-    script.onerror = ()=>{ delete window[cbName]; document.body.removeChild(script); resolve({status:'error'}); };
-    document.body.appendChild(script);
-    setTimeout(()=>{ if(window[cbName]){ delete window[cbName]; try{document.body.removeChild(script);}catch{} resolve({status:'timeout'}); }}, 8000);
+    const cbName='cb_'+Date.now();
+    const s=document.createElement('script');
+    const q=Object.entries({...params,cb:cbName}).map(([k,v])=>k+'='+encodeURIComponent(v||'')).join('&');
+    window[cbName]=data=>{delete window[cbName];try{document.body.removeChild(s);}catch{}resolve(data);};
+    s.src=scriptUrl+'?'+q;
+    s.onerror=()=>{delete window[cbName];try{document.body.removeChild(s);}catch{}resolve({status:'error'});};
+    document.body.appendChild(s);
+    setTimeout(()=>{if(window[cbName]){delete window[cbName];try{document.body.removeChild(s);}catch{}resolve({status:'timeout'});}},8000);
   });
 }
 
-async function syncOne(a, action){
+async function pushRow(sheetName, rowArr, key, action='add'){
   if(!scriptUrl) return false;
-  const res = await jsonpCall({action, key:a._key||a.id, id:a.id, type:a.type, brand:a.brand, model:a.model, user:a.user, dept:a.dept, status:a.status, date:a.date, serial:a.serial, price:a.price, note:a.note});
-  return res && res.status==='ok';
+  const res=await jsonp({action,sheet:sheetName,key,row:JSON.stringify(rowArr)});
+  return res&&res.status==='ok';
 }
 
-async function syncPending(){
-  if(!scriptUrl){gv('setup',null);toast('⚠ ตั้งค่า Apps Script ก่อนครับ','warn');return;}
+async function syncAll(){
+  if(!scriptUrl){gv('setup',null);toast('⚠ ตั้งค่า Sheets ก่อนครับ','warn');return;}
   const btn=document.getElementById('syncBtn');
-  btn.textContent='⟳ กำลัง Sync...'; btn.disabled=true;
-  const pending=assets.filter(a=>!a.synced);
+  btn.textContent='⟳...';btn.disabled=true;
   let ok=0;
-  for(const a of pending){const r=await syncOne(a,'add');if(r){a.synced=true;ok++;}}
-  save(); renderTbl();
-  btn.innerHTML='<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 2a6 6 0 11-3.5 10.5"/><path d="M10 6V2H6"/></svg> Sync Sheets';
+  for(const a of assets.filter(x=>!x.synced)){
+    const r=await pushRow('Assets',[a._k,a.id,a.type,a.brand,a.model,a.user,a.dept,a.branch,a.status,a.date,a.serial,a.price,a.note,new Date().toLocaleDateString('th-TH')],a._k,'add');
+    if(r){a.synced=true;ok++;}
+  }
+  for(const t of tickets.filter(x=>!x.synced)){
+    const r=await pushRow('Tickets',[t._k,t.id,t.reporter,t.dept,t.category,t.asset,t.priority,t.status,t.desc,t.handler,t.solution,t.created,t.closed,new Date().toLocaleDateString('th-TH')],t._k,'add');
+    if(r){t.synced=true;ok++;}
+  }
+  for(const tr of transfers.filter(x=>!x.synced)){
+    const r=await pushRow('Transfers',[tr._k,tr.id,tr.type,tr.asset,tr.from,tr.to,tr.receiver,tr.approver,tr.note,tr.date,tr.status,new Date().toLocaleDateString('th-TH')],tr._k,'add');
+    if(r){tr.synced=true;ok++;}
+  }
+  saveAll();
+  btn.innerHTML='<svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 2a6 6 0 11-3.5 10.5"/><path d="M10 6V2H6"/></svg> Sync';
   btn.disabled=false;
-  toast(ok>0?`✓ Sync ${ok} รายการสำเร็จ`:'✓ ทุกรายการ Sync แล้ว');
+  toast(ok?`✓ Sync ${ok} รายการสำเร็จ`:'✓ ทุกรายการ Sync แล้ว');
 }
 
-// ─── VIEWS ───
+// ═══════════════════════════════
+// VIEWS
+// ═══════════════════════════════
+let currentView='kpi';
 function gv(name,el){
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.getElementById('view-'+name).classList.add('active');
-  if(el) el.classList.add('active');
-  const t={dashboard:'Dashboard',assets:'ทรัพย์สินทั้งหมด',repair:'ซ่อมบำรุง',setup:'ตั้งค่า Sheets'};
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+  document.getElementById('view-'+name).classList.add('on');
+  if(el) el.classList.add('on');
+  currentView=name;
+  const t={kpi:'KPI Dashboard',assets:'ทรัพย์สินทั้งหมด',transfer:'เบิก/โอนทรัพย์สิน',ticket:'แจ้งซ่อม / Ticket',repair:'ซ่อมบำรุง',setup:'ตั้งค่า Sheets'};
   document.getElementById('pTitle').textContent=t[name]||name;
-  if(name==='assets') renderTbl();
-  if(name==='dashboard') renderDash();
+  const bl={assets:'เพิ่มทรัพย์สิน',ticket:'แจ้งซ่อมใหม่',transfer:'สร้างใบเบิก/โอน',kpi:'',repair:'',setup:''};
+  document.getElementById('quickAddLbl').textContent=bl[name]||'เพิ่ม';
+  if(name==='kpi') renderKPI();
+  if(name==='assets') renderAssets();
+  if(name==='ticket') renderTickets();
+  if(name==='transfer') renderTransfers();
   if(name==='repair') renderRepair();
 }
 
-// ─── DASHBOARD ───
-function renderDash(){
-  const n=assets.length, a=assets.filter(x=>x.status==='active').length,
-    r=assets.filter(x=>x.status==='repair').length,
-    b=assets.filter(x=>x.status==='broken').length,
-    s=assets.filter(x=>x.status==='storage').length;
-  document.getElementById('kT').textContent=n;
-  document.getElementById('kA').textContent=a;
-  document.getElementById('kR').textContent=r;
-  document.getElementById('kB').textContent=b;
-  document.getElementById('kS').textContent=s;
+function quickAdd(){
+  const v=currentView;
+  if(v==='assets') openAssetAdd();
+  else if(v==='ticket') openTicketAdd();
+  else if(v==='transfer') openTransferAdd();
+}
 
-  const tc={};assets.forEach(x=>{tc[x.type]=(tc[x.type]||0)+1;});
-  const mt=Math.max(...Object.values(tc),1);
-  document.getElementById('typeBars').innerHTML=Object.entries(tc).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([t,c],i)=>`
-    <div class="bar-row"><div class="bar-label">${t}</div>
-    <div class="bar-wrap"><div class="bar-fill" style="width:${c/mt*100}%;background:${COLORS[i%8]}"></div></div>
-    <div class="bar-count">${c}</div></div>`).join('')||empty3();
+function onSearch(){
+  if(currentView==='assets') renderAssets();
+  else if(currentView==='ticket') renderTickets();
+}
 
-  const dc={};assets.forEach(x=>{if(x.dept)dc[x.dept]=(dc[x.dept]||0)+1;});
-  const md=Math.max(...Object.values(dc),1);
-  document.getElementById('deptBars').innerHTML=Object.entries(dc).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([d,c],i)=>`
-    <div class="bar-row"><div class="bar-label">${d}</div>
-    <div class="bar-wrap"><div class="bar-fill" style="width:${c/md*100}%;background:${COLORS[(i+3)%8]}"></div></div>
-    <div class="bar-count">${c}</div></div>`).join('')||empty3();
+// ═══════════════════════════════
+// KPI DASHBOARD
+// ═══════════════════════════════
+function renderKPI(){
+  const total=assets.length, active=assets.filter(a=>a.status==='active').length, rep=assets.filter(a=>a.status==='repair').length;
+  const openTk=tickets.filter(t=>t.status==='open').length;
+  const progTk=tickets.filter(t=>t.status==='progress').length;
+  const closedTk=tickets.filter(t=>t.status==='closed').length;
+  const allTk=tickets.length;
+  const rate=allTk?Math.round(closedTk/allTk*100):0;
+  const avgHrs=closedTk?Math.round(tickets.filter(t=>t.status==='closed'&&t.closed&&t.created).reduce((s,t)=>{
+    return s+(new Date(t.closed)-new Date(t.created))/3600000;},0)/closedTk):0;
 
-  document.getElementById('recentList').innerHTML=[...assets].reverse().slice(0,5).map(x=>`
-    <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);">
-      <div style="flex:1;min-width:0;">
-        <div style="font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${x.brand?x.brand+' ':''}${x.model||x.type}</div>
-        <div style="font-size:10px;color:var(--text3);font-family:'IBM Plex Mono',monospace;">${x.id}</div>
+  document.getElementById('ka-total').textContent=total;
+  document.getElementById('ka-active').textContent=active;
+  document.getElementById('ka-repair').textContent=rep;
+  document.getElementById('kt-open').textContent=openTk+progTk;
+  document.getElementById('kt-closed').textContent=closedTk;
+  document.getElementById('kt-rate').textContent=rate+'%';
+  document.getElementById('kt-avg').textContent=avgHrs;
+  document.getElementById('ktr-total').textContent=transfers.length;
+
+  // Top Issues
+  const cats={};tickets.forEach(t=>{if(t.category)cats[t.category]=(cats[t.category]||0)+1;});
+  const mx=Math.max(...Object.values(cats),1);
+  document.getElementById('topIssues').innerHTML=Object.entries(cats).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([c,n],i)=>`
+    <div class="br"><div class="blbl">${c}</div><div class="bwrap"><div class="bfill" style="width:${n/mx*100}%;background:${CLR[i%9]}"></div></div><div class="bcnt">${n}</div></div>`).join('')||'<div style="font-size:12px;color:var(--text3)">ยังไม่มีข้อมูล</div>';
+
+  // Top Depts
+  const depts={};tickets.forEach(t=>{if(t.dept)depts[t.dept]=(depts[t.dept]||0)+1;});
+  const mx2=Math.max(...Object.values(depts),1);
+  document.getElementById('topDepts').innerHTML=Object.entries(depts).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([d,n],i)=>`
+    <div class="br"><div class="blbl">${d}</div><div class="bwrap"><div class="bfill" style="width:${n/mx2*100}%;background:${CLR[(i+2)%9]}"></div></div><div class="bcnt">${n}</div></div>`).join('')||'<div style="font-size:12px;color:var(--text3)">ยังไม่มีข้อมูล</div>';
+
+  // Recent tickets
+  document.getElementById('recentTickets').innerHTML=[...tickets].sort((a,b)=>new Date(b.created)-new Date(a.created)).slice(0,4).map(t=>`
+    <div style="padding:6px 0;border-bottom:1px solid var(--border);cursor:pointer;" onclick="openTicketEdit('${t._k}')">
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span class="mono">${t.id}</span>
+        <span class="badge b-${t.status}" style="margin-left:auto;">${tkStatusTH(t.status)}</span>
       </div>
-      <span class="badge badge-${x.status}">${sTH(x.status)}</span>
-    </div>`).join('')||empty3();
-}
-function empty3(){return '<div style="font-size:12px;color:var(--text3)">ยังไม่มีข้อมูล</div>';}
+      <div style="font-size:12px;color:var(--text2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${t.category} · ${t.dept}</div>
+    </div>`).join('')||'<div style="font-size:12px;color:var(--text3)">ยังไม่มีข้อมูล</div>';
 
-// ─── TABLE ───
-function setF(t,el){fType=t;document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');renderTbl();}
-function renderTbl(){
+  // Asset by type
+  const tc={};assets.forEach(a=>{tc[a.type]=(tc[a.type]||0)+1;});
+  const mx3=Math.max(...Object.values(tc),1);
+  document.getElementById('assetByType').innerHTML=Object.entries(tc).sort((a,b)=>b[1]-a[1]).map(([t,n],i)=>`
+    <div class="br"><div class="blbl">${t}</div><div class="bwrap"><div class="bfill" style="width:${n/mx3*100}%;background:${CLR[i%9]}"></div></div><div class="bcnt">${n}</div></div>`).join('');
+
+  // Ticket status bars
+  const tStats=[['เปิด',openTk,'var(--blue)'],['กำลังดำเนินการ',progTk,'var(--amber)'],['ปิดแล้ว',closedTk,'var(--green)']];
+  const mx4=Math.max(openTk,progTk,closedTk,1);
+  document.getElementById('ticketStatus').innerHTML=tStats.map(([l,n,c])=>`
+    <div class="br"><div class="blbl">${l}</div><div class="bwrap"><div class="bfill" style="width:${n/mx4*100}%;background:${c}"></div></div><div class="bcnt">${n}</div></div>`).join('');
+}
+
+// ═══════════════════════════════
+// ASSETS
+// ═══════════════════════════════
+function setAF(t,el){aFilter=t;document.querySelectorAll('#view-assets .chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');renderAssets();}
+function renderAssets(){
   const q=document.getElementById('qSearch').value.toLowerCase();
-  const rows=assets.filter(x=>{
-    const m=!q||[x.id,x.brand,x.model,x.user,x.type].some(v=>(v||'').toLowerCase().includes(q));
-    return m&&(!fType||x.type===fType);
+  const rows=assets.filter(a=>{
+    const m=!q||[a.id,a.brand,a.model,a.user,a.type,a.branch].some(v=>(v||'').toLowerCase().includes(q));
+    return m&&(!aFilter||a.type===aFilter);
   });
-  document.getElementById('tblTitle').textContent=`รายการทั้งหมด (${rows.length})`;
-  const empty=document.getElementById('tEmpty');
-  if(!rows.length){document.getElementById('tBody').innerHTML='';empty.style.display='block';return;}
+  document.getElementById('assetTblTitle').textContent=`ทรัพย์สินทั้งหมด (${rows.length})`;
+  const empty=document.getElementById('assetEmpty');
+  if(!rows.length){document.getElementById('assetTbl').innerHTML='';empty.style.display='block';return;}
   empty.style.display='none';
-  document.getElementById('tBody').innerHTML=rows.map(x=>`
-    <tr onclick="openEdit('${x._key||x.id}')">
-      <td class="mono">${x.id}</td>
-      <td><span class="badge badge-type">${x.type}</span></td>
-      <td style="color:var(--text2);">${x.brand?'<strong style="color:var(--text)">'+x.brand+'</strong> ':''}${x.model||''}</td>
-      <td>${x.user||'<span style="color:var(--text3)">—</span>'}</td>
-      <td style="color:var(--text2);">${x.dept||'—'}</td>
-      <td><span class="badge badge-${x.status}">${sTH(x.status)}</span></td>
-      <td><span class="badge ${x.synced?'badge-ok':'badge-wait'}">${x.synced?'✓ Synced':'⏳ Pending'}</span></td>
+  document.getElementById('assetTbl').innerHTML=rows.map(a=>`
+    <tr onclick="openAssetEdit('${a._k}')">
+      <td class="mono">${a.id}</td>
+      <td><span class="badge b-type">${a.type}</span></td>
+      <td style="color:var(--text2);">${a.brand?'<strong style="color:var(--text)">'+a.brand+'</strong> ':''}${a.model||''}</td>
+      <td>${a.user||'<span style="color:var(--text3)">—</span>'}</td>
+      <td style="font-size:12px;color:var(--text2);">${a.dept||''}${a.branch?' · '+a.branch:''}</td>
+      <td><span class="badge b-${a.status}">${aStatusTH(a.status)}</span></td>
+      <td><span class="badge ${a.synced?'b-ok':'b-pend'}">${a.synced?'✓':'⏳'}</span></td>
       <td onclick="event.stopPropagation()"><div class="acts">
-        <button class="ico-btn" onclick="openEdit('${x._key||x.id}')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l2.5 2.5-7 7L1 11l.5-2.5z"/></svg></button>
-        <button class="ico-btn del" onclick="delAsset('${x._key||x.id}')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4M3 3l.5 7h5L9 3"/></svg></button>
+        <button class="ib" onclick="openAssetEdit('${a._k}')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l2.5 2.5-7 7L1 11l.5-2.5z"/></svg></button>
+        <button class="ib del" onclick="delAsset('${a._k}')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4M3 3l.5 7h5L9 3"/></svg></button>
       </div></td>
     </tr>`).join('');
 }
 
-// ─── REPAIR ───
-function renderRepair(){
-  const items=assets.filter(x=>x.status==='repair'||x.status==='broken');
-  const empty=document.getElementById('rEmpty');
-  if(!items.length){document.getElementById('rBody').innerHTML='';empty.style.display='block';return;}
-  empty.style.display='none';
-  document.getElementById('rBody').innerHTML=items.map(x=>`
-    <tr onclick="openEdit('${x._key||x.id}')">
-      <td class="mono">${x.id}</td>
-      <td>${x.brand?x.brand+' ':''}${x.model||x.type}</td>
-      <td style="color:var(--text2);">${x.note||'—'}</td>
-      <td><span class="badge badge-${x.status}">${sTH(x.status)}</span></td>
-      <td class="mono" style="font-size:11px;color:var(--text3);">${x.date||'—'}</td>
-      <td onclick="event.stopPropagation()"><div class="acts">
-        <button class="ico-btn" onclick="openEdit('${x._key||x.id}')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l2.5 2.5-7 7L1 11l.5-2.5z"/></svg></button>
-        <button class="ico-btn del" onclick="delAsset('${x._key||x.id}')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4M3 3l.5 7h5L9 3"/></svg></button>
-      </div></td>
-    </tr>`).join('');
+function openAssetAdd(){editAssetKey=null;document.getElementById('assetMTitle').textContent='เพิ่มทรัพย์สิน';['a-id','a-brand','a-model','a-user','a-serial','a-note'].forEach(i=>document.getElementById(i).value='');['a-type','a-dept','a-branch'].forEach(i=>document.getElementById(i).value='');document.getElementById('a-status').value='active';document.getElementById('a-price').value='';document.getElementById('a-date').value=new Date().toISOString().split('T')[0];document.getElementById('assetOverlay').classList.add('show');}
+function openAssetEdit(key){
+  let a=assets.find(x=>x._k===key)||assets.find(x=>x.id===key);
+  if(!a)return;if(!a._k){a._k=a.id+'_'+Date.now();saveAll();}
+  editAssetKey=a._k;
+  document.getElementById('assetMTitle').textContent='แก้ไขทรัพย์สิน';
+  ['id','brand','model','user','serial','note'].forEach(f=>document.getElementById('a-'+f).value=a[f]||'');
+  ['type','dept','branch','status'].forEach(f=>document.getElementById('a-'+f).value=a[f]||'');
+  document.getElementById('a-date').value=a.date||'';
+  document.getElementById('a-price').value=a.price||'';
+  document.getElementById('assetOverlay').classList.add('show');
 }
-
-// ─── MODAL ───
-function clearForm(){
-  ['fId','fBrand','fModel','fUser','fSerial','fNote'].forEach(id=>document.getElementById(id).value='');
-  ['fType','fDept'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('fStatus').value='active';
-  document.getElementById('fPrice').value='';
-  document.getElementById('fDate').value=new Date().toISOString().split('T')[0];
-}
-function openAdd(){editId=null;document.getElementById('mTitle').textContent='เพิ่มทรัพย์สินใหม่';clearForm();document.getElementById('overlay').classList.add('show');}
-function openEdit(key){
-  // รองรับทั้ง _key และ id (สำหรับข้อมูลเก่าที่ไม่มี _key)
-  let x=assets.find(a=>a._key===key);
-  if(!x) x=assets.find(a=>a.id===key);
-  if(!x)return;
-  // ถ้าข้อมูลเก่าไม่มี _key ให้สร้างให้เลย
-  if(!x._key){ x._key=x.id+'_'+Date.now(); save(); }
-  editId=x._key;
-  document.getElementById('mTitle').textContent='แก้ไขทรัพย์สิน';
-  document.getElementById('fId').value=x.id;
-  document.getElementById('fType').value=x.type||'';
-  document.getElementById('fBrand').value=x.brand||'';
-  document.getElementById('fModel').value=x.model||'';
-  document.getElementById('fUser').value=x.user||'';
-  document.getElementById('fDept').value=x.dept||'';
-  document.getElementById('fStatus').value=x.status||'active';
-  document.getElementById('fDate').value=x.date||'';
-  document.getElementById('fSerial').value=x.serial||'';
-  document.getElementById('fPrice').value=x.price||'';
-  document.getElementById('fNote').value=x.note||'';
-  document.getElementById('overlay').classList.add('show');
-}
-function closeM(){document.getElementById('overlay').classList.remove('show');}
-
 async function saveAsset(){
-  const id=document.getElementById('fId').value.trim();
+  const id=document.getElementById('a-id').value.trim();
   if(!id){toast('⚠ กรุณากรอกรหัสอุปกรณ์','warn');return;}
-  const obj={id,type:document.getElementById('fType').value,brand:document.getElementById('fBrand').value.trim(),model:document.getElementById('fModel').value.trim(),user:document.getElementById('fUser').value.trim(),dept:document.getElementById('fDept').value,status:document.getElementById('fStatus').value,date:document.getElementById('fDate').value,serial:document.getElementById('fSerial').value.trim(),price:parseFloat(document.getElementById('fPrice').value)||0,note:document.getElementById('fNote').value.trim(),synced:false};
-  const action=editId?'update':'add';
-  if(editId){const i=assets.findIndex(a=>a._key===editId);if(i>=0)assets[i]={...obj,_key:editId};}
-  else{obj._key=id+'_'+Date.now();assets.push(obj);}
-  save();closeM();renderTbl();renderDash();
-
+  const obj={_k:editAssetKey||(id+'_'+Date.now()),id,type:g('a-type'),brand:g('a-brand'),model:g('a-model'),user:g('a-user'),dept:g('a-dept'),branch:g('a-branch'),status:g('a-status'),date:g('a-date'),serial:g('a-serial'),price:parseFloat(g('a-price'))||0,note:g('a-note'),synced:false};
+  const action=editAssetKey?'update':'add';
+  if(editAssetKey){const i=assets.findIndex(a=>a._k===editAssetKey);if(i>=0)assets[i]=obj;}
+  else assets.push(obj);
+  saveAll();closeM('asset');renderAssets();renderKPI();
   if(scriptUrl){
-    toast('⟳ กำลัง Sync ไป Sheets...');
-    const ok=await syncOne(obj,action);
-    if(ok){const i=assets.findIndex(a=>a._key===obj._key);if(i>=0){assets[i].synced=true;save();renderTbl();}toast('✓ บันทึกและ Sync Sheets สำเร็จ!');}
-    else toast('✓ บันทึกแล้ว — Sync ไม่สำเร็จ ลอง Sync อีกครั้ง','warn');
-  } else toast('✓ บันทึกสำเร็จ (ตั้งค่า Sheets เพื่อ Sync)');
+    toast('⟳ Sync...');
+    const ok=await pushRow('Assets',[obj._k,obj.id,obj.type,obj.brand,obj.model,obj.user,obj.dept,obj.branch,obj.status,obj.date,obj.serial,obj.price,obj.note,new Date().toLocaleDateString('th-TH')],obj._k,action);
+    if(ok){const i=assets.findIndex(a=>a._k===obj._k);if(i>=0){assets[i].synced=true;saveAll();renderAssets();}}
+    toast(ok?'✓ บันทึกและ Sync สำเร็จ':'✓ บันทึกแล้ว (Sync ไม่สำเร็จ)',ok?'ok':'warn');
+  } else toast('✓ บันทึกสำเร็จ');
 }
-
 async function delAsset(key){
-  if(!confirm('ยืนยันลบ?'))return;
-  const a=assets.find(x=>x._key===key);
-  if(a&&scriptUrl) await jsonpCall({action:'delete',id:a.id});
-  assets=assets.filter(x=>x._key!==key);
-  save();renderTbl();renderDash();toast('ลบเรียบร้อย');
+  let a=assets.find(x=>x._k===key)||assets.find(x=>x.id===key);
+  if(!a||!confirm('ยืนยันลบ '+a.id+'?'))return;
+  if(scriptUrl)await jsonp({action:'delete',sheet:'Assets',key:a._k||a.id});
+  assets=assets.filter(x=>x._k!==key&&x.id!==key);
+  saveAll();renderAssets();renderKPI();toast('ลบเรียบร้อย');
 }
 
-// ─── SETUP ───
+// ═══════════════════════════════
+// TRANSFERS
+// ═══════════════════════════════
+function setTRF(t,el){trFilter=t;document.querySelectorAll('#view-transfer .chips .chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');renderTransfers();}
+function renderTransfers(){
+  const rows=trFilter?transfers.filter(t=>t.type===trFilter):transfers;
+  document.getElementById('trTblTitle').textContent=`ประวัติเบิก/โอน (${rows.length})`;
+  const empty=document.getElementById('trEmpty');
+  if(!rows.length){document.getElementById('trTbl').innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  const typeLabel={borrow:'เบิกให้พนักงาน',branch:'โอนข้ามสาขา',return:'คืนทรัพย์สิน'};
+  document.getElementById('trTbl').innerHTML=rows.map(tr=>`
+    <tr>
+      <td class="mono">${tr.id}</td>
+      <td><span class="badge ${tr.type==='borrow'?'b-transfer':tr.type==='branch'?'b-issue':'b-ok'}">${typeLabel[tr.type]||tr.type}</span></td>
+      <td style="color:var(--text2);">${tr.asset}</td>
+      <td style="color:var(--text2);">${tr.from||'—'}</td>
+      <td>${tr.to||'—'}</td>
+      <td>${tr.receiver||'—'}</td>
+      <td class="mono" style="font-size:11px;color:var(--text3);">${tr.date||'—'}</td>
+      <td><span class="badge ${tr.status==='approved'?'b-ok':'b-pend'}">${tr.status==='approved'?'อนุมัติ':'รออนุมัติ'}</span></td>
+      <td><div class="acts">
+        ${tr.status!=='approved'?`<button class="ib grn" onclick="approveTransfer('${tr._k}')" title="อนุมัติ"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 6l3 3 5-5"/></svg></button>`:''}
+        <button class="ib del" onclick="delTransfer('${tr._k}')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4M3 3l.5 7h5L9 3"/></svg></button>
+      </div></td>
+    </tr>`).join('');
+}
+
+function openTransferAdd(){
+  populateAssetSelect('tr-asset');
+  document.getElementById('tr-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('tr-type').value='borrow';
+  ['tr-from','tr-to','tr-receiver','tr-approver','tr-note'].forEach(i=>document.getElementById(i).value='');
+  updateTRForm();
+  document.getElementById('trOverlay').classList.add('show');
+}
+
+function updateTRForm(){
+  const type=g('tr-type');
+  const docs={
+    borrow:'• ใบขอเบิกอุปกรณ์ (อนุมัติโดยหัวหน้าแผนก)<br>• ใบส่งมอบทรัพย์สิน (เซ็นรับ 2 ฝ่าย)<br>• บันทึกในระบบ IT Asset',
+    branch:'• ใบขออนุมัติโอนทรัพย์สิน (ผู้จัดการอนุมัติ)<br>• ใบส่งมอบระหว่างสาขา (เซ็น 2 สาขา)<br>• อัปเดตทะเบียนทรัพย์สิน',
+    return:'• ใบคืนทรัพย์สิน<br>• ตรวจสอบสภาพก่อนรับคืน<br>• อัปเดตสถานะในระบบ'
+  };
+  document.getElementById('tr-docs-list').innerHTML=docs[type]||'';
+  document.getElementById('tr-recv-lbl').textContent=type==='borrow'?'ผู้รับ / พนักงาน':type==='branch'?'ผู้รับที่สาขาปลายทาง':'ผู้คืนทรัพย์สิน';
+}
+
+async function saveTransfer(){
+  const asset=g('tr-asset');
+  if(!asset){toast('⚠ เลือกทรัพย์สินก่อน','warn');return;}
+  const id='TR-'+String(transfers.length+1).padStart(3,'0')+'-'+Date.now().toString().slice(-4);
+  const obj={_k:id,id,type:g('tr-type'),asset,from:g('tr-from'),to:g('tr-to'),receiver:g('tr-receiver'),approver:g('tr-approver'),note:g('tr-note'),date:g('tr-date'),status:'pending',synced:false};
+  transfers.push(obj);
+  // Update asset branch/user if borrow
+  if(obj.type==='borrow'){
+    const a=assets.find(x=>x.id===asset);
+    if(a){a.user=obj.receiver;a.dept=g('tr-to')||a.dept;a.synced=false;}
+  } else if(obj.type==='branch'){
+    const a=assets.find(x=>x.id===asset);
+    if(a){a.branch=obj.to;a.synced=false;}
+  }
+  saveAll();closeM('tr');renderTransfers();renderKPI();
+  toast('✓ สร้างใบเบิก/โอนสำเร็จ — รออนุมัติ');
+}
+
+function approveTransfer(key){
+  const tr=transfers.find(t=>t._k===key);
+  if(!tr)return;
+  tr.status='approved';tr.synced=false;
+  saveAll();renderTransfers();toast('✓ อนุมัติแล้ว');
+}
+function delTransfer(key){
+  if(!confirm('ยืนยันลบรายการนี้?'))return;
+  transfers=transfers.filter(t=>t._k!==key);
+  saveAll();renderTransfers();renderKPI();toast('ลบแล้ว');
+}
+
+// ═══════════════════════════════
+// TICKETS
+// ═══════════════════════════════
+function setTKF(t,el){tkFilter=t;document.querySelectorAll('#view-ticket .chips .chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');renderTickets();}
+function renderTickets(){
+  const q=document.getElementById('qSearch').value.toLowerCase();
+  let rows=tkFilter?tickets.filter(t=>t.status===tkFilter):tickets;
+  if(q) rows=rows.filter(t=>[t.id,t.reporter,t.dept,t.category,t.desc].some(v=>(v||'').toLowerCase().includes(q)));
+  rows=[...rows].sort((a,b)=>new Date(b.created)-new Date(a.created));
+  document.getElementById('tkTblTitle').textContent=`รายการแจ้งซ่อม (${rows.length})`;
+  const empty=document.getElementById('tkEmpty');
+  if(!rows.length){document.getElementById('tkTbl').innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  document.getElementById('tkTbl').innerHTML=rows.map(t=>`
+    <tr onclick="openTicketEdit('${t._k}')">
+      <td class="mono">${t.id}</td>
+      <td><div style="font-size:13px;">${t.reporter}</div><div style="font-size:11px;color:var(--text3);">${t.dept||''}</div></td>
+      <td><span class="badge b-type">${t.category}</span></td>
+      <td style="font-size:12px;color:var(--text2);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${t.desc}</td>
+      <td><span class="badge b-${t.priority}">${t.priority==='high'?'🔴 เร่งด่วน':t.priority==='med'?'🟡 ด่วน':'🟢 ปกติ'}</span></td>
+      <td><span class="badge b-${t.status}">${tkStatusTH(t.status)}</span></td>
+      <td class="mono" style="font-size:11px;color:var(--text3);">${fmtDate(t.created)}${(t.links&&t.links.length)?'<br><span style="color:var(--cyan)">🔗 '+t.links.length+' รูป</span>':''}</td>
+      <td onclick="event.stopPropagation()"><div class="acts">
+        <button class="ib" onclick="openTicketEdit('${t._k}')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l2.5 2.5-7 7L1 11l.5-2.5z"/></svg></button>
+        ${t.status!=='closed'?`<button class="ib grn" onclick="quickClose('${t._k}')" title="ปิดงาน"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 6l3 3 5-5"/></svg></button>`:''}
+        <button class="ib del" onclick="delTicket('${t._k}')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4M3 3l.5 7h5L9 3"/></svg></button>
+      </div></td>
+    </tr>`).join('');
+}
+
+function openTicketAdd(){
+  editTicketKey=null;tkImages=[];tkLinks=[];
+  document.getElementById('tkMTitle').textContent='แจ้งซ่อมใหม่';
+  ['tk-reporter','tk-handler','tk-solution','tk-desc','tk-link-input'].forEach(i=>document.getElementById(i).value='');
+  ['tk-dept','tk-category','tk-priority'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('tk-status').value='open';
+  document.getElementById('tk-priority').value='low';
+  populateAssetSelect('tk-asset');
+  renderImgGrid();renderLinks();
+  document.getElementById('tkCloseBtn').style.display='none';
+  document.getElementById('tkOverlay').classList.add('show');
+}
+
+function openTicketEdit(key){
+  const t=tickets.find(x=>x._k===key);if(!t)return;
+  editTicketKey=key;tkImages=t.images||[];tkLinks=t.links||[];
+  document.getElementById('tkMTitle').textContent='แก้ไข Ticket '+t.id;
+  document.getElementById('tk-reporter').value=t.reporter||'';
+  document.getElementById('tk-dept').value=t.dept||'';
+  document.getElementById('tk-category').value=t.category||'';
+  document.getElementById('tk-priority').value=t.priority||'low';
+  document.getElementById('tk-status').value=t.status||'open';
+  document.getElementById('tk-handler').value=t.handler||'';
+  document.getElementById('tk-solution').value=t.solution||'';
+  document.getElementById('tk-desc').value=t.desc||'';
+  document.getElementById('tk-link-input').value='';
+  populateAssetSelect('tk-asset',t.asset);
+  renderImgGrid();renderLinks();
+  document.getElementById('tkCloseBtn').style.display=t.status!=='closed'?'flex':'none';
+  document.getElementById('tkOverlay').classList.add('show');
+}
+
+async function saveTicket(){
+  const reporter=g('tk-reporter');
+  if(!reporter){toast('⚠ กรุณากรอกชื่อผู้แจ้ง','warn');return;}
+  const category=g('tk-category');
+  if(!category){toast('⚠ เลือกประเภทปัญหาก่อน','warn');return;}
+  const status=g('tk-status');
+  const isNew=!editTicketKey;
+  const id=isNew?('TK-'+String(tickets.length+1).padStart(3,'0')):tickets.find(t=>t._k===editTicketKey)?.id;
+  const obj={
+    _k:editTicketKey||(id+'_'+Date.now()),id,
+    reporter,dept:g('tk-dept'),category,
+    asset:g('tk-asset'),priority:g('tk-priority'),
+    status,desc:g('tk-desc'),handler:g('tk-handler'),
+    solution:g('tk-solution'),
+    created:isNew?new Date().toISOString():(tickets.find(t=>t._k===editTicketKey)?.created||new Date().toISOString()),
+    closed:status==='closed'?new Date().toISOString():(tickets.find(t=>t._k===editTicketKey)?.closed||null),
+    images:tkImages, links:tkLinks, synced:false
+  };
+  // Update asset status if repair ticket
+  if(obj.asset&&obj.asset!==''){
+    const a=assets.find(x=>x.id===obj.asset);
+    if(a){a.status=status==='closed'?'active':'repair';a.synced=false;}
+  }
+  if(editTicketKey){const i=tickets.findIndex(t=>t._k===editTicketKey);if(i>=0)tickets[i]=obj;}
+  else tickets.push(obj);
+  saveAll();closeM('tk');renderTickets();renderKPI();
+  if(status==='closed') renderRepair();
+  toast(status==='closed'?'✓ ปิดงานเรียบร้อย!':'✓ บันทึก Ticket สำเร็จ');
+}
+
+function closeTicket(){
+  document.getElementById('tk-status').value='closed';
+  saveTicket();
+}
+
+function quickClose(key){
+  const t=tickets.find(x=>x._k===key);if(!t)return;
+  t.status='closed';t.closed=new Date().toISOString();t.synced=false;
+  if(t.asset){const a=assets.find(x=>x.id===t.asset);if(a){a.status='active';a.synced=false;}}
+  saveAll();renderTickets();renderKPI();toast('✓ ปิดงาน '+t.id+' แล้ว');
+}
+
+function delTicket(key){
+  if(!confirm('ยืนยันลบ Ticket นี้?'))return;
+  tickets=tickets.filter(t=>t._k!==key);
+  saveAll();renderTickets();renderKPI();toast('ลบแล้ว');
+}
+
+// ─── IMAGE & DRIVE LINK HANDLING ───
+let tkImages=[], tkLinks=[];
+
+function addDriveLink(){
+  const input=document.getElementById('tk-link-input');
+  const url=input.value.trim();
+  if(!url){toast('⚠ กรุณาวาง link ก่อน','warn');return;}
+  // Extract file ID if full URL
+  let link=url;
+  let name='Drive Link '+(tkLinks.length+1);
+  const match=url.match(/\/d\/([-\w]+)/);
+  if(match) link='https://drive.google.com/file/d/'+match[1]+'/view';
+  tkLinks.push({name,url:link});
+  input.value='';
+  renderLinks();
+  toast('✓ เพิ่ม Drive link แล้ว');
+}
+
+function renderLinks(){
+  const list=document.getElementById('tk-links-list');
+  list.innerHTML=tkLinks.map((l,i)=>`
+    <div style="display:flex;align-items:center;gap:6px;padding:6px 8px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:6px;">
+      <span style="font-size:13px;">🔗</span>
+      <a href="${l.url}" target="_blank" style="font-size:12px;color:var(--cyan);text-decoration:none;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${l.url}</a>
+      <button class="ib del" onclick="removeLink(${i})" style="flex-shrink:0;width:20px;height:20px;"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1l10 10M11 1L1 11"/></svg></button>
+    </div>`).join('')||'<div style="font-size:11px;color:var(--text3);">ยังไม่มี Drive link</div>';
+}
+function removeLink(i){tkLinks.splice(i,1);renderLinks();}
+
+function addTicketImages(input){
+  const files=Array.from(input.files);
+  files.forEach(file=>{
+    if(file.size>1048576){toast('⚠ รูปใหญ่เกิน 1MB กรุณาใช้ Drive link แทน','warn');return;}
+    const reader=new FileReader();
+    reader.onload=e=>{tkImages.push({name:file.name,src:e.target.result});renderImgGrid();};
+    reader.readAsDataURL(file);
+  });
+  input.value='';
+}
+
+function renderImgGrid(){
+  const grid=document.getElementById('tk-img-grid');
+  grid.innerHTML=tkImages.map((img,i)=>`
+    <div class="img-item" onclick="removeImg(${i})" title="คลิกเพื่อลบ" style="aspect-ratio:1;border-radius:8px;background:var(--bg3);border:1px solid var(--border);overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;">
+      <img src="${img.src}" alt="${img.name}" loading="lazy" style="width:100%;height:100%;object-fit:cover;">
+      <div style="position:absolute;top:4px;right:4px;width:16px;height:16px;border-radius:50%;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;">✕</div>
+    </div>`).join('');
+}
+function removeImg(i){tkImages.splice(i,1);renderImgGrid();}
+
+// ─── REPAIR VIEW ───
+function renderRepair(){
+  const items=assets.filter(a=>a.status==='repair'||a.status==='broken');
+  const empty=document.getElementById('rpEmpty');
+  if(!items.length){document.getElementById('rpTbl').innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  document.getElementById('rpTbl').innerHTML=items.map(a=>`
+    <tr onclick="openAssetEdit('${a._k}')">
+      <td class="mono">${a.id}</td>
+      <td>${a.brand?a.brand+' ':''}${a.model||a.type}</td>
+      <td style="color:var(--text2);">${a.note||'—'}</td>
+      <td><span class="badge b-${a.status}">${aStatusTH(a.status)}</span></td>
+      <td class="mono" style="font-size:11px;color:var(--text3);">${a.date||'—'}</td>
+      <td onclick="event.stopPropagation()"><div class="acts">
+        <button class="ib" onclick="openAssetEdit('${a._k}')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l2.5 2.5-7 7L1 11l.5-2.5z"/></svg></button>
+        <button class="ib grn" onclick="openTicketAdd()" title="สร้าง Ticket"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 2h10a1 1 0 011 1v7a1 1 0 01-1 1H1a1 1 0 01-1-1V3a1 1 0 011-1z"/><path d="M3 5h6M3 7h4"/></svg></button>
+      </div></td>
+    </tr>`).join('');
+}
+
+// ═══════════════════════════════
+// SETUP
+// ═══════════════════════════════
 function saveUrl(){
   const u=document.getElementById('urlIn').value.trim();
   if(!u){toast('⚠ กรุณากรอก URL','warn');return;}
   scriptUrl=u;localStorage.setItem(UK,u);updateBar();
   const m=document.getElementById('setupMsg');
-  m.textContent='✓ บันทึก URL แล้ว กด "ทดสอบ" เพื่อเช็คการเชื่อมต่อ';
-  m.style.color='var(--green)';
+  m.textContent='✓ บันทึก URL แล้ว กด "ทดสอบ" เพื่อเช็ค';m.style.color='var(--green)';
   toast('✓ บันทึก URL สำเร็จ');
 }
 async function testUrl(){
   if(!scriptUrl){toast('⚠ กรอก URL ก่อน','warn');return;}
-  const m=document.getElementById('setupMsg');
-  m.textContent='⟳ กำลังทดสอบ...';m.style.color='var(--text2)';
-  const res=await jsonpCall({action:'test'});
-  if(res&&res.status==='ok'){
-    m.textContent='✅ เชื่อมต่อสำเร็จ! พร้อม Sync แล้ว';m.style.color='var(--green)';
-    toast('✓ เชื่อมต่อ Sheets สำเร็จ');
-  } else {
-    m.textContent='❌ เชื่อมต่อไม่สำเร็จ — ตรวจสอบ URL และ permission อีกครั้ง';m.style.color='var(--red)';
-    toast('❌ เชื่อมต่อไม่สำเร็จ','err');
-  }
+  const m=document.getElementById('setupMsg');m.textContent='⟳ กำลังทดสอบ...';m.style.color='var(--text2)';
+  const res=await jsonp({action:'test'});
+  if(res&&res.status==='ok'){m.textContent='✅ เชื่อมต่อสำเร็จ! พร้อมใช้งาน';m.style.color='var(--green)';toast('✓ เชื่อมต่อสำเร็จ');}
+  else{m.textContent='❌ เชื่อมต่อไม่ได้ ตรวจสอบ URL';m.style.color='var(--red)';}
   updateBar();
 }
-function copyCode(){
-  const txt=document.getElementById('scriptBox').innerText.replace('📋 Copy','').trim();
+function copyScript(){
+  const txt=document.getElementById('scriptCode').innerText.replace('📋 Copy','').trim();
   navigator.clipboard.writeText(txt).then(()=>toast('✓ Copy code แล้ว'));
 }
 
-// ─── HELPERS ───
-function sTH(s){return{active:'ใช้งานได้',repair:'ซ่อมบำรุง',broken:'เสียหาย',storage:'เก็บคลัง'}[s]||s;}
-let tt;
-function toast(msg,type){
+// ═══════════════════════════════
+// HELPERS
+// ═══════════════════════════════
+function g(id){return document.getElementById(id).value;}
+function aStatusTH(s){return{active:'ใช้งานได้',repair:'ซ่อมบำรุง',broken:'เสียหาย',storage:'เก็บคลัง'}[s]||s;}
+function tkStatusTH(s){return{open:'เปิด',progress:'กำลังดำเนินการ',closed:'ปิดแล้ว'}[s]||s;}
+function fmtDate(iso){if(!iso)return'—';const d=new Date(iso);return d.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'});}
+function closeM(type){document.getElementById(type==='asset'?'assetOverlay':type==='tr'?'trOverlay':'tkOverlay').classList.remove('show');}
+function populateAssetSelect(id,selected=''){
+  const sel=document.getElementById(id);
+  sel.innerHTML='<option value="">เลือก (ถ้ามี)</option>'+assets.map(a=>`<option value="${a.id}" ${a.id===selected?'selected':''}>${a.id} - ${a.brand||''} ${a.model||a.type}</option>`).join('');
+}
+
+let toastT;
+function toast(msg,type='ok'){
   const t=document.getElementById('toast'),d=document.getElementById('tdot');
   document.getElementById('tMsg').textContent=msg;
   d.style.background=type==='warn'?'var(--amber)':type==='err'?'var(--red)':'var(--green)';
-  t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),3500);
+  t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),3500);
 }
 
-// ─── INIT ───
-updateNav();renderDash();
+// INIT
+updateNav();renderKPI();
+populateAssetSelect('tr-asset');
+populateAssetSelect('tk-asset');
 </script>
 </body>
 </html>
