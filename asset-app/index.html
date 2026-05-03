@@ -1458,8 +1458,10 @@ function applyRole(pin){
 
   // Show role badge in topbar
   const badge = document.getElementById('roleBadge');
-  badge.innerHTML = `<span style="color:${r.color};">${r.icon} ${r.label}</span>`;
-  badge.style.background = r.color.replace(')',',0.12)').replace('var(','rgba(').replace('--blue','79,142,247').replace('--amber','245,158,11').replace('--green','34,197,94');
+  const bgMap = {admin:'rgba(79,142,247,0.15)',manager:'rgba(245,158,11,0.15)',staff:'rgba(34,197,94,0.15)'};
+  const colorMap = {admin:'#93c5fd',manager:'#fbbf24',staff:'#4ade80'};
+  badge.innerHTML = `<span style="color:${colorMap[r.role]}">${r.icon} ${r.label}</span>`;
+  badge.style.cssText = `background:${bgMap[r.role]};border:1px solid ${bgMap[r.role].replace('0.15','0.3')};border-radius:20px;padding:3px 10px;`;
 
   // Apply permissions
   applyPermissions();
