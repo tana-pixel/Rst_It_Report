@@ -1030,16 +1030,16 @@ function renderAssets(){
       <td><span class="badge ${a.synced?'b-ok':'b-pend'}">${a.synced?'✓':'⏳'}</span></td>
       <td onclick="event.stopPropagation()"><div class="acts">
         <button class="ib" onclick="openAssetEdit('${a._k}')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l2.5 2.5-7 7L1 11l.5-2.5z"/></svg></button>
-        <button class="ib del" onclick="if(canDelete())delAsset('${a._k}')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4M3 3l.5 7h5L9 3"/></svg></button>
+        <button class="ib del" onclick="delAsset('${a._k}')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4M3 3l.5 7h5L9 3"/></svg></button>
       </div></td>
     </tr>`).join('');
 }
 
 function openAssetAdd(){editAssetKey=null;document.getElementById('assetMTitle').textContent='เพิ่มทรัพย์สิน';['a-id','a-brand','a-model','a-user','a-serial','a-note'].forEach(i=>document.getElementById(i).value='');['a-type','a-dept','a-branch'].forEach(i=>document.getElementById(i).value='');document.getElementById('a-status').value='active';document.getElementById('a-price').value='';document.getElementById('a-date').value=new Date().toISOString().split('T')[0];document.getElementById('assetOverlay').classList.add('show');}
 function openAssetEdit(key){
-  if(!canEdit()) return;
   let a=assets.find(x=>x._k===key)||assets.find(x=>x.id===key);
-  if(!a)return;if(!a._k){a._k=a.id+'_'+Date.now();saveAll();}
+  if(!a)return;
+  if(!a._k){a._k=a.id+'_'+Date.now();saveAll();}
   editAssetKey=a._k;
   document.getElementById('assetMTitle').textContent='แก้ไขทรัพย์สิน';
   ['id','brand','model','user','serial','note'].forEach(f=>document.getElementById('a-'+f).value=a[f]||'');
@@ -1049,8 +1049,9 @@ function openAssetEdit(key){
   document.getElementById('assetOverlay').classList.add('show');
 }
 async function saveAsset(){
+  if(currentRole!=='admin'){toast('เฉพาะ IT Admin เท่านั้น','warn');return;}
   const id=document.getElementById('a-id').value.trim();
-  if(!id){toast('⚠ กรุณากรอกรหัสอุปกรณ์','warn');return;}
+  if(!id){toast('กรุณากรอกรหัสอุปกรณ์','warn');return;}
   const obj={_k:editAssetKey||(id+'_'+Date.now()),id,type:g('a-type'),brand:g('a-brand'),model:g('a-model'),user:g('a-user'),dept:g('a-dept'),branch:g('a-branch'),status:g('a-status'),date:g('a-date'),serial:g('a-serial'),price:parseFloat(g('a-price'))||0,note:g('a-note'),synced:false};
   const action=editAssetKey?'update':'add';
   if(editAssetKey){const i=assets.findIndex(a=>a._k===editAssetKey);if(i>=0)assets[i]=obj;}
@@ -1064,6 +1065,7 @@ async function saveAsset(){
   } else toast('✓ บันทึกสำเร็จ');
 }
 async function delAsset(key){
+  if(currentRole!=='admin'){toast('เฉพาะ IT Admin เท่านั้น','warn');return;}
   let a=assets.find(x=>x._k===key)||assets.find(x=>x.id===key);
   if(!a||!confirm('ยืนยันลบ '+a.id+'?'))return;
   if(scriptUrl)await jsonp({action:'delete',sheet:'Assets',key:a._k||a.id});
@@ -1093,8 +1095,8 @@ function renderTransfers(){
       <td class="mono" style="font-size:11px;color:var(--text3);">${tr.date||'—'}</td>
       <td><span class="badge ${tr.status==='approved'?'b-ok':'b-pend'}">${tr.status==='approved'?'อนุมัติ':'รออนุมัติ'}</span></td>
       <td><div class="acts">
-        <button class="ib grn" onclick="if(canApprove())approveTransfer('${tr._k}')" title="อนุมัติ" ${tr.status==='approved'?'style="opacity:.3;pointer-events:none;"':''}><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 6l3 3 5-5"/></svg></button>
-        <button class="ib del" onclick="if(canDelete())delTransfer('${tr._k}')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4M3 3l.5 7h5L9 3"/></svg></button>
+        <button class="ib grn" onclick="approveTransfer('${tr._k}')" title="อนุมัติ" ${tr.status==='approved'?'style="opacity:.3;pointer-events:none;"':''}><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 6l3 3 5-5"/></svg></button>
+        <button class="ib del" onclick="delTransfer('${tr._k}')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4M3 3l.5 7h5L9 3"/></svg></button>
       </div></td>
     </tr>`).join('');
 }
@@ -1173,8 +1175,8 @@ function renderTickets(){
       <td class="mono" style="font-size:11px;color:var(--text3);">${fmtDate(t.created)}${(t.links&&t.links.length)?'<br><span style="color:var(--cyan)">🔗 '+t.links.length+' รูป</span>':''}</td>
       <td onclick="event.stopPropagation()"><div class="acts">
         <button class="ib" onclick="openTicketEdit('${t._k}')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l2.5 2.5-7 7L1 11l.5-2.5z"/></svg></button>
-        <button class="ib grn" onclick="if(canApprove())quickClose('${t._k}')" title="ปิดงาน" ${t.status==='closed'?'style="opacity:.3;pointer-events:none;"':''}><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 6l3 3 5-5"/></svg></button>
-        <button class="ib del" onclick="if(canDelete())delTicket('${t._k}')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4M3 3l.5 7h5L9 3"/></svg></button>
+        <button class="ib grn" onclick="quickClose('${t._k}')" title="ปิดงาน" ${t.status==='closed'?'style="opacity:.3;pointer-events:none;"':''}><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 6l3 3 5-5"/></svg></button>
+        <button class="ib del" onclick="delTicket('${t._k}')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4M3 3l.5 7h5L9 3"/></svg></button>
       </div></td>
     </tr>`).join('');
 }
@@ -1394,77 +1396,64 @@ function toast(msg,type='ok'){
 // PIN LOGIN & ROLE SYSTEM
 // ═══════════════════════════════
 const PINS = {
-  '1111': { role:'admin',   label:'IT Admin',  icon:'🔵' },
-  '2222': { role:'manager', label:'ผู้จัดการ',  icon:'🟡' },
-  '3333': { role:'staff',   label:'พนักงาน',   icon:'🟢' },
+  '1111': { role:'admin',   label:'IT Admin'  },
+  '2222': { role:'manager', label:'ผู้จัดการ'  },
+  '3333': { role:'staff',   label:'พนักงาน'   },
 };
 
-// currentRole เป็น global variable - ต้องไม่ถูก reset โดยอะไรก็ตาม
-var currentRole = null;
-var pinBuffer = '';
+let currentRole = null;
+let pinBuffer = '';
 
 function checkSession(){
-  var saved = sessionStorage.getItem('it_role');
-  if(saved && PINS[saved]){
-    doLogin(saved);
-  }
+  const saved = sessionStorage.getItem('it_role');
+  if(saved && PINS[saved]) doLogin(saved);
 }
 
 function pinPress(n){
-  if(pinBuffer.length >= 4) return;
-  pinBuffer += n;
-  updateDots();
-  if(pinBuffer.length === 4) setTimeout(checkPin, 150);
+  if(pinBuffer.length>=4) return;
+  pinBuffer+=n; updateDots();
+  if(pinBuffer.length===4) setTimeout(checkPin,150);
 }
 function pinBack(){ pinBuffer=pinBuffer.slice(0,-1); updateDots(); }
 function pinClear(){ pinBuffer=''; updateDots(); }
 function updateDots(){
-  for(var i=0;i<4;i++){
-    document.getElementById('d'+i).classList.toggle('filled', i<pinBuffer.length);
-  }
+  for(let i=0;i<4;i++)
+    document.getElementById('d'+i).classList.toggle('filled',i<pinBuffer.length);
 }
 function checkPin(){
   if(PINS[pinBuffer]){
-    sessionStorage.setItem('it_role', pinBuffer);
+    sessionStorage.setItem('it_role',pinBuffer);
     doLogin(pinBuffer);
   } else {
-    document.querySelectorAll('.pin-dot').forEach(function(d){
+    document.querySelectorAll('.pin-dot').forEach(d=>{
       d.classList.add('shake');
-      setTimeout(function(){d.classList.remove('shake');},300);
+      setTimeout(()=>d.classList.remove('shake'),300);
     });
-    pinBuffer='';
-    setTimeout(updateDots,300);
-    toast('⚠ PIN ไม่ถูกต้อง','warn');
+    pinBuffer=''; setTimeout(updateDots,300);
+    toast('PIN ไม่ถูกต้อง','warn');
   }
 }
 
 function doLogin(pin){
-  var r = PINS[pin];
-  currentRole = r.role;  // <-- set ก่อนทุกอย่าง
-
+  const r = PINS[pin];
+  currentRole = r.role;
   document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('roleBadge').textContent = r.label;
 
-  // Badge
-  var badge = document.getElementById('roleBadge');
-  badge.textContent = r.icon + ' ' + r.label;
+  const isAdmin = currentRole==='admin';
+  const isStaff = currentRole==='staff';
 
-  // Sidebar permissions
-  var isAdmin   = (currentRole==='admin');
-  var isManager = (currentRole==='manager');
-  var isStaff   = (currentRole==='staff');
-
-  document.querySelectorAll('.ni').forEach(function(n){
-    var txt = n.textContent.trim();
-    if(txt.indexOf('เพิ่มทรัพย์สิน')>=0 || txt.indexOf('ตั้งค่า')>=0){
-      n.style.display = isAdmin ? '' : 'none';
-    }
-    if(txt.indexOf('ทรัพย์สินทั้งหมด')>=0 || txt.indexOf('ซ่อมบำรุง')>=0){
-      n.style.display = isStaff ? 'none' : '';
-    }
+  // Sidebar
+  document.querySelectorAll('.ni').forEach(n=>{
+    const t=n.textContent.trim();
+    if(t.includes('เพิ่มทรัพย์สิน')||t.includes('ตั้งค่า'))
+      n.style.display=isAdmin?'':'none';
+    if(t.includes('ทรัพย์สินทั้งหมด')||t.includes('ซ่อมบำรุง'))
+      n.style.display=isStaff?'none':'';
   });
 
-  document.getElementById('syncBtn').style.display = isAdmin ? '' : 'none';
-  document.getElementById('quickAddBtn').style.display = isStaff ? 'none' : '';
+  document.getElementById('syncBtn').style.display = isAdmin?'':'none';
+  document.getElementById('quickAddBtn').style.display = isStaff?'none':'';
 
   // Init
   updateNav(); renderKPI();
@@ -1472,37 +1461,29 @@ function doLogin(pin){
   populateAssetSelect('tk-asset');
 
   // Navigate
-  if(isStaff){
-    gv('ticket', document.querySelector('.ni[onclick*="ticket"]'));
-  } else {
-    gv('kpi', document.querySelector('.ni'));
-  }
+  if(isStaff) gv('ticket',document.querySelector('.ni[onclick*="ticket"]'));
+  else gv('kpi',document.querySelector('.ni'));
 }
 
 function logout(){
   if(!confirm('ออกจากระบบ?')) return;
   sessionStorage.removeItem('it_role');
-  currentRole = null;
-  pinBuffer = '';
-  updateDots();
+  currentRole=null; pinBuffer=''; updateDots();
   document.getElementById('loginScreen').classList.remove('hidden');
-  document.getElementById('roleBadge').textContent = '';
+  document.getElementById('roleBadge').textContent='';
 }
 
 function canEdit(){
   if(currentRole==='admin') return true;
-  toast('⚠ เฉพาะ IT Admin เท่านั้น','warn');
-  return false;
+  toast('เฉพาะ IT Admin เท่านั้น','warn'); return false;
 }
 function canDelete(){
   if(currentRole==='admin') return true;
-  toast('⚠ เฉพาะ IT Admin เท่านั้น','warn');
-  return false;
+  toast('เฉพาะ IT Admin เท่านั้น','warn'); return false;
 }
 function canApprove(){
   if(currentRole==='admin'||currentRole==='manager') return true;
-  toast('⚠ ต้องเป็น Admin หรือ ผู้จัดการ','warn');
-  return false;
+  toast('ต้องเป็น Admin หรือ ผู้จัดการ','warn'); return false;
 }
 
 // ═══════════════════════════════
