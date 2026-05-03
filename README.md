@@ -4,10 +4,12 @@
 
 ---
 
-## 📂 รายละเอียดเอกสารและรายงาน
-* **[คลิกที่นี่เพื่อเปิดดูหน้าเว็บ IT Dashboard](https://tana-pixel.github.io/Rst_It_Report/index.html)** * **ไฟล์หลัก:** `index.html` (ระบบรายงานสรุปผลการดำเนินงานประจำเดือน)
-*  โปรแกรม บันทึกทรัพย์สิน It Asset RuamsinthaiGroup https://tana-pixel.github.io/Rst_It_Report/asset-app/ ***
+# 📊 ระบบรายงานและจัดการ IT
 
+คลิกที่ลิงก์ด้านล่างเพื่อเข้าใช้งานแอปพลิเคชัน:
+
+* 📋 [เปิดแอป Daily Report (บันทึกรายงานประจำวัน)](https://tana-pixel.github.io/Rst_It_Report/Daily_Report/DailyReport_Pro_v3.html)
+* 📦 [เปิดแอป IT Asset Management (ระบบจัดการอุปกรณ์)](https://tana-pixel.github.io/Rst_It_Report/asset-app/index.html)
 ---
 
 ## 🎯 วัตถุประสงค์
