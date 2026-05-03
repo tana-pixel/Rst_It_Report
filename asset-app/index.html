@@ -1029,8 +1029,8 @@ function renderAssets(){
       <td><span class="badge b-${a.status}">${aStatusTH(a.status)}</span></td>
       <td><span class="badge ${a.synced?'b-ok':'b-pend'}">${a.synced?'✓':'⏳'}</span></td>
       <td onclick="event.stopPropagation()"><div class="acts">
-        ${canEdit()?`<button class="ib" onclick="openAssetEdit('${a._k}')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l2.5 2.5-7 7L1 11l.5-2.5z"/></svg></button>`:''}
-        ${canDelete()?`<button class="ib del" onclick="delAsset('${a._k}')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4M3 3l.5 7h5L9 3"/></svg></button>`:''}
+        <button class="ib" onclick="if(canEdit())openAssetEdit('${a._k}')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l2.5 2.5-7 7L1 11l.5-2.5z"/></svg></button>
+        <button class="ib del" onclick="if(canDelete())delAsset('${a._k}')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4M3 3l.5 7h5L9 3"/></svg></button>
       </div></td>
     </tr>`).join('');
 }
@@ -1092,8 +1092,8 @@ function renderTransfers(){
       <td class="mono" style="font-size:11px;color:var(--text3);">${tr.date||'—'}</td>
       <td><span class="badge ${tr.status==='approved'?'b-ok':'b-pend'}">${tr.status==='approved'?'อนุมัติ':'รออนุมัติ'}</span></td>
       <td><div class="acts">
-        ${canApprove()&&tr.status!=='approved'?`<button class="ib grn" onclick="approveTransfer('${tr._k}')" title="อนุมัติ"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 6l3 3 5-5"/></svg></button>`:''}
-        ${canDelete()?`<button class="ib del" onclick="delTransfer('${tr._k}')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4M3 3l.5 7h5L9 3"/></svg></button>`:''}
+        <button class="ib grn" onclick="if(canApprove())approveTransfer('${tr._k}')" title="อนุมัติ" ${tr.status==='approved'?'style="opacity:.3;pointer-events:none;"':''}><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 6l3 3 5-5"/></svg></button>
+        <button class="ib del" onclick="if(canDelete())delTransfer('${tr._k}')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4M3 3l.5 7h5L9 3"/></svg></button>
       </div></td>
     </tr>`).join('');
 }
@@ -1172,8 +1172,8 @@ function renderTickets(){
       <td class="mono" style="font-size:11px;color:var(--text3);">${fmtDate(t.created)}${(t.links&&t.links.length)?'<br><span style="color:var(--cyan)">🔗 '+t.links.length+' รูป</span>':''}</td>
       <td onclick="event.stopPropagation()"><div class="acts">
         <button class="ib" onclick="openTicketEdit('${t._k}')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l2.5 2.5-7 7L1 11l.5-2.5z"/></svg></button>
-        ${canApprove()&&t.status!=='closed'?`<button class="ib grn" onclick="quickClose('${t._k}')" title="ปิดงาน"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 6l3 3 5-5"/></svg></button>`:''}
-        ${canDelete()?`<button class="ib del" onclick="delTicket('${t._k}')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4M3 3l.5 7h5L9 3"/></svg></button>`:''}
+        <button class="ib grn" onclick="if(canApprove())quickClose('${t._k}')" title="ปิดงาน" ${t.status==='closed'?'style="opacity:.3;pointer-events:none;"':''}><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 6l3 3 5-5"/></svg></button>
+        <button class="ib del" onclick="if(canDelete())delTicket('${t._k}')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4M3 3l.5 7h5L9 3"/></svg></button>
       </div></td>
     </tr>`).join('');
 }
@@ -1519,9 +1519,18 @@ function logout(){
 }
 
 // Override delete buttons based on role
-function canDelete(){ return currentRole === 'admin'; }
-function canApprove(){ return currentRole === 'admin' || currentRole === 'manager'; }
-function canEdit(){ return currentRole === 'admin'; }
+function canDelete(){
+  if(currentRole==='admin') return true;
+  toast('⚠ ไม่มีสิทธิ์ลบ — ต้องเป็น IT Admin','warn'); return false;
+}
+function canApprove(){
+  if(currentRole==='admin'||currentRole==='manager') return true;
+  toast('⚠ ไม่มีสิทธิ์อนุมัติ','warn'); return false;
+}
+function canEdit(){
+  if(currentRole==='admin') return true;
+  toast('⚠ ไม่มีสิทธิ์แก้ไข — ต้องเป็น IT Admin','warn'); return false;
+}
 
 // ═══════════════════════════════
 // INIT
