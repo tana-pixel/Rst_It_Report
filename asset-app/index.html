@@ -1335,7 +1335,7 @@ function renderRepair(){
       <td class="mono" style="font-size:11px;color:var(--text3);">${a.date||'—'}</td>
       <td onclick="event.stopPropagation()"><div class="acts">
         <button class="ib" onclick="openAssetEdit(${idx})"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l2.5 2.5-7 7L1 11l.5-2.5z"/></svg></button>
-        <button class="ib grn" onclick="openTicketAdd()" title="สร้าง Ticket"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 2h10a1 1 0 011 1v7a1 1 0 01-1 1H1a1 1 0 01-1-1V3a1 1 0 011-1z"/><path d="M3 5h6M3 7h4"/></svg></button>
+        <button class="ib del" onclick="delAsset(${idx})"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4M3 3l.5 7h5L9 3"/></svg></button>
       </div></td>
     </tr>`;
   }).join('');
