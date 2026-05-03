@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT Daily Report Pro - บันทึกรายงานประจำวัน</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .header h1 { font-size: 28px; margin-bottom: 8px; }
+        .header p { font-size: 14px; opacity: 0.9; }
+        .content { padding: 30px; }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e0e0e0;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            padding: 12px 15px;
+            border: none;
+            background: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+        }
+        .tab-btn.active { color: #667eea; border-bottom-color: #667eea; }
+        .tab-btn:hover { color: #667eea; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .form-group textarea { resize: vertical; min-height: 80px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .btn-group { display: flex; gap: 12px; margin-top: 30px; flex-wrap: wrap; }
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+            min-width: 120px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4); }
+        .btn-secondary { background: #f5f5f5; color: #333; }
+        .btn-secondary:hover { background: #e0e0e0; }
+        .btn-success { background: #4caf50; color: white; }
+        .btn-success:hover { background: #45a049; }
+        .btn-info { background: #2196f3; color: white; }
+        .btn-info:hover { background: #0b7dda; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th {
+            background: #f5f5f5;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #ddd;
+            font-size: 13px;
+        }
+        td { padding: 12px; border-bottom: 1px solid #eee; font-size: 13px; }
+        tr:hover { background: #f9f9f9; }
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .status-completed { background: #c8e6c9; color: #2e7d32; }
+        .status-pending { background: #fff9c4; color: #f57f17; }
+        .status-inprogress { background: #bbdefb; color: #1565c0; }
+        .status-failed { background: #ffcdd2; color: #c62828; }
+        .no-data { text-align: center; padding: 40px 20px; color: #999; }
+        .image-preview {
+            margin-top: 15px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+        }
+        .image-preview img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .summary-card {
+            background: #667eea;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .summary-card .label { font-size: 12px; opacity: 0.9; margin-bottom: 10px; }
+        .summary-card .number { font-size: 28px; font-weight: 700; }
+        .detail-row {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+        .detail-row h4 { color: #667eea; margin-bottom: 8px; }
+        .detail-row p { color: #666; line-height: 1.5; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 IT Daily Report Pro</h1>
+            <p>ระบบบันทึกรายงานประจำวันระดับมืออาชีพ</p>
+        </div>
+
+        <div class="content">
+            <!-- Tabs Navigation -->
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab(event, 'daily')">📝 บันทึกรายวัน</button>
+                <button class="tab-btn" onclick="switchTab(event, 'print')">🖨️ พิมพ์รายงาน</button>
+                <button class="tab-btn" onclick="switchTab(event, 'history')">📊 ประวัติ</button>
+                <button class="tab-btn" onclick="switchTab(event, 'report')">📈 Monthly Report</button>
+            </div>
+
+            <!-- TAB 1: Daily Entry -->
+            <div id="daily" class="tab-content active">
+                <h2 style="margin-bottom: 20px; color: #333;">บันทึกรายงานประจำวัน</h2>
+                
+                <form id="dailyForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>วันที่</label>
+                            <input type="date" id="entryDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>สถานะ</label>
+                            <select id="status" required>
+                                <option value="">-- เลือกสถานะ --</option>
+                                <option value="สำเร็จ">✓ สำเร็จ</option>
+                                <option value="อยู่ระหว่างดำเนินการ">⏳ อยู่ระหว่างดำเนินการ</option>
+                                <option value="รอดำเนินการ">⏸ รอดำเนินการ</option>
+                                <option value="ติดขัด">❌ ติดขัด</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>หัวข้องาน</label>
+                        <input type="text" id="title" placeholder="เช่น: สร้างโปรแกรมบันทึก" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>รายละเอียด</label>
+                        <textarea id="details" placeholder="บรรยายรายละเอียดของงานที่ทำไป..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>หมายเหตุ</label>
+                        <textarea id="remark" placeholder="เพิ่มเติม / ข้อเสนอ / ปัญหา"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>📸 รูปภาพหลักฐาน (สามารถเลือกหลายรูปได้)</label>
+                        <input type="file" id="imageFiles" accept="image/*" multiple>
+                        <div class="image-preview" id="imagePreview"></div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary">💾 บันทึก</button>
+                        <button type="reset" class="btn btn-secondary">🔄 ล้าง</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- TAB 2: Print by Date -->
+            <div id="print" class="tab-content">
+                <h2 style="margin-bottom: 20px; color: #333;">🖨️ พิมพ์รายงานรายวัน</h2>
+                
+                <div class="form-group">
+                    <label>เลือกวันที่ที่ต้องการพิมพ์:</label>
+                    <input type="date" id="printDate">
+                </div>
+
+                <button class="btn btn-success" onclick="printByDate()">🖨️ พิมพ์พร้อมรูปภาพ</button>
+            </div>
+
+            <!-- TAB 3: History -->
+            <div id="history" class="tab-content">
+                <h2 style="margin-bottom: 20px; color: #333;">ประวัติการบันทึก</h2>
+                
+                <div style="margin-bottom: 20px; display: flex; gap: 10px;">
+                    <input type="date" id="filterDate" style="flex: 1;">
+                    <button class="btn btn-secondary" onclick="filterByDate()" style="flex: 0;">🔍 ค้นหา</button>
+                </div>
+
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>วันที่</th>
+                                <th>หัวข้อ</th>
+                                <th>สถานะ</th>
+                                <th>รายละเอียด</th>
+                                <th style="width: 80px;">การกระทำ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTable">
+                            <tr><td colspan="5" class="no-data">ยังไม่มีข้อมูล</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 4: Monthly Report -->
+            <div id="report" class="tab-content">
+                <h2 style="margin-bottom: 20px; color: #333;">📈 Monthly Report</h2>
+
+                <div class="form-group">
+                    <label>เลือกเดือน</label>
+                    <input type="month" id="reportMonth">
+                </div>
+
+                <button class="btn btn-primary" onclick="generateMonthlyReport()" style="width: 100%; margin-bottom: 20px;">📊 สร้าง Report</button>
+
+                <div id="reportContent" style="display: none;">
+                    <div class="summary-cards">
+                        <div class="summary-card">
+                            <div class="label">งานทั้งหมด</div>
+                            <div class="number" id="totalTasks">0</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="label">สำเร็จ</div>
+                            <div class="number" id="completedTasks">0</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="label">อัตราสำเร็จ</div>
+                            <div class="number" id="successRate">0%</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="label">วันทำงาน</div>
+                            <div class="number" id="workDays">0</div>
+                        </div>
+                    </div>
+
+                    <h3 style="margin-bottom: 15px; color: #333;">📋 รายละเอียดงานประจำเดือน</h3>
+                    <div id="monthlyDetails" style="margin-bottom: 20px;"></div>
+
+                    <h3 style="margin-bottom: 15px; color: #333;">📊 สถิติตามสถานะ</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>สถานะ</th>
+                                <th>จำนวน</th>
+                                <th>เปอร์เซนต์</th>
+                            </tr>
+                        </thead>
+                        <tbody id="statusTable"></tbody>
+                    </table>
+
+                    <div class="btn-group" style="margin-top: 20px;">
+                        <button class="btn btn-success" onclick="printMonthlyReport()">🖨️ พิมพ์รายงาน</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize
+        document.getElementById('entryDate').valueAsDate = new Date();
+        document.getElementById('reportMonth').valueAsDate = new Date();
+
+        // Image preview
+        document.getElementById('imageFiles').addEventListener('change', function(e) {
+            const preview = document.getElementById('imagePreview');
+            preview.innerHTML = '';
+            
+            for (let file of this.files) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    const img = document.createElement('img');
+                    img.src = evt.target.result;
+                    preview.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Tab switching
+        function switchTab(e, tabName) {
+            e.preventDefault();
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            e.target.classList.add('active');
+        }
+
+        // Form submission
+        document.getElementById('dailyForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get images as base64
+            const imageFiles = document.getElementById('imageFiles').files;
+            let imageDataArray = [];
+
+            if (imageFiles.length > 0) {
+                let loadedCount = 0;
+                for (let file of imageFiles) {
+                    const reader = new FileReader();
+                    reader.onload = function(evt) {
+                        imageDataArray.push(evt.target.result);
+                        loadedCount++;
+                        if (loadedCount === imageFiles.length) {
+                            saveRecord(imageDataArray);
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+            } else {
+                saveRecord([]);
+            }
+        });
+
+        function saveRecord(images) {
+            const data = {
+                date: document.getElementById('entryDate').value,
+                title: document.getElementById('title').value,
+                details: document.getElementById('details').value,
+                status: document.getElementById('status').value,
+                remark: document.getElementById('remark').value,
+                images: images
+            };
+
+            let records = JSON.parse(localStorage.getItem('dailyRecords') || '[]');
+            records.push(data);
+            localStorage.setItem('dailyRecords', JSON.stringify(records));
+
+            alert('✓ บันทึกสำเร็จ!');
+            document.getElementById('dailyForm').reset();
+            document.getElementById('entryDate').valueAsDate = new Date();
+            document.getElementById('imagePreview').innerHTML = '';
+            loadHistory();
+        }
+
+        // Print by date
+        function printByDate() {
+            const date = document.getElementById('printDate').value;
+            if (!date) {
+                alert('⚠️ กรุณาเลือกวันที่');
+                return;
+            }
+
+            const records = JSON.parse(localStorage.getItem('dailyRecords') || '[]');
+            const dateRecords = records.filter(r => r.date === date);
+
+            if (dateRecords.length === 0) {
+                alert('⚠️ ไม่พบข้อมูลสำหรับวันที่นี้');
+                return;
+            }
+
+            const dateObj = new Date(date);
+            const thaiDate = dateObj.toLocaleDateString('th-TH', {
+                year: 'numeric', month: 'long', day: 'numeric'
+            });
+
+            let rows = dateRecords.map((r, i) => `
+                <tr>
+                    <td style="text-align: center; width: 40px;">${i + 1}</td>
+                    <td style="font-weight: bold; width: 150px;">${r.title}</td>
+                    <td>${r.details || '-'}</td>
+                    <td style="text-align: center; width: 100px;">
+                        <span style="padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;
+                            ${r.status === 'สำเร็จ' ? 'background: #c8e6c9; color: #2e7d32;' : ''}
+                            ${r.status === 'อยู่ระหว่างดำเนินการ' ? 'background: #bbdefb; color: #1565c0;' : ''}
+                            ${r.status === 'รอดำเนินการ' ? 'background: #fff9c4; color: #f57f17;' : ''}
+                            ${r.status === 'ติดขัด' ? 'background: #ffcdd2; color: #c62828;' : ''}">
+                            ${r.status}
+                        </span>
+                    </td>
+                    <td>${r.remark || '-'}</td>
+                </tr>
+                ${r.images && r.images.length > 0 ? `<tr><td colspan="5" style="padding: 10px;">
+                    <strong>รูปภาพ:</strong><br>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
+                        ${r.images.map(img => `<img src="${img}" style="height: 100px; border-radius: 4px; border: 1px solid #ddd;">`).join('')}
+                    </div>
+                </td></tr>` : ''}
+            `).join('');
+
+            const html = `<!DOCTYPE html><html><head>
+                <meta charset="UTF-8"><title>Daily Report</title>
+                <style>
+                    body { font-family: 'Cordia New', Arial; margin: 0; padding: 20px; }
+                    .header { text-align: center; border-bottom: 3px solid #667eea; padding-bottom: 15px; margin-bottom: 20px; }
+                    h1 { color: #667eea; margin: 0; font-size: 22px; }
+                    h2 { color: #764ba2; margin: 5px 0; font-size: 16px; }
+                    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+                    th { background: #667eea; color: white; padding: 10px; text-align: left; }
+                    td { padding: 8px; border: 1px solid #ddd; }
+                    .footer { margin-top: 20px; text-align: center; color: #999; font-size: 10px; }
+                    img { max-width: 100%; }
+                    @media print { body { margin: 0; padding: 15px; } }
+                </style>
+            </head><body>
+                <div class="header">
+                    <h1>📋 IT Daily Report</h1>
+                    <h2>รายงานประจำวัน ${thaiDate}</h2>
+                </div>
+                <table>
+                    <tr><th style="width: 40px;">ลำดับ</th><th style="width: 150px;">หัวข้อ</th><th>รายละเอียด</th><th style="width: 100px;">สถานะ</th><th>หมายเหตุ</th></tr>
+                    ${rows}
+                </table>
+                <div class="footer">พิมพ์: ${new Date().toLocaleString('th-TH')}</div>
+            </body></html>`;
+
+            const w = window.open('');
+            w.document.write(html);
+            w.document.close();
+            setTimeout(() => w.print(), 500);
+        }
+
+        // Load history
+        function loadHistory() {
+            const records = JSON.parse(localStorage.getItem('dailyRecords') || '[]');
+            const tbody = document.getElementById('historyTable');
+            
+            if (records.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="no-data">ยังไม่มีข้อมูล</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = records.map((r, idx) => `
+                <tr>
+                    <td>${r.date}</td>
+                    <td><strong>${r.title}</strong></td>
+                    <td><span class="status-badge status-${
+                        r.status === 'สำเร็จ' ? 'completed' :
+                        r.status === 'อยู่ระหว่างดำเนินการ' ? 'inprogress' :
+                        r.status === 'ติดขัด' ? 'failed' : 'pending'
+                    }">${r.status}</span></td>
+                    <td>${r.details ? r.details.substring(0, 40) + '...' : '-'}</td>
+                    <td><button class="btn btn-info" onclick="printSingleRecord(${idx})" style="width: 100%;">🖨️ พิมพ์</button></td>
+                </tr>
+            `).join('');
+        }
+
+        function printSingleRecord(idx) {
+            const records = JSON.parse(localStorage.getItem('dailyRecords') || '[]');
+            const r = records[idx];
+
+            const dateObj = new Date(r.date);
+            const thaiDate = dateObj.toLocaleDateString('th-TH', {
+                year: 'numeric', month: 'long', day: 'numeric'
+            });
+
+            const html = `<!DOCTYPE html><html><head>
+                <meta charset="UTF-8"><title>Daily Report</title>
+                <style>
+                    body { font-family: 'Cordia New', Arial; margin: 0; padding: 20px; }
+                    .header { text-align: center; border-bottom: 3px solid #667eea; padding-bottom: 15px; margin-bottom: 20px; }
+                    h1 { color: #667eea; margin: 0; font-size: 22px; }
+                    .detail { margin: 20px 0; padding: 15px; background: #f9f9f9; border-left: 4px solid #667eea; }
+                    .detail strong { color: #667eea; }
+                    .images { margin-top: 15px; }
+                    .images img { max-width: 300px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px; }
+                    .footer { margin-top: 20px; text-align: center; color: #999; font-size: 10px; }
+                    @media print { body { margin: 0; padding: 15px; } }
+                </style>
+            </head><body>
+                <div class="header">
+                    <h1>📋 IT Daily Report</h1>
+                    <h2>${thaiDate}</h2>
+                </div>
+
+                <div class="detail">
+                    <strong>📌 หัวข้อ:</strong> ${r.title}
+                </div>
+
+                <div class="detail">
+                    <strong>📝 รายละเอียด:</strong><br>
+                    ${r.details || '(ไม่มีข้อมูล)'}
+                </div>
+
+                <div class="detail">
+                    <strong>✓ สถานะ:</strong> <span style="padding: 4px 8px; border-radius: 4px; 
+                        ${r.status === 'สำเร็จ' ? 'background: #c8e6c9; color: #2e7d32;' : ''}
+                        ${r.status === 'อยู่ระหว่างดำเนินการ' ? 'background: #bbdefb; color: #1565c0;' : ''}
+                        ${r.status === 'รอดำเนินการ' ? 'background: #fff9c4; color: #f57f17;' : ''}
+                        ${r.status === 'ติดขัด' ? 'background: #ffcdd2; color: #c62828;' : ''}">
+                        ${r.status}
+                    </span>
+                </div>
+
+                <div class="detail">
+                    <strong>💬 หมายเหตุ:</strong><br>
+                    ${r.remark || '(ไม่มีข้อมูล)'}
+                </div>
+
+                ${r.images && r.images.length > 0 ? `
+                <div class="detail">
+                    <strong>📸 รูปภาพหลักฐาน:</strong>
+                    <div class="images">
+                        ${r.images.map((img, i) => `<img src="${img}" alt="รูปภาพ ${i + 1}">`).join('')}
+                    </div>
+                </div>
+                ` : ''}
+
+                <div class="footer">พิมพ์: ${new Date().toLocaleString('th-TH')}</div>
+            </body></html>`;
+
+            const w = window.open('');
+            w.document.write(html);
+            w.document.close();
+            setTimeout(() => w.print(), 500);
+        }
+
+        function filterByDate() {
+            const date = document.getElementById('filterDate').value;
+            if (!date) {
+                loadHistory();
+                return;
+            }
+
+            const records = JSON.parse(localStorage.getItem('dailyRecords') || '[]');
+            const filtered = records.filter(r => r.date === date);
+            const tbody = document.getElementById('historyTable');
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="no-data">ไม่พบข้อมูล</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filtered.map((r, idx) => `
+                <tr>
+                    <td>${r.date}</td>
+                    <td><strong>${r.title}</strong></td>
+                    <td><span class="status-badge status-${
+                        r.status === 'สำเร็จ' ? 'completed' :
+                        r.status === 'อยู่ระหว่างดำเนินการ' ? 'inprogress' :
+                        r.status === 'ติดขัด' ? 'failed' : 'pending'
+                    }">${r.status}</span></td>
+                    <td>${r.details ? r.details.substring(0, 40) + '...' : '-'}</td>
+                    <td><button class="btn btn-info" onclick="printSingleRecord(${idx})" style="width: 100%;">🖨️ พิมพ์</button></td>
+                </tr>
+            `).join('');
+        }
+
+        // Monthly report
+        function generateMonthlyReport() {
+            const month = document.getElementById('reportMonth').value;
+            if (!month) {
+                alert('กรุณาเลือกเดือน');
+                return;
+            }
+
+            const records = JSON.parse(localStorage.getItem('dailyRecords') || '[]');
+            const monthRecords = records.filter(r => r.date.startsWith(month));
+
+            if (monthRecords.length === 0) {
+                alert('ไม่พบข้อมูล');
+                return;
+            }
+
+            const total = monthRecords.length;
+            const completed = monthRecords.filter(r => r.status === 'สำเร็จ').length;
+            const inProgress = monthRecords.filter(r => r.status === 'อยู่ระหว่างดำเนินการ').length;
+            const pending = monthRecords.filter(r => r.status === 'รอดำเนินการ').length;
+            const failed = monthRecords.filter(r => r.status === 'ติดขัด').length;
+
+            document.getElementById('totalTasks').textContent = total;
+            document.getElementById('completedTasks').textContent = completed;
+            document.getElementById('successRate').textContent = Math.round((completed / total) * 100) + '%';
+            document.getElementById('workDays').textContent = new Set(monthRecords.map(r => r.date)).size;
+
+            // Detailed monthly list
+            const detailsHtml = monthRecords.map(r => `
+                <div class="detail-row">
+                    <h4>${r.date} - ${r.title}</h4>
+                    <p><strong>รายละเอียด:</strong> ${r.details || '(ไม่มีข้อมูล)'}</p>
+                    <p><strong>สถานะ:</strong> <span class="status-badge status-${
+                        r.status === 'สำเร็จ' ? 'completed' :
+                        r.status === 'อยู่ระหว่างดำเนินการ' ? 'inprogress' :
+                        r.status === 'ติดขัด' ? 'failed' : 'pending'
+                    }">${r.status}</span></p>
+                    ${r.remark ? `<p><strong>หมายเหตุ:</strong> ${r.remark}</p>` : ''}
+                    ${r.images && r.images.length > 0 ? `
+                        <p><strong>รูปภาพ:</strong></p>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            ${r.images.map(img => `<img src="${img}" style="height: 80px; border-radius: 4px; border: 1px solid #ddd;">`).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+            document.getElementById('monthlyDetails').innerHTML = detailsHtml;
+
+            document.getElementById('statusTable').innerHTML = `
+                <tr><td>สำเร็จ</td><td>${completed}</td><td>${Math.round((completed/total)*100)}%</td></tr>
+                <tr><td>อยู่ระหว่าง</td><td>${inProgress}</td><td>${Math.round((inProgress/total)*100)}%</td></tr>
+                <tr><td>รอดำเนินการ</td><td>${pending}</td><td>${Math.round((pending/total)*100)}%</td></tr>
+                <tr><td>ติดขัด</td><td>${failed}</td><td>${Math.round((failed/total)*100)}%</td></tr>
+            `;
+
+            document.getElementById('reportContent').style.display = 'block';
+        }
+
+        function printMonthlyReport() {
+            const month = document.getElementById('reportMonth').value;
+            const records = JSON.parse(localStorage.getItem('dailyRecords') || '[]');
+            const monthRecords = records.filter(r => r.date.startsWith(month));
+
+            const monthObj = new Date(month + '-01');
+            const thaiMonth = monthObj.toLocaleDateString('th-TH', { year: 'numeric', month: 'long' });
+
+            let detailRows = monthRecords.map(r => `
+                <div style="page-break-inside: avoid; margin-bottom: 20px; padding: 15px; background: #f9f9f9; border-left: 4px solid #667eea;">
+                    <h4 style="color: #667eea; margin: 0 0 10px 0;">${r.date} - ${r.title}</h4>
+                    <p><strong>รายละเอียด:</strong> ${r.details || '(ไม่มีข้อมูล)'}</p>
+                    <p><strong>สถานะ:</strong> <span style="padding: 4px 8px; border-radius: 4px; font-weight: bold;
+                        ${r.status === 'สำเร็จ' ? 'background: #c8e6c9; color: #2e7d32;' : ''}
+                        ${r.status === 'อยู่ระหว่างดำเนินการ' ? 'background: #bbdefb; color: #1565c0;' : ''}
+                        ${r.status === 'รอดำเนินการ' ? 'background: #fff9c4; color: #f57f17;' : ''}
+                        ${r.status === 'ติดขัด' ? 'background: #ffcdd2; color: #c62828;' : ''}">
+                        ${r.status}</span></p>
+                    ${r.remark ? `<p><strong>หมายเหตุ:</strong> ${r.remark}</p>` : ''}
+                    ${r.images && r.images.length > 0 ? `
+                        <p><strong>รูปภาพ:</strong></p>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            ${r.images.map(img => `<img src="${img}" style="height: 120px; border-radius: 4px; border: 1px solid #ddd;">`).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+
+            const total = monthRecords.length;
+            const completed = monthRecords.filter(r => r.status === 'สำเร็จ').length;
+            const inProgress = monthRecords.filter(r => r.status === 'อยู่ระหว่างดำเนินการ').length;
+            const pending = monthRecords.filter(r => r.status === 'รอดำเนินการ').length;
+            const failed = monthRecords.filter(r => r.status === 'ติดขัด').length;
+
+            const html = `<!DOCTYPE html><html><head>
+                <meta charset="UTF-8"><title>Monthly Report</title>
+                <style>
+                    body { font-family: 'Cordia New', Arial; margin: 0; padding: 20px; }
+                    .header { text-align: center; border-bottom: 3px solid #667eea; padding-bottom: 15px; margin-bottom: 20px; }
+                    h1 { color: #667eea; margin: 0; font-size: 22px; }
+                    .summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 20px 0; }
+                    .summary-card { background: #667eea; color: white; padding: 15px; border-radius: 6px; text-align: center; }
+                    .summary-card .label { font-size: 11px; opacity: 0.9; margin-bottom: 8px; }
+                    .summary-card .number { font-size: 24px; font-weight: 700; }
+                    table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 12px; }
+                    th { background: #667eea; color: white; padding: 10px; text-align: left; }
+                    td { padding: 8px; border: 1px solid #ddd; }
+                    .footer { margin-top: 20px; text-align: center; color: #999; font-size: 10px; }
+                    @media print { body { margin: 0; padding: 15px; } }
+                </style>
+            </head><body>
+                <div class="header">
+                    <h1>📊 Monthly Report</h1>
+                    <h2>${thaiMonth}</h2>
+                </div>
+
+                <div class="summary">
+                    <div class="summary-card">
+                        <div class="label">งานทั้งหมด</div>
+                        <div class="number">${total}</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="label">สำเร็จ</div>
+                        <div class="number">${completed}</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="label">อัตราสำเร็จ</div>
+                        <div class="number">${Math.round((completed/total)*100)}%</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="label">วันทำงาน</div>
+                        <div class="number">${new Set(monthRecords.map(r => r.date)).size}</div>
+                    </div>
+                </div>
+
+                <h3>📊 สถิติตามสถานะ</h3>
+                <table>
+                    <tr><th>สถานะ</th><th>จำนวน</th><th>เปอร์เซนต์</th></tr>
+                    <tr><td>สำเร็จ</td><td>${completed}</td><td>${Math.round((completed/total)*100)}%</td></tr>
+                    <tr><td>อยู่ระหว่าง</td><td>${inProgress}</td><td>${Math.round((inProgress/total)*100)}%</td></tr>
+                    <tr><td>รอดำเนินการ</td><td>${pending}</td><td>${Math.round((pending/total)*100)}%</td></tr>
+                    <tr><td>ติดขัด</td><td>${failed}</td><td>${Math.round((failed/total)*100)}%</td></tr>
+                </table>
+
+                <h3>📋 รายละเอียดงาน</h3>
+                ${detailRows}
+
+                <div class="footer">พิมพ์: ${new Date().toLocaleString('th-TH')}</div>
+            </body></html>`;
+
+            const w = window.open('');
+            w.document.write(html);
+            w.document.close();
+            setTimeout(() => w.print(), 500);
+        }
+
+        // Load on start
+        loadHistory();
+    </script>
+</body>
+</html>
