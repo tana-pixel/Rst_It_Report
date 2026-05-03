@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IT Asset · RST Robotics</title>
+<title>IT Asset · RuamsinthaiGroup</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -204,6 +204,106 @@ tbody tr:hover td{background:rgba(255,255,255,.02);cursor:pointer;}
 .url-in:focus{border-color:var(--blue);}
 .smsg{font-size:12px;margin-top:8px;min-height:16px;}
 
+/* ── LOGIN SCREEN ── */
+.login-screen{
+  position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#060810 0%,#0d1220 50%,#060810 100%);
+  overflow:hidden;
+}
+.login-screen.hidden{display:none;}
+
+/* Background glow blobs */
+.login-screen::before{
+  content:'';position:absolute;width:600px;height:600px;border-radius:50%;
+  background:radial-gradient(circle,rgba(79,142,247,0.12) 0%,transparent 70%);
+  top:-100px;left:-100px;pointer-events:none;
+}
+.login-screen::after{
+  content:'';position:absolute;width:500px;height:500px;border-radius:50%;
+  background:radial-gradient(circle,rgba(34,211,238,0.08) 0%,transparent 70%);
+  bottom:-80px;right:-80px;pointer-events:none;
+}
+
+.login-box{
+  position:relative;z-index:1;
+  background:rgba(14,17,23,0.85);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:28px;
+  padding:40px 36px 36px;
+  width:360px;max-width:92vw;
+  text-align:center;
+  backdrop-filter:blur(20px);
+  box-shadow:0 32px 80px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+.login-logo{
+  width:64px;height:64px;border-radius:18px;
+  background:linear-gradient(135deg,#4f8ef7 0%,#22d3ee 100%);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:700;color:#fff;
+  margin:0 auto 20px;
+  box-shadow:0 8px 32px rgba(79,142,247,0.4);
+}
+
+.login-company{
+  font-size:11px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--cyan);margin-bottom:6px;opacity:.8;
+}
+.login-title{font-size:20px;font-weight:600;margin-bottom:4px;color:#fff;}
+.login-sub{font-size:12px;color:var(--text2);margin-bottom:28px;letter-spacing:.02em;}
+
+/* PIN dots */
+.pin-dots{display:flex;justify-content:center;gap:14px;margin-bottom:28px;}
+.pin-dot{
+  width:13px;height:13px;border-radius:50%;
+  background:rgba(255,255,255,0.1);
+  border:1.5px solid rgba(255,255,255,0.2);
+  transition:.25s;
+}
+.pin-dot.filled{
+  background:var(--blue);
+  border-color:var(--blue);
+  box-shadow:0 0 10px rgba(79,142,247,0.6);
+  transform:scale(1.1);
+}
+.pin-dot.shake{animation:shake .3s ease;}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+/* PIN pad */
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:236px;margin:0 auto;}
+.pin-key{
+  height:62px;border-radius:16px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.08);
+  font-size:20px;font-weight:500;
+  color:var(--text);cursor:pointer;
+  transition:.15s;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'IBM Plex Mono',monospace;
+  letter-spacing:.05em;
+}
+.pin-key:hover{
+  background:rgba(79,142,247,0.15);
+  border-color:rgba(79,142,247,0.3);
+  color:#fff;
+}
+.pin-key:active{
+  background:rgba(79,142,247,0.35);
+  border-color:var(--blue);
+  color:#fff;transform:scale(.93);
+  box-shadow:0 0 16px rgba(79,142,247,0.3);
+}
+.pin-key.del{font-size:16px;color:var(--text2);}
+.pin-key.clr{font-size:12px;color:var(--text2);letter-spacing:.04em;}
+.login-hint{margin-top:20px;padding:12px;background:var(--bg3);border-radius:10px;font-size:11px;color:var(--text3);line-height:1.8;text-align:left;}
+.login-hint strong{color:var(--text2);}
+.role-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:500;margin-bottom:16px;}
+.role-badge.admin{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3);}
+.role-badge.manager{background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.3);}
+.role-badge.staff{background:rgba(34,197,94,.15);color:#4ade80;border:1px solid rgba(34,197,94,.3);}
+.role-badge.it{background:rgba(79,142,247,.15);color:#93c5fd;border:1px solid rgba(79,142,247,.3);}
+.topbar-role{display:flex;align-items:center;gap:6px;font-size:11px;padding:3px 10px;border-radius:20px;}
+
 @media(max-width:900px){
   .sidebar{width:56px;}
   .slogo .ltxt,.sfooter,.nsec,.ni span,.nbadge{display:none;}
@@ -219,7 +319,38 @@ tbody tr:hover td{background:rgba(255,255,255,.02);cursor:pointer;}
 </head>
 <body>
 
-<!-- SYNC BAR -->
+<!-- ═══ LOGIN SCREEN ═══ -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">IT</div>
+    <div class="login-company">RuamsinthaiGroup</div>
+    <div class="login-title">IT Asset Management</div>
+    <div class="login-sub">กรอก PIN เพื่อเข้าใช้งาน</div>
+    <div class="pin-dots" id="pinDots">
+      <div class="pin-dot" id="d0"></div>
+      <div class="pin-dot" id="d1"></div>
+      <div class="pin-dot" id="d2"></div>
+      <div class="pin-dot" id="d3"></div>
+    </div>
+    <div class="pin-pad">
+      <button class="pin-key" onclick="pinPress('1')">1</button>
+      <button class="pin-key" onclick="pinPress('2')">2</button>
+      <button class="pin-key" onclick="pinPress('3')">3</button>
+      <button class="pin-key" onclick="pinPress('4')">4</button>
+      <button class="pin-key" onclick="pinPress('5')">5</button>
+      <button class="pin-key" onclick="pinPress('6')">6</button>
+      <button class="pin-key" onclick="pinPress('7')">7</button>
+      <button class="pin-key" onclick="pinPress('8')">8</button>
+      <button class="pin-key" onclick="pinPress('9')">9</button>
+      <button class="pin-key clr" onclick="pinClear()">ล้าง</button>
+      <button class="pin-key" onclick="pinPress('0')">0</button>
+      <button class="pin-key del" onclick="pinBack()">⌫</button>
+    </div>
+  </div>
+</div>
+
+
+
 <div class="sync-bar">
   <span class="sdot" id="sDot"></span>
   <span style="color:var(--text2);font-size:11px;">IT Asset System</span>
@@ -232,7 +363,7 @@ tbody tr:hover td{background:rgba(255,255,255,.02);cursor:pointer;}
 <aside class="sidebar">
   <div class="slogo">
     <div class="lico">IT</div>
-    <div><div class="ltxt">IT Asset</div><div class="lsub">RST Robotics</div></div>
+    <div><div class="ltxt">IT Asset</div><div class="lsub">RuamsinthaiGroup</div></div>
   </div>
   <nav class="nav">
     <div class="nsec">ภาพรวม</div>
@@ -279,6 +410,7 @@ tbody tr:hover td{background:rgba(255,255,255,.02);cursor:pointer;}
   <div class="topbar">
     <span class="ptitle" id="pTitle">KPI Dashboard</span>
     <div class="tright">
+      <span class="topbar-role" id="roleBadge"></span>
       <div class="sbox">
         <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#3d4a60" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
         <input type="text" placeholder="ค้นหา..." id="qSearch" oninput="onSearch()">
@@ -290,6 +422,9 @@ tbody tr:hover td{background:rgba(255,255,255,.02);cursor:pointer;}
       <button class="btn btn-p" onclick="quickAdd()" id="quickAddBtn">
         <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 1v10M1 6h10"/></svg>
         <span id="quickAddLbl">เพิ่มทรัพย์สิน</span>
+      </button>
+      <button class="btn btn-g" onclick="logout()" title="ออกจากระบบ" style="padding:6px 10px;">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3"/><path d="M11 11l3-3-3-3M14 8H6"/></svg>
       </button>
     </div>
   </div>
@@ -859,8 +994,8 @@ function renderAssets(){
       <td><span class="badge b-${a.status}">${aStatusTH(a.status)}</span></td>
       <td><span class="badge ${a.synced?'b-ok':'b-pend'}">${a.synced?'✓':'⏳'}</span></td>
       <td onclick="event.stopPropagation()"><div class="acts">
-        <button class="ib" onclick="openAssetEdit('${a._k}')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l2.5 2.5-7 7L1 11l.5-2.5z"/></svg></button>
-        <button class="ib del" onclick="delAsset('${a._k}')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4M3 3l.5 7h5L9 3"/></svg></button>
+        ${canEdit()?`<button class="ib" onclick="openAssetEdit('${a._k}')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l2.5 2.5-7 7L1 11l.5-2.5z"/></svg></button>`:''}
+        ${canDelete()?`<button class="ib del" onclick="delAsset('${a._k}')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4M3 3l.5 7h5L9 3"/></svg></button>`:''}
       </div></td>
     </tr>`).join('');
 }
@@ -922,8 +1057,8 @@ function renderTransfers(){
       <td class="mono" style="font-size:11px;color:var(--text3);">${tr.date||'—'}</td>
       <td><span class="badge ${tr.status==='approved'?'b-ok':'b-pend'}">${tr.status==='approved'?'อนุมัติ':'รออนุมัติ'}</span></td>
       <td><div class="acts">
-        ${tr.status!=='approved'?`<button class="ib grn" onclick="approveTransfer('${tr._k}')" title="อนุมัติ"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 6l3 3 5-5"/></svg></button>`:''}
-        <button class="ib del" onclick="delTransfer('${tr._k}')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4M3 3l.5 7h5L9 3"/></svg></button>
+        ${canApprove()&&tr.status!=='approved'?`<button class="ib grn" onclick="approveTransfer('${tr._k}')" title="อนุมัติ"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 6l3 3 5-5"/></svg></button>`:''}
+        ${canDelete()?`<button class="ib del" onclick="delTransfer('${tr._k}')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4M3 3l.5 7h5L9 3"/></svg></button>`:''}
       </div></td>
     </tr>`).join('');
 }
@@ -1002,8 +1137,8 @@ function renderTickets(){
       <td class="mono" style="font-size:11px;color:var(--text3);">${fmtDate(t.created)}${(t.links&&t.links.length)?'<br><span style="color:var(--cyan)">🔗 '+t.links.length+' รูป</span>':''}</td>
       <td onclick="event.stopPropagation()"><div class="acts">
         <button class="ib" onclick="openTicketEdit('${t._k}')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l2.5 2.5-7 7L1 11l.5-2.5z"/></svg></button>
-        ${t.status!=='closed'?`<button class="ib grn" onclick="quickClose('${t._k}')" title="ปิดงาน"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 6l3 3 5-5"/></svg></button>`:''}
-        <button class="ib del" onclick="delTicket('${t._k}')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4M3 3l.5 7h5L9 3"/></svg></button>
+        ${canApprove()&&t.status!=='closed'?`<button class="ib grn" onclick="quickClose('${t._k}')" title="ปิดงาน"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 6l3 3 5-5"/></svg></button>`:''}
+        ${canDelete()?`<button class="ib del" onclick="delTicket('${t._k}')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4M3 3l.5 7h5L9 3"/></svg></button>`:''}
       </div></td>
     </tr>`).join('');
 }
@@ -1203,8 +1338,144 @@ function toast(msg,type='ok'){
   t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),3500);
 }
 
+// ═══════════════════════════════
+// PIN LOGIN & ROLE SYSTEM
+// ═══════════════════════════════
+const PINS = {
+  '1111': { role:'admin',    label:'IT Admin',   color:'var(--blue)',   icon:'🔵' },
+  '2222': { role:'manager',  label:'ผู้จัดการ',   color:'var(--amber)',  icon:'🟡' },
+  '3333': { role:'staff',    label:'พนักงาน',    color:'var(--green)',  icon:'🟢' },
+};
+let currentRole = null;
+let pinBuffer = '';
+
+// Check session
+function checkSession(){
+  const saved = sessionStorage.getItem('it_role');
+  if(saved && PINS[saved]){
+    applyRole(saved);
+  }
+  // else stay on login screen
+}
+
+function pinPress(n){
+  if(pinBuffer.length >= 4) return;
+  pinBuffer += n;
+  updateDots();
+  if(pinBuffer.length === 4) setTimeout(checkPin, 150);
+}
+
+function pinBack(){
+  pinBuffer = pinBuffer.slice(0,-1);
+  updateDots();
+}
+
+function pinClear(){
+  pinBuffer = '';
+  updateDots();
+}
+
+function updateDots(){
+  for(let i=0;i<4;i++){
+    document.getElementById('d'+i).classList.toggle('filled', i < pinBuffer.length);
+  }
+}
+
+function checkPin(){
+  const match = PINS[pinBuffer];
+  if(match){
+    sessionStorage.setItem('it_role', pinBuffer);
+    applyRole(pinBuffer);
+  } else {
+    // Shake and clear
+    document.querySelectorAll('.pin-dot').forEach(d=>{
+      d.classList.add('shake');
+      setTimeout(()=>d.classList.remove('shake'),300);
+    });
+    pinBuffer='';
+    setTimeout(updateDots,300);
+    toast('⚠ PIN ไม่ถูกต้อง กรุณาลองใหม่','warn');
+  }
+}
+
+function applyRole(pin){
+  const r = PINS[pin];
+  currentRole = r.role;
+
+  // Hide login screen
+  document.getElementById('loginScreen').classList.add('hidden');
+
+  // Show role badge in topbar
+  const badge = document.getElementById('roleBadge');
+  badge.innerHTML = `<span style="color:${r.color};">${r.icon} ${r.label}</span>`;
+  badge.style.background = r.color.replace(')',',0.12)').replace('var(','rgba(').replace('--blue','79,142,247').replace('--amber','245,158,11').replace('--green','34,197,94');
+
+  // Apply permissions
+  applyPermissions();
+
+  // Init app
+  updateNav(); renderKPI();
+  populateAssetSelect('tr-asset');
+  populateAssetSelect('tk-asset');
+}
+
+function applyPermissions(){
+  const isAdmin   = currentRole === 'admin';
+  const isManager = currentRole === 'manager';
+  const isStaff   = currentRole === 'staff';
+
+  // Sidebar items visibility
+  // Staff: แจ้งซ่อม + เบิกเท่านั้น
+  // Manager: ดูได้ทุกอย่าง + อนุมัติ ไม่มีลบ/แก้ asset
+  // Admin: ทุกอย่าง
+
+  // Hide "เพิ่มทรัพย์สิน" nav for staff+manager
+  document.querySelectorAll('.ni').forEach(n=>{
+    const txt = n.textContent.trim();
+    if(txt.includes('เพิ่มทรัพย์สิน') || txt.includes('ตั้งค่า Sheets')){
+      n.style.display = isAdmin ? '' : 'none';
+    }
+    if(txt.includes('ทรัพย์สินทั้งหมด') || txt.includes('ซ่อมบำรุง')){
+      n.style.display = isStaff ? 'none' : '';
+    }
+  });
+
+  // Quick add button
+  const qaBtn = document.getElementById('quickAddBtn');
+  if(isStaff) qaBtn.style.display='none';
+
+  // Sync button — admin only
+  document.getElementById('syncBtn').style.display = isAdmin ? '' : 'none';
+
+  // Staff: go to ticket view by default
+  if(isStaff){
+    gv('ticket', document.querySelector('.ni'));
+    document.getElementById('quickAddBtn').style.display='none';
+  } else if(isManager){
+    gv('kpi', document.querySelector('.ni'));
+    document.getElementById('quickAddBtn').textContent='สร้างใบเบิก/โอน';
+  }
+}
+
+function logout(){
+  if(!confirm('ออกจากระบบ?')) return;
+  sessionStorage.removeItem('it_role');
+  currentRole = null;
+  pinBuffer = '';
+  updateDots();
+  document.getElementById('loginScreen').classList.remove('hidden');
+  document.getElementById('roleBadge').innerHTML='';
+}
+
+// Override delete buttons based on role
+function canDelete(){ return currentRole === 'admin'; }
+function canApprove(){ return currentRole === 'admin' || currentRole === 'manager'; }
+function canEdit(){ return currentRole === 'admin'; }
+
+// ═══════════════════════════════
 // INIT
-updateNav();renderKPI();
+// ═══════════════════════════════
+checkSession();
 populateAssetSelect('tr-asset');
 populateAssetSelect('tk-asset');
 </script>
