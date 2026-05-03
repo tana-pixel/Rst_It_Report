@@ -104,6 +104,15 @@
         .btn-success:hover { background: #45a049; }
         .btn-info { background: #2196f3; color: white; }
         .btn-info:hover { background: #0b7dda; }
+        .alert {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 13px;
+        }
+        .alert-info { background: #e3f2fd; color: #1565c0; border-left: 4px solid #2196f3; }
+        .alert-success { background: #e8f5e9; color: #2e7d32; border-left: 4px solid #4caf50; }
+        .alert-danger { background: #ffebee; color: #c62828; border-left: 4px solid #f44336; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th {
             background: #f5f5f5;
@@ -181,6 +190,7 @@
                 <button class="tab-btn" onclick="switchTab(event, 'print')">🖨️ พิมพ์รายงาน</button>
                 <button class="tab-btn" onclick="switchTab(event, 'history')">📊 ประวัติ</button>
                 <button class="tab-btn" onclick="switchTab(event, 'report')">📈 Monthly Report</button>
+                <button class="tab-btn" onclick="switchTab(event, 'settings')">⚙️ การตั้งค่า</button>
             </div>
 
             <!-- TAB 1: Daily Entry -->
@@ -323,13 +333,102 @@
                     </div>
                 </div>
             </div>
+
+            <!-- TAB 5: Settings -->
+            <div id="settings" class="tab-content">
+                <h2 style="margin-bottom: 20px; color: #333;">⚙️ การตั้งค่า Google Sheet</h2>
+                
+                <div class="alert alert-info">
+                    <strong>ℹ️ ข้อมูล:</strong> ให้ Web App URL ของ Google Apps Script เพื่อให้โปรแกรมบันทึกข้อมูลลง Google Sheet ได้
+                </div>
+
+                <div class="form-group">
+                    <label>🔗 Web App URL (Google Apps Script)</label>
+                    <input type="text" id="googleAppsScriptUrl" placeholder="https://script.google.com/macros/s/XXXXX/usercontent" style="font-family: monospace; font-size: 12px;">
+                    <p style="font-size: 12px; color: #999; margin-top: 8px;">ได้มาจาก Deploy Google Apps Script</p>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="saveSettings()">💾 บันทึกการตั้งค่า</button>
+                    <button class="btn btn-info" onclick="testConnection()">🧪 ทดสอบเชื่อมต่อ</button>
+                </div>
+
+                <div id="settingsStatus" style="margin-top: 20px;"></div>
+
+                <hr style="margin: 30px 0;">
+
+                <h3 style="margin-bottom: 15px; color: #333;">📚 วิธีการตั้งค่า</h3>
+                
+                <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; font-size: 13px; line-height: 1.8;">
+                    <h4 style="margin-bottom: 10px;">1. สร้าง Google Sheet</h4>
+                    <p style="margin: 0 0 15px 0;">
+                        • ไปที่ Google Drive<br>
+                        • New → Google Sheets → Blank<br>
+                        • ตั้งชื่อ "IT Daily Report"<br>
+                        • สร้างหัวข้อ: วันที่ | หัวข้องาน | รายละเอียด | สถานะ | หมายเหตุ
+                    </p>
+
+                    <h4 style="margin-bottom: 10px;">2. สร้าง Apps Script</h4>
+                    <p style="margin: 0 0 15px 0;">
+                        • ใน Google Sheet → Extensions → Apps Script<br>
+                        • วาง Code ด้านล่าง<br>
+                        • แทนที่ YOUR_SHEET_ID ด้วย ID ของ Sheet<br>
+                        • บันทึก (Ctrl+S)
+                    </p>
+
+                    <h4 style="margin-bottom: 10px;">3. Deploy</h4>
+                    <p style="margin: 0 0 15px 0;">
+                        • Deploy → New Deployment<br>
+                        • Type: "Web app"<br>
+                        • Execute as: Email ของคุณ<br>
+                        • Who has access: "Anyone"<br>
+                        • Deploy<br>
+                        • คัดลอก Web App URL
+                    </p>
+
+                    <h4 style="margin-bottom: 10px;">4. Apps Script Code</h4>
+                    <pre style="background: white; padding: 15px; border-radius: 4px; overflow-x: auto; font-size: 11px;">const SHEET_ID = "YOUR_SHEET_ID";
+const SHEET_NAME = "Sheet1";
+
+function doPost(e) {
+  try {
+    const data = JSON.parse(e.postData.contents);
+    const ss = SpreadsheetApp.openById(SHEET_ID);
+    const sheet = ss.getSheetByName(SHEET_NAME);
+    
+    sheet.appendRow([
+      data.date,
+      data.title,
+      data.details,
+      data.status,
+      data.remark
+    ]);
+    
+    return ContentService.createTextOutput(JSON.stringify({
+      success: true,
+      message: "บันทึกสำเร็จ"
+    })).setMimeType(ContentService.MimeType.JSON);
+    
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({
+      success: false,
+      error: error.toString()
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+}</pre>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
+        // Google Apps Script URL (เก็บจาก localStorage)
+        let googleAppsScriptUrl = localStorage.getItem('googleAppsScriptUrl') || '';
+
         // Initialize
         document.getElementById('entryDate').valueAsDate = new Date();
         document.getElementById('reportMonth').valueAsDate = new Date();
+        document.getElementById('googleAppsScriptUrl').value = googleAppsScriptUrl;
 
         // Image preview
         document.getElementById('imageFiles').addEventListener('change', function(e) {
@@ -347,6 +446,54 @@
             }
         });
 
+        // Settings
+        function saveSettings() {
+            const url = document.getElementById('googleAppsScriptUrl').value.trim();
+            if (!url) {
+                showStatus('settingsStatus', '❌ กรุณาใส่ Web App URL', 'danger');
+                return;
+            }
+            localStorage.setItem('googleAppsScriptUrl', url);
+            googleAppsScriptUrl = url;
+            showStatus('settingsStatus', '✓ บันทึกการตั้งค่าสำเร็จ', 'success');
+        }
+
+        function testConnection() {
+            if (!googleAppsScriptUrl) {
+                showStatus('settingsStatus', '❌ กรุณาบันทึกการตั้งค่าก่อน', 'danger');
+                return;
+            }
+
+            const testData = {
+                date: new Date().toISOString().split('T')[0],
+                title: 'ทดสอบเชื่อมต่อ',
+                details: 'ข้อมูลทดสอบ',
+                status: 'ทดสอบ',
+                remark: 'ข้อความทดสอบ'
+            };
+
+            fetch(googleAppsScriptUrl, {
+                method: 'POST',
+                body: JSON.stringify(testData)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    showStatus('settingsStatus', '✓ เชื่อมต่อ Google Sheet สำเร็จ!', 'success');
+                } else {
+                    showStatus('settingsStatus', '❌ เกิดข้อผิดพลาด: ' + result.error, 'danger');
+                }
+            })
+            .catch(error => {
+                showStatus('settingsStatus', '❌ ไม่สามารถเชื่อมต่อ: ' + error.message, 'danger');
+            });
+        }
+
+        function showStatus(elementId, message, type) {
+            const el = document.getElementById(elementId);
+            el.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+        }
+
         // Tab switching
         function switchTab(e, tabName) {
             e.preventDefault();
@@ -360,7 +507,6 @@
         document.getElementById('dailyForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // Get images as base64
             const imageFiles = document.getElementById('imageFiles').files;
             let imageDataArray = [];
 
@@ -392,11 +538,40 @@
                 images: images
             };
 
+            // บันทึกลง localStorage ก่อน
             let records = JSON.parse(localStorage.getItem('dailyRecords') || '[]');
             records.push(data);
             localStorage.setItem('dailyRecords', JSON.stringify(records));
 
-            alert('✓ บันทึกสำเร็จ!');
+            // ส่งไป Google Sheet (ไม่มีรูป)
+            if (googleAppsScriptUrl) {
+                const googleData = {
+                    date: data.date,
+                    title: data.title,
+                    details: data.details,
+                    status: data.status,
+                    remark: data.remark
+                };
+
+                fetch(googleAppsScriptUrl, {
+                    method: 'POST',
+                    body: JSON.stringify(googleData)
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        alert('✓ บันทึกสำเร็จ! (Google Sheet + Local)');
+                    } else {
+                        alert('⚠️ บันทึก Local สำเร็จ แต่ Google Sheet ล้มเหลว: ' + result.error);
+                    }
+                })
+                .catch(error => {
+                    alert('⚠️ บันทึก Local สำเร็จ แต่ไม่สามารถส่ง Google Sheet: ' + error.message);
+                });
+            } else {
+                alert('✓ บันทึกสำเร็จ! (Local เท่านั้น - ยังไม่ได้ตั้งค่า Google Sheet)');
+            }
+
             document.getElementById('dailyForm').reset();
             document.getElementById('entryDate').valueAsDate = new Date();
             document.getElementById('imagePreview').innerHTML = '';
@@ -500,7 +675,7 @@
                         r.status === 'ติดขัด' ? 'failed' : 'pending'
                     }">${r.status}</span></td>
                     <td>${r.details ? r.details.substring(0, 40) + '...' : '-'}</td>
-                    <td><button class="btn btn-info" onclick="printSingleRecord(${idx})" style="width: 100%;">🖨️ พิมพ์</button></td>
+                    <td><button class="btn btn-info" onclick="printSingleRecord(${idx})" style="width: 100%; padding: 8px;">🖨️</button></td>
                 </tr>
             `).join('');
         }
@@ -601,7 +776,7 @@
                         r.status === 'ติดขัด' ? 'failed' : 'pending'
                     }">${r.status}</span></td>
                     <td>${r.details ? r.details.substring(0, 40) + '...' : '-'}</td>
-                    <td><button class="btn btn-info" onclick="printSingleRecord(${idx})" style="width: 100%;">🖨️ พิมพ์</button></td>
+                    <td><button class="btn btn-info" onclick="printSingleRecord(${idx})" style="width: 100%; padding: 8px;">🖨️</button></td>
                 </tr>
             `).join('');
         }
@@ -633,7 +808,6 @@
             document.getElementById('successRate').textContent = Math.round((completed / total) * 100) + '%';
             document.getElementById('workDays').textContent = new Set(monthRecords.map(r => r.date)).size;
 
-            // Detailed monthly list
             const detailsHtml = monthRecords.map(r => `
                 <div class="detail-row">
                     <h4>${r.date} - ${r.title}</h4>
