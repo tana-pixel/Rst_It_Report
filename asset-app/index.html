@@ -357,6 +357,7 @@ tbody tr:hover td{background:rgba(255,255,255,.02);cursor:pointer;}
   <a href="https://docs.google.com/spreadsheets/d/1lHKMQPfDY7NvH9l44JPjKsSfOXECJ37wgrKTLlF0k5E/edit" target="_blank">📊 Asset DB</a>
   <a href="https://docs.google.com/spreadsheets/d/1YqVTSe7TyWrwMlU_lvqiMG2_yzh8GtOuwan0t3HUJQc/edit" target="_blank">🎫 Ticket DB</a>
   <span id="sStatus"></span>
+  <button onclick="refreshAll()" style="margin-left:8px;font-size:11px;padding:2px 10px;border-radius:4px;border:1px solid rgba(34,197,94,0.3);background:transparent;color:var(--green);cursor:pointer;">⟳ โหลดใหม่</button>
 </div>
 
 <!-- SIDEBAR -->
@@ -591,20 +592,35 @@ function handleReq(e){
     var ss=SpreadsheetApp.getActiveSpreadsheet();
     var p=e.parameter;
     var sheet=ss.getSheetByName(p.sheet||'Sheet1')||ss.getActiveSheet();
-    if(p.action==='add'){
+    var r;
+    if(p.action==='getAll'){
+      var v=sheet.getDataRange().getValues();
+      var keys=v[0]; var rows=[];
+      for(var i=1;i<v.length;i++){
+        if(!v[i][0])continue;
+        var obj={};
+        for(var j=0;j<keys.length;j++) obj[keys[j]]=v[i][j];
+        rows.push(obj);
+      }
+      r=JSON.stringify({status:'ok',data:rows});
+    }else if(p.action==='add'){
       sheet.appendRow(JSON.parse(p.row));
+      r=JSON.stringify({status:'ok'});
     }else if(p.action==='update'){
       var v=sheet.getDataRange().getValues();
       for(var i=1;i<v.length;i++){
         if(v[i][0]==p.key){sheet.getRange(i+1,1,1,sheet.getLastColumn()).setValues([JSON.parse(p.row)]);break;}
       }
+      r=JSON.stringify({status:'ok'});
     }else if(p.action==='delete'){
       var v=sheet.getDataRange().getValues();
       for(var i=v.length-1;i>=1;i--){
         if(v[i][0]==p.key){sheet.deleteRow(i+1);break;}
       }
+      r=JSON.stringify({status:'ok'});
+    }else{
+      r=JSON.stringify({status:'ok'});
     }
-    var r=JSON.stringify({status:'ok'});
     return ContentService.createTextOutput(p.cb?p.cb+'('+r+')':r)
       .setMimeType(p.cb?ContentService.MimeType.JAVASCRIPT:ContentService.MimeType.JSON);
   }catch(err){
@@ -825,11 +841,120 @@ if(scriptUrl) document.getElementById('urlIn').value=scriptUrl;
 if(ticketUrl) document.getElementById('urlInTicket').value=ticketUrl;
 updateBar(); updateNav();
 
+async function refreshAll(){
+  if(!scriptUrl&&!ticketUrl){ toast('⚠ ตั้งค่า Sheets URL ก่อนครับ','warn'); return; }
+  toast('⟳ กำลังโหลดข้อมูลจาก Sheets...');
+  await loadFromSheets();
+  renderKPI();
+  if(currentView==='assets') renderAssets();
+  if(currentView==='ticket') renderTickets();
+  if(currentView==='repair') renderRepair();
+  if(currentView==='transfer') renderTransfers();
+  populateAssetSelect('tr-asset');
+  populateAssetSelect('tk-asset');
+  toast('✓ โหลดข้อมูลใหม่จาก Sheets สำเร็จ');
+}
+
 function saveAll(){
   localStorage.setItem(AK,JSON.stringify(assets));
   localStorage.setItem(TK,JSON.stringify(tickets));
   localStorage.setItem(TRK,JSON.stringify(transfers));
   updateNav(); updateBar();
+}
+
+// ─── โหลดข้อมูลจาก Sheets จริงๆ ───
+async function loadFromSheets(){
+  if(!scriptUrl && !ticketUrl){
+    // ไม่มี URL → ใช้ localStorage ปกติ
+    return;
+  }
+  updateBar();
+  const dot=document.getElementById('sDot');
+  dot.style.background='var(--amber)';
+  document.getElementById('sStatus').textContent='⟳ กำลังโหลดข้อมูลจาก Sheets...';
+
+  try{
+    // โหลด Assets จาก Sheets
+    if(scriptUrl){
+      const assetData = await jsonp({action:'getAll', sheet:'Assets'}, scriptUrl);
+      if(assetData && assetData.status==='ok' && assetData.data){
+        // แปลงข้อมูลจาก Sheets → format ของแอป
+        assets = assetData.data.map(row=>({
+          _k: row['_k']||row['รหัส']||row[Object.keys(row)[0]]||'',
+          id: row['id']||row['รหัสอุปกรณ์']||row[Object.keys(row)[0]]||'',
+          type: row['type']||row['ประเภท']||'',
+          brand: row['brand']||row['ยี่ห้อ']||'',
+          model: row['model']||row['รุ่น']||'',
+          user: row['user']||row['ผู้ใช้งาน']||'',
+          dept: row['dept']||row['แผนก']||'',
+          branch: row['branch']||row['สาขา']||'',
+          status: row['status']||row['สถานะ']||'active',
+          date: row['date']||row['วันที่รับเข้า']||'',
+          serial: row['serial']||row['Serial Number']||'',
+          price: parseFloat(row['price']||row['ราคา'])||0,
+          note: row['note']||row['หมายเหตุ']||'',
+          synced: true
+        })).filter(a=>a.id);
+
+        localStorage.setItem(AK, JSON.stringify(assets));
+      }
+
+      // โหลด Transfers
+      const trData = await jsonp({action:'getAll', sheet:'Transfers'}, scriptUrl);
+      if(trData && trData.status==='ok' && trData.data){
+        transfers = trData.data.map(row=>({
+          _k: row['_k']||row[Object.keys(row)[0]]||'',
+          id: row['id']||'',
+          type: row['type']||'',
+          asset: row['asset']||'',
+          from: row['from']||'',
+          to: row['to']||'',
+          receiver: row['receiver']||'',
+          approver: row['approver']||'',
+          note: row['note']||'',
+          date: row['date']||'',
+          status: row['status']||'pending',
+          synced: true
+        })).filter(t=>t.id);
+        localStorage.setItem(TRK, JSON.stringify(transfers));
+      }
+    }
+
+    // โหลด Tickets จาก Sheets
+    if(ticketUrl){
+      const tkData = await jsonp({action:'getAll', sheet:'Tickets'}, ticketUrl);
+      if(tkData && tkData.status==='ok' && tkData.data){
+        tickets = tkData.data.map(row=>({
+          _k: row['_k']||row[Object.keys(row)[0]]||'',
+          id: row['id']||'',
+          reporter: row['reporter']||'',
+          dept: row['dept']||'',
+          category: row['category']||'',
+          asset: row['asset']||'',
+          priority: row['priority']||'low',
+          status: row['status']||'open',
+          desc: row['desc']||'',
+          handler: row['handler']||'',
+          solution: row['solution']||'',
+          created: row['created']||new Date().toISOString(),
+          closed: row['closed']||null,
+          images: [],
+          links: [],
+          synced: true
+        })).filter(t=>t.id);
+        localStorage.setItem(TK, JSON.stringify(tickets));
+      }
+    }
+
+    dot.style.background='var(--green)';
+    document.getElementById('sStatus').textContent='✓ โหลดข้อมูลจาก Sheets แล้ว';
+
+  } catch(err){
+    dot.style.background='var(--red)';
+    document.getElementById('sStatus').textContent='❌ โหลดไม่สำเร็จ ใช้ข้อมูลจากเครื่อง';
+  }
+
+  updateNav();
 }
 
 function updateNav(){
@@ -913,6 +1038,15 @@ async function syncAll(){
   btn.innerHTML='<svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 2a6 6 0 11-3.5 10.5"/><path d="M10 6V2H6"/></svg> Sync';
   btn.disabled=false;
   toast(ok?`✓ Sync ${ok} รายการสำเร็จ`:'✓ ทุกรายการ Sync แล้ว');
+
+  // โหลดข้อมูลใหม่จาก Sheets หลัง sync
+  if(scriptUrl||ticketUrl){
+    await loadFromSheets();
+    renderKPI();
+    if(currentView==='assets') renderAssets();
+    if(currentView==='ticket') renderTickets();
+    if(currentView==='repair') renderRepair();
+  }
 }
 
 // ═══════════════════════════════
@@ -1469,6 +1603,18 @@ function doLogin(pin){
   updateNav(); renderKPI();
   populateAssetSelect('tr-asset');
   populateAssetSelect('tk-asset');
+
+  // โหลดจาก Sheets ถ้ามี URL แล้ว rerender
+  if(scriptUrl||ticketUrl){
+    loadFromSheets().then(()=>{
+      renderKPI();
+      if(currentView==='assets') renderAssets();
+      if(currentView==='ticket') renderTickets();
+      if(currentView==='repair') renderRepair();
+      populateAssetSelect('tr-asset');
+      populateAssetSelect('tk-asset');
+    });
+  }
 
   // Navigate
   if(isStaff) gv('ticket',document.querySelector('.ni[onclick*="ticket"]'));
