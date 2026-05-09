@@ -862,9 +862,9 @@ function jsonpFallback(params, url){ return _jsonpRequest(params, url); }
 // ═══════════════════════════════════════════════════
 // ── Detected sheet names (set during loadFromSheets) ──
 const SHEET_NAMES = {
-  assets   : 'Assets',
-  transfers: 'Transfers',
-  tickets  : 'Tickets',
+  assets   : 'IT Assets',
+  transfers: 'IT Transfers',
+  tickets  : 'IT Tickets',
 };
 
 // ── Auto-detect sheet name from spreadsheet ──
@@ -926,7 +926,7 @@ async function loadFromSheets(){
   if(scriptUrl){
     try{
       // ตรวจชื่อ Sheet จริงก่อน แล้วใช้ชื่อนั้น
-      const assetSheetName = await detectSheetName(scriptUrl, ['Assets','IT Assets','Sheet1','asset']);
+      const assetSheetName = await detectSheetName(scriptUrl, ['IT Assets','Assets','Sheet1']);
       dbg('Fetching Assets from sheet: ' + assetSheetName);
       const res = await callSheet({ action:'getAll', sheet:assetSheetName }, scriptUrl);
       dbg('Assets response: status=' + res.status + ' rows=' + (res.rows ? res.rows.length : 'n/a'));
@@ -955,7 +955,7 @@ async function loadFromSheets(){
 
     // ── Transfers ──
     try{
-      const transferSheetName = await detectSheetName(scriptUrl, ['Transfers','IT Transfers','Transfer','Sheet2']);
+      const transferSheetName = await detectSheetName(scriptUrl, ['IT Transfers','Transfers','Sheet2']);
       dbg('Fetching Transfers from sheet: ' + transferSheetName);
       const res = await callSheet({ action:'getAll', sheet:transferSheetName }, scriptUrl);
       dbg('Transfers response: status=' + res.status + ' rows=' + (res.rows ? res.rows.length : 'n/a'));
@@ -983,7 +983,7 @@ async function loadFromSheets(){
   // ── Tickets ─────────────────────────────────────────────
   if(ticketUrl){
     try{
-      const ticketSheetName = await detectSheetName(ticketUrl, ['IT Tickets','Tickets','IT Ticket','Sheet1']);
+      const ticketSheetName = await detectSheetName(ticketUrl, ['IT Tickets','Tickets','Sheet1']);
       dbg('Fetching Tickets from sheet: ' + ticketSheetName);
       const res = await callSheet({ action:'getAll', sheet:ticketSheetName }, ticketUrl);
       dbg('Tickets response: status=' + res.status + ' rows=' + (res.rows ? res.rows.length : 'n/a'));
@@ -1014,7 +1014,9 @@ async function loadFromSheets(){
   dbg('loadFromSheets DONE — loaded=' + loaded + ' assets=' + assets.length);
 
   if(loaded > 0){
-    toast('✓ โหลดข้อมูลจาก Sheets: ' + assets.length + ' assets, ' + tickets.length + ' tickets');
+    // โหลดจาก Sheets สำเร็จ — ลบ seed flag เพื่อไม่ให้ seed data กลับมา
+    localStorage.removeItem('ita_seeded_v4');
+    toast('✓ โหลด ' + assets.length + ' assets, ' + tickets.length + ' tickets จาก Sheets');
   } else {
     toast('⚠ ไม่สามารถโหลดจาก Sheets ได้ — เช็ค debug panel', 'warn');
   }
@@ -1905,7 +1907,7 @@ async function runDebugTest(){
     try{
       const r1 = await callSheet({ action:'test' }, scriptUrl);
       dbg('test → ' + JSON.stringify(r1));
-      const detectedAsset = await detectSheetName(scriptUrl, ['Assets','IT Assets','Sheet1']);
+      const detectedAsset = await detectSheetName(scriptUrl, ['IT Assets','Assets','Sheet1']);
       dbg('Detected asset sheet: "' + detectedAsset + '"');
       const r2 = await callSheet({ action:'getAll', sheet:detectedAsset }, scriptUrl);
       dbg('getAll ' + detectedAsset + ' → status=' + r2.status + ' rows=' + (r2.rows ? r2.rows.length : 'undefined'));
@@ -1922,7 +1924,7 @@ async function runDebugTest(){
     try{
       const r1 = await callSheet({ action:'test' }, ticketUrl);
       dbg('test → ' + JSON.stringify(r1));
-      const detectedTicket = await detectSheetName(ticketUrl, ['IT Tickets','Tickets','IT Ticket','Sheet1']);
+      const detectedTicket = await detectSheetName(ticketUrl, ['IT Tickets','Tickets','Sheet1']);
       dbg('Detected ticket sheet: "' + detectedTicket + '"');
       const r2 = await callSheet({ action:'getAll', sheet:detectedTicket }, ticketUrl);
       dbg('getAll ' + detectedTicket + ' → status=' + r2.status + ' rows=' + (r2.rows ? r2.rows.length : 'undefined'));
