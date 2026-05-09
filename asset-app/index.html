@@ -716,38 +716,102 @@ function updateBar(){
 // ═══════════════════════════════════════════════════
 // JSONP — แก้ไข: ส่ง url เป็น param เสมอ
 // ═══════════════════════════════════════════════════
-function jsonp(params, url){
+// ═══════════════════════════════════════════════════
+// NETWORK-ONLY FETCH STRATEGY
+// ─────────────────────────────────────────────────
+// • ใช้ fetch() แทน JSONP <script> tag
+//   → browser ไม่ cache fetch requests เหมือน script src
+// • เพิ่ม Cache-Control headers + cache:'no-store'
+//   → บังคับ network-only ทุกครั้ง ไม่มี stale data
+// • _t timestamp แนบทุก request เป็น cache-buster
+//   เผื่อ CDN/proxy ยังแคชอยู่
+// ═══════════════════════════════════════════════════
+
+async function callSheet(params, url){
+  if(!url) return { status:'error', msg:'no url' };
+
+  // Cache-buster: unique timestamp บน every request
+  const bustedParams = { ...params, _t: Date.now() };
+
+  const qs = Object.entries(bustedParams)
+    .map(([k,v]) => encodeURIComponent(k) + '=' + encodeURIComponent(v == null ? '' : v))
+    .join('&');
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 10000);
+
+  try {
+    const res = await fetch(url + '?' + qs, {
+      method : 'GET',
+      cache  : 'no-store',          // Network-only: skip cache entirely
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma'       : 'no-cache',
+      },
+      signal: controller.signal,
+    });
+    clearTimeout(timer);
+
+    // Apps Script returns JSONP text when cb param sent, or plain JSON
+    // We're not sending cb, so expect plain JSON
+    if(!res.ok) return { status:'error', msg:'HTTP '+res.status };
+    const text = await res.text();
+
+    // Strip JSONP wrapper if present (e.g. cb(...))
+    const jsonText = text.replace(/^\s*[\w$]+\s*\(/, '').replace(/\)\s*;?\s*$/, '').trim();
+    return JSON.parse(jsonText);
+
+  } catch(err) {
+    clearTimeout(timer);
+    if(err.name === 'AbortError') return { status:'timeout' };
+
+    // CORS fallback: Apps Script sometimes blocks fetch with CORS error
+    // Fall back to JSONP <script> tag (no-cache via unique cb name + _t buster)
+    console.warn('[callSheet] fetch failed, falling back to JSONP:', err.message);
+    return jsonpFallback(bustedParams, url);
+  }
+}
+
+// JSONP fallback (cache-busted via unique callback name + _t param)
+function jsonpFallback(params, url){
   return new Promise(resolve => {
-    if(!url){ resolve({status:'error',msg:'no url'}); return; }
     const cbName = 'cb_' + Date.now() + '_' + Math.random().toString(36).slice(2);
     const s = document.createElement('script');
-    const q = Object.entries({...params, cb: cbName})
-                .map(([k,v]) => encodeURIComponent(k)+'='+encodeURIComponent(v==null?'':v))
-                .join('&');
+    s.setAttribute('crossorigin', 'anonymous');
+
+    const q = Object.entries({ ...params, cb: cbName })
+      .map(([k,v]) => encodeURIComponent(k) + '=' + encodeURIComponent(v == null ? '' : v))
+      .join('&');
+
     window[cbName] = data => {
       delete window[cbName];
-      try{ document.body.removeChild(s); }catch{}
+      try { document.body.removeChild(s); } catch {}
       resolve(data);
     };
+
     s.src = url + '?' + q;
     s.onerror = () => {
       delete window[cbName];
-      try{ document.body.removeChild(s); }catch{}
-      resolve({status:'error',msg:'script error'});
+      try { document.body.removeChild(s); } catch {}
+      resolve({ status:'error', msg:'script error' });
     };
+
     document.body.appendChild(s);
     setTimeout(() => {
       if(window[cbName]){
         delete window[cbName];
-        try{ document.body.removeChild(s); }catch{}
-        resolve({status:'timeout'});
+        try { document.body.removeChild(s); } catch {}
+        resolve({ status:'timeout' });
       }
     }, 10000);
   });
 }
 
+// ── kept for backward-compat (testUrl uses this directly) ──
+function jsonp(params, url){ return callSheet(params, url); }
+
 // ═══════════════════════════════════════════════════
-// pushRow — เลือก URL ถูกต้องตาม sheet
+// pushRow — network-only write to Sheets
 // ═══════════════════════════════════════════════════
 function getUrlForSheet(sheetName){
   return (sheetName === 'Tickets' || sheetName === 'Transfers') ? ticketUrl : scriptUrl;
@@ -756,7 +820,10 @@ function getUrlForSheet(sheetName){
 async function pushRow(sheetName, rowArr, key, action = 'add'){
   const url = getUrlForSheet(sheetName);
   if(!url) return false;
-  const res = await jsonp({action, sheet: sheetName, key, row: JSON.stringify(rowArr)}, url);
+  const res = await callSheet(
+    { action, sheet: sheetName, key, row: JSON.stringify(rowArr) },
+    url
+  );
   return res && res.status === 'ok';
 }
 
