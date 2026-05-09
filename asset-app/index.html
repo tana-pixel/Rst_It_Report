@@ -446,60 +446,100 @@ tbody tr:hover td{background:rgba(255,255,255,.02);cursor:pointer;}
           <div class="sdesc">แอปจะบันทึกทุกการกระทำลง Sheets อัตโนมัติหลังตั้งค่าเสร็จ</div>
           <div class="step"><div class="snum">1</div><div class="sbody">เปิด <a href="https://docs.google.com/spreadsheets/d/1lHKMQPfDY7NvH9l44JPjKsSfOXECJ37wgrKTLlF0k5E/edit" target="_blank">IT Asset Database</a> → <code>Extensions</code> → <code>Apps Script</code></div></div>
           <div class="step"><div class="snum">2</div><div class="sbody">วาง code ด้านล่าง → Save → Deploy → Web app → Anyone → Copy URL
-            <div class="codebox" id="scriptCode">function doGet(e){return handleReq(e);}
-function doPost(e){return handleReq(e);}
+            <div class="codebox" id="scriptCode">function doGet(e)  { return main(e); }
+function doPost(e) { return main(e); }
 
-function handleReq(e){
-  var lock=LockService.getScriptLock();
-  try{
-    lock.waitLock(15000);
-    var ss=SpreadsheetApp.getActiveSpreadsheet();
-    var p=e.parameter;
-    var sheet=ss.getSheetByName(p.sheet||'Sheet1')||ss.getActiveSheet();
-    var out={status:'ok'};
+function main(e) {
+  try {
+    var param  = e && e.parameter ? e.parameter : {};
+    var action = param.action || '';
+    var cb     = param.cb     || '';
 
-    if(p.action==='getAll'){
-      // ดึงข้อมูลทั้งหมด ข้าม header row แรก
-      var data=sheet.getDataRange().getValues();
-      var rows=[];
-      for(var i=1;i<data.length;i++){
-        if(String(data[i][0]).trim()!=='') rows.push(data[i]);
-      }
-      out={status:'ok',rows:rows};
-
-    }else if(p.action==='add'){
-      sheet.appendRow(JSON.parse(p.row));
-
-    }else if(p.action==='update'){
-      var v=sheet.getDataRange().getValues();
-      for(var i=v.length-1;i>=1;i--){
-        if(String(v[i][0])===String(p.key)){
-          var nr=JSON.parse(p.row);
-          sheet.getRange(i+1,1,1,nr.length).setValues([nr]);
-          break;
-        }
-      }
-    }else if(p.action==='delete'){
-      var v=sheet.getDataRange().getValues();
-      for(var i=v.length-1;i>=1;i--){
-        if(String(v[i][0])===String(p.key)){sheet.deleteRow(i+1);break;}
-      }
-    }else if(p.action==='test'){
-      out={status:'ok',msg:'connected'};
+    // ── test: ตรวจว่าเชื่อมต่อได้ ──────────────────────
+    if (action === 'test') {
+      var names = SpreadsheetApp.getActiveSpreadsheet()
+                    .getSheets().map(function(s){ return s.getName(); });
+      return out({ status:'ok', msg:'connected', sheets:names }, cb);
     }
 
-    SpreadsheetApp.flush();
-    lock.releaseLock();
-    var r=JSON.stringify(out);
-    return ContentService.createTextOutput(p.cb?p.cb+'('+r+')':r)
-      .setMimeType(p.cb?ContentService.MimeType.JAVASCRIPT:ContentService.MimeType.JSON);
+    // ── หา Sheet ────────────────────────────────────────
+    var sheetName = param.sheet || '';
+    var ss    = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = sheetName ? ss.getSheetByName(sheetName) : ss.getActiveSheet();
+    if (!sheet) {
+      return out({ status:'error', msg:'Sheet not found: ' + sheetName }, cb);
+    }
 
-  }catch(err){
-    try{lock.releaseLock();}catch(le){}
-    var r=JSON.stringify({status:'error',msg:err.toString()});
-    return ContentService.createTextOutput(e.parameter.cb?e.parameter.cb+'('+r+')':r)
-      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+    // ── getAll: ดึงข้อมูลทั้งหมด (ไม่จำกัด row) ────────
+    if (action === 'getAll') {
+      var lastRow = sheet.getLastRow();
+      if (lastRow < 2) {
+        return out({ status:'ok', rows:[] }, cb);  // ยังไม่มีข้อมูล
+      }
+      var lastCol = Math.max(sheet.getLastColumn(), 1);
+      var vals    = sheet.getRange(2, 1, lastRow - 1, lastCol).getValues();
+      var rows    = [];
+      for (var i = 0; i < vals.length; i++) {
+        var first = vals[i][0];
+        if (first !== '' && first !== null && first !== undefined) {
+          rows.push(vals[i]);
+        }
+      }
+      return out({ status:'ok', rows:rows }, cb);
+    }
+
+    // ── add: เพิ่มแถวใหม่ ────────────────────────────────
+    if (action === 'add') {
+      var row = JSON.parse(param.row);
+      sheet.appendRow(row);
+      SpreadsheetApp.flush();
+      return out({ status:'ok' }, cb);
+    }
+
+    // ── update: แก้ไขแถวที่ key ตรง ─────────────────────
+    if (action === 'update') {
+      var key  = String(param.key);
+      var row  = JSON.parse(param.row);
+      var data = sheet.getDataRange().getValues();
+      for (var i = data.length - 1; i >= 1; i--) {
+        if (String(data[i][0]) === key) {
+          sheet.getRange(i + 1, 1, 1, row.length).setValues([row]);
+          SpreadsheetApp.flush();
+          return out({ status:'ok' }, cb);
+        }
+      }
+      return out({ status:'error', msg:'key not found: ' + key }, cb);
+    }
+
+    // ── delete: ลบแถวที่ key ตรง ─────────────────────────
+    if (action === 'delete') {
+      var key  = String(param.key);
+      var data = sheet.getDataRange().getValues();
+      for (var i = data.length - 1; i >= 1; i--) {
+        if (String(data[i][0]) === key) {
+          sheet.deleteRow(i + 1);
+          SpreadsheetApp.flush();
+          return out({ status:'ok' }, cb);
+        }
+      }
+      return out({ status:'error', msg:'key not found: ' + key }, cb);
+    }
+
+    return out({ status:'error', msg:'unknown action: ' + action }, cb);
+
+  } catch(err) {
+    return out({ status:'error', msg: err.message || String(err) },
+               e && e.parameter ? e.parameter.cb || '' : '');
   }
+}
+
+// helper: สร้าง ContentService output (JSON หรือ JSONP)
+function out(obj, cb) {
+  var json = JSON.stringify(obj);
+  var body = cb ? cb + '(' + json + ')' : json;
+  var mime = cb ? ContentService.MimeType.JAVASCRIPT
+                : ContentService.MimeType.JSON;
+  return ContentService.createTextOutput(body).setMimeType(mime);
 }
 <button class="cbtn" onclick="copyScript()">📋 Copy</button></div>
           </div></div>
