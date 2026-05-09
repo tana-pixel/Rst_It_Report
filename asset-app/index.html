@@ -1032,74 +1032,7 @@ async function loadFromSheets(){
 // ดึงข้อมูลสดจาก Sheets ทุกครั้ง ไม่ใช้ localStorage cache
 // ต้องเพิ่ม action:'getAll' ใน Apps Script (ดู Setup tab)
 // ═══════════════════════════════════════════════════
-async function loadFromSheets(){
-  if(!scriptUrl && !ticketUrl){ updateBar(); return 0; }
-  let loaded = 0;
-  console.log('[loadFromSheets] starting...');
 
-  // ── Assets ──────────────────────────────────────
-  if(scriptUrl){
-    try{
-      const res = await callSheet({ action:'getAll', sheet:'Assets' }, scriptUrl);
-      if(res && res.status==='ok' && Array.isArray(res.rows) && res.rows.length){
-        assets = res.rows
-          .filter(r => r[0])
-          .map(r => ({
-            _k:r[0]||'', id:r[1]||'', type:r[2]||'', brand:r[3]||'', model:r[4]||'',
-            user:r[5]||'', dept:r[6]||'', branch:r[7]||'', status:r[8]||'active',
-            date:r[9]||'', serial:r[10]||'', price:parseFloat(r[11])||0,
-            note:r[12]||'', synced:true,
-          }));
-        localStorage.setItem(AK, JSON.stringify(assets));
-        loaded++;
-      }
-    } catch(e){ console.warn('[loadFromSheets] Assets error:', e); toast('⚠ โหลด Assets ไม่สำเร็จ: '+e.message,'warn'); }
-
-    try{
-      const res = await callSheet({ action:'getAll', sheet:'Transfers' }, scriptUrl);
-      if(res && res.status==='ok' && Array.isArray(res.rows) && res.rows.length){
-        transfers = res.rows
-          .filter(r => r[0])
-          .map(r => ({
-            _k:r[0]||'', id:r[1]||'', type:r[2]||'', asset:r[3]||'',
-            from:r[4]||'', to:r[5]||'', receiver:r[6]||'', approver:r[7]||'',
-            note:r[8]||'', date:r[9]||'', status:r[10]||'pending', synced:true,
-          }));
-        localStorage.setItem(TRK, JSON.stringify(transfers));
-        loaded++;
-      }
-    } catch(e){ console.warn('[loadFromSheets] Transfers:', e); }
-  }
-
-  // ── Tickets ─────────────────────────────────────
-  if(ticketUrl){
-    try{
-      const res = await callSheet({ action:'getAll', sheet:'Tickets' }, ticketUrl);
-      if(res && res.status==='ok' && Array.isArray(res.rows) && res.rows.length){
-        tickets = res.rows
-          .filter(r => r[0])
-          .map(r => ({
-            _k:r[0]||'', id:r[1]||'', reporter:r[2]||'', dept:r[3]||'',
-            category:r[4]||'', asset:r[5]||'', priority:r[6]||'low',
-            status:r[7]||'open', desc:r[8]||'', handler:r[9]||'',
-            solution:r[10]||'', created:r[11]||new Date().toISOString(),
-            closed:r[12]||null, images:[], links:[], synced:true,
-          }));
-        localStorage.setItem(TK, JSON.stringify(tickets));
-        loaded++;
-      }
-    } catch(e){ console.warn('[loadFromSheets] Tickets:', e); }
-  }
-
-  updateNav(); updateBar();
-  if(loaded > 0){
-    toast(`✓ โหลดข้อมูลจาก Sheets สำเร็จ`);
-    console.log('[loadFromSheets] loaded sheets:', loaded);
-  } else {
-    console.warn('[loadFromSheets] no data loaded — check URL/Script');
-  }
-  return loaded;
-}
 
 // ═══════════════════════════════════════════════════
 // SYNC ALL — push local unsynced rows → Sheets
