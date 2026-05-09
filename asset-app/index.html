@@ -448,21 +448,35 @@ tbody tr:hover td{background:rgba(255,255,255,.02);cursor:pointer;}
           <div class="step"><div class="snum">2</div><div class="sbody">วาง code ด้านล่าง → Save → Deploy → Web app → Anyone → Copy URL
             <div class="codebox" id="scriptCode">function doGet(e){return handleReq(e);}
 function doPost(e){return handleReq(e);}
+
 function handleReq(e){
+  var lock=LockService.getScriptLock();
   try{
+    lock.waitLock(15000);
     var ss=SpreadsheetApp.getActiveSpreadsheet();
     var p=e.parameter;
     var sheet=ss.getSheetByName(p.sheet||'Sheet1')||ss.getActiveSheet();
+    var out={status:'ok'};
+
     if(p.action==='getAll'){
-      var d=sheet.getDataRange().getValues();
-      responseData={status:'ok',rows:d.slice(1).filter(function(r){return String(r[0])!=='';})};
+      // ดึงข้อมูลทั้งหมด ข้าม header row แรก
+      var data=sheet.getDataRange().getValues();
+      var rows=[];
+      for(var i=1;i<data.length;i++){
+        if(String(data[i][0]).trim()!=='') rows.push(data[i]);
+      }
+      out={status:'ok',rows:rows};
+
     }else if(p.action==='add'){
       sheet.appendRow(JSON.parse(p.row));
+
     }else if(p.action==='update'){
       var v=sheet.getDataRange().getValues();
-      for(var i=1;i<v.length;i++){
+      for(var i=v.length-1;i>=1;i--){
         if(String(v[i][0])===String(p.key)){
-          sheet.getRange(i+1,1,1,JSON.parse(p.row).length).setValues([JSON.parse(p.row)]);break;
+          var nr=JSON.parse(p.row);
+          sheet.getRange(i+1,1,1,nr.length).setValues([nr]);
+          break;
         }
       }
     }else if(p.action==='delete'){
@@ -470,11 +484,18 @@ function handleReq(e){
       for(var i=v.length-1;i>=1;i--){
         if(String(v[i][0])===String(p.key)){sheet.deleteRow(i+1);break;}
       }
+    }else if(p.action==='test'){
+      out={status:'ok',msg:'connected'};
     }
-    var r=JSON.stringify({status:'ok'});
+
+    SpreadsheetApp.flush();
+    lock.releaseLock();
+    var r=JSON.stringify(out);
     return ContentService.createTextOutput(p.cb?p.cb+'('+r+')':r)
       .setMimeType(p.cb?ContentService.MimeType.JAVASCRIPT:ContentService.MimeType.JSON);
+
   }catch(err){
+    try{lock.releaseLock();}catch(le){}
     var r=JSON.stringify({status:'error',msg:err.toString()});
     return ContentService.createTextOutput(e.parameter.cb?e.parameter.cb+'('+r+')':r)
       .setMimeType(ContentService.MimeType.JAVASCRIPT);
@@ -730,88 +751,51 @@ function updateBar(){
 //   เผื่อ CDN/proxy ยังแคชอยู่
 // ═══════════════════════════════════════════════════
 
-async function callSheet(params, url){
-  if(!url) return { status:'error', msg:'no url' };
+// ═══════════════════════════════════════════════════
+// NETWORK-ONLY via JSONP (primary) + fetch fallback
+// ─────────────────────────────────────────────────
+// Google Apps Script บล็อก CORS บน fetch() เสมอ
+// จึงใช้ JSONP <script> เป็น primary strategy
+// แนบ _t timestamp ทุก request เพื่อป้องกัน cache
+// ═══════════════════════════════════════════════════
 
-  // Cache-buster: unique timestamp บน every request
-  const bustedParams = { ...params, _t: Date.now() };
-
-  const qs = Object.entries(bustedParams)
-    .map(([k,v]) => encodeURIComponent(k) + '=' + encodeURIComponent(v == null ? '' : v))
-    .join('&');
-
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 10000);
-
-  try {
-    const res = await fetch(url + '?' + qs, {
-      method : 'GET',
-      cache  : 'no-store',          // Network-only: skip cache entirely
-      headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma'       : 'no-cache',
-      },
-      signal: controller.signal,
-    });
-    clearTimeout(timer);
-
-    // Apps Script returns JSONP text when cb param sent, or plain JSON
-    // We're not sending cb, so expect plain JSON
-    if(!res.ok) return { status:'error', msg:'HTTP '+res.status };
-    const text = await res.text();
-
-    // Strip JSONP wrapper if present (e.g. cb(...))
-    const jsonText = text.replace(/^\s*[\w$]+\s*\(/, '').replace(/\)\s*;?\s*$/, '').trim();
-    return JSON.parse(jsonText);
-
-  } catch(err) {
-    clearTimeout(timer);
-    if(err.name === 'AbortError') return { status:'timeout' };
-
-    // CORS fallback: Apps Script sometimes blocks fetch with CORS error
-    // Fall back to JSONP <script> tag (no-cache via unique cb name + _t buster)
-    console.warn('[callSheet] fetch failed, falling back to JSONP:', err.message);
-    return jsonpFallback(bustedParams, url);
-  }
+function callSheet(params, url){
+  if(!url) return Promise.resolve({ status:'error', msg:'no url' });
+  // JSONP เป็น primary — Apps Script รองรับ JSONP ทุกกรณี
+  const busted = { ...params, _t: Date.now() };
+  return _jsonpRequest(busted, url);
 }
 
-// JSONP fallback (cache-busted via unique callback name + _t param)
-function jsonpFallback(params, url){
+function _jsonpRequest(params, url){
   return new Promise(resolve => {
-    const cbName = 'cb_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+    const cbName = 'cb_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
     const s = document.createElement('script');
-    s.setAttribute('crossorigin', 'anonymous');
 
     const q = Object.entries({ ...params, cb: cbName })
       .map(([k,v]) => encodeURIComponent(k) + '=' + encodeURIComponent(v == null ? '' : v))
       .join('&');
 
-    window[cbName] = data => {
+    let settled = false;
+    function done(data){
+      if(settled) return; settled = true;
       delete window[cbName];
-      try { document.body.removeChild(s); } catch {}
+      try{ document.body.removeChild(s); }catch{}
       resolve(data);
-    };
+    }
 
+    window[cbName] = done;
     s.src = url + '?' + q;
-    s.onerror = () => {
-      delete window[cbName];
-      try { document.body.removeChild(s); } catch {}
-      resolve({ status:'error', msg:'script error' });
-    };
-
+    s.onerror = () => done({ status:'error', msg:'script load error' });
     document.body.appendChild(s);
-    setTimeout(() => {
-      if(window[cbName]){
-        delete window[cbName];
-        try { document.body.removeChild(s); } catch {}
-        resolve({ status:'timeout' });
-      }
-    }, 10000);
+
+    // Timeout 15s — getAll กับข้อมูลเยอะอาจช้า
+    setTimeout(() => done({ status:'timeout', msg:'request timeout' }), 15000);
   });
 }
 
-// ── kept for backward-compat (testUrl uses this directly) ──
+// alias เดิม
 function jsonp(params, url){ return callSheet(params, url); }
+function jsonpFallback(params, url){ return _jsonpRequest(params, url); }
 
 // ═══════════════════════════════════════════════════
 // pushRow — network-only write to Sheets
@@ -927,6 +911,12 @@ async function loadFromSheets(){
 
   hideLoading();
   updateNav(); updateBar();
+  if(loaded > 0){
+    toast(`✓ โหลดข้อมูลจาก Sheets สำเร็จ`);
+    console.log('[loadFromSheets] loaded sheets:', loaded);
+  } else {
+    console.warn('[loadFromSheets] no data loaded — check URL/Script');
+  }
   return loaded;
 }
 
@@ -942,6 +932,7 @@ async function loadFromSheets(){
 async function loadFromSheets(){
   if(!scriptUrl && !ticketUrl){ updateBar(); return 0; }
   let loaded = 0;
+  console.log('[loadFromSheets] starting...');
 
   // ── Assets ──────────────────────────────────────
   if(scriptUrl){
@@ -959,7 +950,7 @@ async function loadFromSheets(){
         localStorage.setItem(AK, JSON.stringify(assets));
         loaded++;
       }
-    } catch(e){ console.warn('[loadFromSheets] Assets:', e); }
+    } catch(e){ console.warn('[loadFromSheets] Assets error:', e); toast('⚠ โหลด Assets ไม่สำเร็จ: '+e.message,'warn'); }
 
     try{
       const res = await callSheet({ action:'getAll', sheet:'Transfers' }, scriptUrl);
@@ -998,6 +989,12 @@ async function loadFromSheets(){
   }
 
   updateNav(); updateBar();
+  if(loaded > 0){
+    toast(`✓ โหลดข้อมูลจาก Sheets สำเร็จ`);
+    console.log('[loadFromSheets] loaded sheets:', loaded);
+  } else {
+    console.warn('[loadFromSheets] no data loaded — check URL/Script');
+  }
   return loaded;
 }
 
@@ -1740,16 +1737,32 @@ function doLogin(pin){
   document.getElementById('syncBtn').style.display     = canSync()    ? '' : 'none';
   document.getElementById('quickAddBtn').style.display = isStaff      ? 'none' : '';
 
-  // โหลดข้อมูลสดจาก Sheets ทุกครั้งที่ login (Network-Only)
-  showLoading('⟳ กำลังโหลดข้อมูลจาก Google Sheets...');
-  loadFromSheets().then(() => {
-    hideLoading();
+  // โหลดข้อมูลสดจาก Sheets ทุกครั้งที่ login
+  if(scriptUrl || ticketUrl){
+    showLoading('⟳ กำลังโหลดข้อมูลจาก Google Sheets...');
+    loadFromSheets().then(loaded => {
+      hideLoading();
+      updateNav(); renderKPI();
+      populateAssetSelect('tr-asset');
+      populateAssetSelect('tk-asset');
+      if(isStaff) gv('ticket', document.querySelector('.ni[onclick*="ticket"]'));
+      else        gv('kpi',    document.querySelector('.ni'));
+    }).catch(err => {
+      hideLoading();
+      console.error('[doLogin] loadFromSheets failed:', err);
+      updateNav(); renderKPI();
+      populateAssetSelect('tr-asset');
+      populateAssetSelect('tk-asset');
+      if(isStaff) gv('ticket', document.querySelector('.ni[onclick*="ticket"]'));
+      else        gv('kpi',    document.querySelector('.ni'));
+    });
+  } else {
     updateNav(); renderKPI();
     populateAssetSelect('tr-asset');
     populateAssetSelect('tk-asset');
     if(isStaff) gv('ticket', document.querySelector('.ni[onclick*="ticket"]'));
     else        gv('kpi',    document.querySelector('.ni'));
-  });
+  }
 }
 
 function logout(){
