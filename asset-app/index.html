@@ -530,6 +530,19 @@ function handleReq(e){
           <p style="font-size:12px;color:var(--green);font-weight:500;margin-bottom:6px;">✓ ระบบ Sheets ที่เชื่อมต่อ</p>
           <p style="font-size:12px;color:var(--text2);line-height:1.8;">• <a href="https://docs.google.com/spreadsheets/d/1lHKMQPfDY7NvH9l44JPjKsSfOXECJ37wgrKTLlF0k5E/edit" target="_blank" style="color:var(--blue);">IT Asset Database</a> — ข้อมูลทรัพย์สิน + การเบิก/โอน<br>• <a href="https://docs.google.com/spreadsheets/d/1YqVTSe7TyWrwMlU_lvqiMG2_yzh8GtOuwan0t3HUJQc/edit" target="_blank" style="color:var(--blue);">IT Ticket Database</a> — Ticket แจ้งซ่อม + ปิดงาน</p>
         </div>
+
+        <!-- DEBUG PANEL -->
+        <div style="background:var(--bg2);border:1px solid rgba(245,158,11,.25);border-radius:12px;padding:16px;margin-top:12px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <p style="font-size:12px;color:var(--amber);font-weight:500;">🔍 Debug Log — ตรวจสอบการเชื่อมต่อ</p>
+            <div style="display:flex;gap:6px;">
+              <button class="btn btn-amb" onclick="runDebugTest()" style="font-size:11px;padding:4px 10px;">▶ ทดสอบ getAll</button>
+              <button class="btn btn-g" onclick="document.getElementById('dbgBox').textContent='';_dbgLog.length=0;" style="font-size:11px;padding:4px 10px;">🗑 Clear</button>
+            </div>
+          </div>
+          <pre id="dbgBox" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#93c5fd;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px;min-height:120px;max-height:300px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;">กด ▶ ทดสอบ getAll หรือ Login เพื่อดู debug log...</pre>
+          <p style="font-size:10px;color:var(--text3);margin-top:6px;">แสดง request/response จาก Apps Script แบบ real-time</p>
+        </div>
       </div>
     </div>
 
@@ -775,21 +788,28 @@ function _jsonpRequest(params, url){
       .map(([k,v]) => encodeURIComponent(k) + '=' + encodeURIComponent(v == null ? '' : v))
       .join('&');
 
+    const fullUrl = url + '?' + q;
+    dbg('JSONP → ' + params.action + ' [' + (params.sheet||'') + '] ' + fullUrl.slice(0,80)+'...');
+
     let settled = false;
     function done(data){
       if(settled) return; settled = true;
       delete window[cbName];
       try{ document.body.removeChild(s); }catch{}
+      dbg('JSONP ← ' + JSON.stringify(data).slice(0,120));
       resolve(data);
     }
 
     window[cbName] = done;
-    s.src = url + '?' + q;
-    s.onerror = () => done({ status:'error', msg:'script load error' });
+    s.src = fullUrl;
+    s.onerror = (e) => {
+      dbg('JSONP script.onerror: ' + JSON.stringify(e.type));
+      done({ status:'error', msg:'script load error' });
+    };
     document.body.appendChild(s);
 
-    // Timeout 15s — getAll กับข้อมูลเยอะอาจช้า
-    setTimeout(() => done({ status:'timeout', msg:'request timeout' }), 15000);
+    // 25s timeout for large datasets (59 rows)
+    setTimeout(() => done({ status:'timeout', msg:'timeout after 25s' }), 25000);
   });
 }
 
@@ -824,98 +844,103 @@ async function pushRow(sheetName, rowArr, key, action = 'add'){
 // ดูโค้ดใน Setup tab
 // ═══════════════════════════════════════════════════
 async function loadFromSheets(){
-  if(!scriptUrl && !ticketUrl){ updateBar(); return; }
-
-  showLoading('⟳ กำลังโหลดข้อมูลจาก Google Sheets...');
-
-  let loaded = 0;
-
-  // ── โหลด Assets ──
-  if(scriptUrl){
-    try{
-      const res = await callSheet({ action:'getAll', sheet:'Assets' }, scriptUrl);
-      if(res && res.status === 'ok' && Array.isArray(res.rows) && res.rows.length > 0){
-        // แปลง rows (array of arrays) → array of objects
-        assets = res.rows.map(r => ({
-          _k    : r[0]||'',
-          id    : r[1]||'',
-          type  : r[2]||'',
-          brand : r[3]||'',
-          model : r[4]||'',
-          user  : r[5]||'',
-          dept  : r[6]||'',
-          branch: r[7]||'',
-          status: r[8]||'active',
-          date  : r[9]||'',
-          serial: r[10]||'',
-          price : parseFloat(r[11])||0,
-          note  : r[12]||'',
-          synced: true,
-        })).filter(a => a._k); // กรองแถวว่าง
-        localStorage.setItem(AK, JSON.stringify(assets));
-        loaded++;
-      }
-    } catch(e){ console.warn('loadFromSheets Assets error:', e); }
-
-    try{
-      const res = await callSheet({ action:'getAll', sheet:'Transfers' }, scriptUrl);
-      if(res && res.status === 'ok' && Array.isArray(res.rows) && res.rows.length > 0){
-        transfers = res.rows.map(r => ({
-          _k      : r[0]||'',
-          id      : r[1]||'',
-          type    : r[2]||'',
-          asset   : r[3]||'',
-          from    : r[4]||'',
-          to      : r[5]||'',
-          receiver: r[6]||'',
-          approver: r[7]||'',
-          note    : r[8]||'',
-          date    : r[9]||'',
-          status  : r[10]||'pending',
-          synced  : true,
-        })).filter(t => t._k);
-        localStorage.setItem(TRK, JSON.stringify(transfers));
-        loaded++;
-      }
-    } catch(e){ console.warn('loadFromSheets Transfers error:', e); }
+  if(!scriptUrl && !ticketUrl){
+    dbg('loadFromSheets: no URLs configured');
+    updateBar(); return 0;
   }
 
-  // ── โหลด Tickets ──
-  if(ticketUrl){
+  dbg('loadFromSheets START — assetUrl=' + (scriptUrl||'none').slice(0,60));
+  showLoading('⟳ กำลังโหลดข้อมูลจาก Google Sheets...');
+  let loaded = 0;
+
+  // ── Assets ──────────────────────────────────────────────
+  if(scriptUrl){
     try{
-      const res = await callSheet({ action:'getAll', sheet:'Tickets' }, ticketUrl);
-      if(res && res.status === 'ok' && Array.isArray(res.rows) && res.rows.length > 0){
-        tickets = res.rows.map(r => ({
-          _k      : r[0]||'',
-          id      : r[1]||'',
-          reporter: r[2]||'',
-          dept    : r[3]||'',
-          category: r[4]||'',
-          asset   : r[5]||'',
-          priority: r[6]||'low',
-          status  : r[7]||'open',
-          desc    : r[8]||'',
-          handler : r[9]||'',
-          solution: r[10]||'',
-          created : r[11]||new Date().toISOString(),
-          closed  : r[12]||null,
-          images  : [],
-          links   : [],
-          synced  : true,
-        })).filter(t => t._k);
-        localStorage.setItem(TK, JSON.stringify(tickets));
+      dbg('Fetching Assets...');
+      const res = await callSheet({ action:'getAll', sheet:'Assets' }, scriptUrl);
+      dbg('Assets response: status=' + res.status + ' rows=' + (res.rows ? res.rows.length : 'n/a'));
+
+      if(res.status === 'ok' && Array.isArray(res.rows) && res.rows.length > 0){
+        assets = res.rows
+          .filter(r => r[0] && String(r[0]).trim() !== '')
+          .map(r => ({
+            _k:String(r[0]), id:String(r[1]||''),   type:String(r[2]||''),
+            brand:String(r[3]||''),  model:String(r[4]||''),  user:String(r[5]||''),
+            dept:String(r[6]||''),   branch:String(r[7]||''), status:String(r[8]||'active'),
+            date:String(r[9]||''),   serial:String(r[10]||''),price:parseFloat(r[11])||0,
+            note:String(r[12]||''),  synced:true,
+          }));
+        localStorage.setItem(AK, JSON.stringify(assets));
+        dbg('Assets loaded: ' + assets.length + ' items');
+        loaded++;
+      } else {
+        dbg('Assets: no rows or error — ' + JSON.stringify(res).slice(0,100));
+      }
+    } catch(e){
+      dbg('Assets EXCEPTION: ' + e.message);
+      console.error('[loadFromSheets] Assets:', e);
+    }
+
+    // ── Transfers ──
+    try{
+      dbg('Fetching Transfers...');
+      const res = await callSheet({ action:'getAll', sheet:'Transfers' }, scriptUrl);
+      dbg('Transfers response: status=' + res.status + ' rows=' + (res.rows ? res.rows.length : 'n/a'));
+      if(res.status === 'ok' && Array.isArray(res.rows) && res.rows.length > 0){
+        transfers = res.rows
+          .filter(r => r[0] && String(r[0]).trim() !== '')
+          .map(r => ({
+            _k:String(r[0]),   id:String(r[1]||''),       type:String(r[2]||''),
+            asset:String(r[3]||''),from:String(r[4]||''),  to:String(r[5]||''),
+            receiver:String(r[6]||''),approver:String(r[7]||''),
+            note:String(r[8]||''),   date:String(r[9]||''), status:String(r[10]||'pending'),
+            synced:true,
+          }));
+        localStorage.setItem(TRK, JSON.stringify(transfers));
+        dbg('Transfers loaded: ' + transfers.length + ' items');
         loaded++;
       }
-    } catch(e){ console.warn('loadFromSheets Tickets error:', e); }
+    } catch(e){
+      dbg('Transfers EXCEPTION: ' + e.message);
+      console.error('[loadFromSheets] Transfers:', e);
+    }
+  }
+
+  // ── Tickets ─────────────────────────────────────────────
+  if(ticketUrl){
+    try{
+      dbg('Fetching Tickets...');
+      const res = await callSheet({ action:'getAll', sheet:'Tickets' }, ticketUrl);
+      dbg('Tickets response: status=' + res.status + ' rows=' + (res.rows ? res.rows.length : 'n/a'));
+      if(res.status === 'ok' && Array.isArray(res.rows) && res.rows.length > 0){
+        tickets = res.rows
+          .filter(r => r[0] && String(r[0]).trim() !== '')
+          .map(r => ({
+            _k:String(r[0]),      id:String(r[1]||''),       reporter:String(r[2]||''),
+            dept:String(r[3]||''),category:String(r[4]||''), asset:String(r[5]||''),
+            priority:String(r[6]||'low'), status:String(r[7]||'open'),
+            desc:String(r[8]||''),handler:String(r[9]||''),  solution:String(r[10]||''),
+            created:String(r[11]||new Date().toISOString()),
+            closed:r[12]||null,   images:[], links:[], synced:true,
+          }));
+        localStorage.setItem(TK, JSON.stringify(tickets));
+        dbg('Tickets loaded: ' + tickets.length + ' items');
+        loaded++;
+      }
+    } catch(e){
+      dbg('Tickets EXCEPTION: ' + e.message);
+      console.error('[loadFromSheets] Tickets:', e);
+    }
   }
 
   hideLoading();
   updateNav(); updateBar();
+  dbg('loadFromSheets DONE — loaded=' + loaded + ' assets=' + assets.length);
+
   if(loaded > 0){
-    toast(`✓ โหลดข้อมูลจาก Sheets สำเร็จ`);
-    console.log('[loadFromSheets] loaded sheets:', loaded);
+    toast('✓ โหลดข้อมูลจาก Sheets: ' + assets.length + ' assets, ' + tickets.length + ' tickets');
   } else {
-    console.warn('[loadFromSheets] no data loaded — check URL/Script');
+    toast('⚠ ไม่สามารถโหลดจาก Sheets ได้ — เช็ค debug panel', 'warn');
   }
   return loaded;
 }
@@ -1624,6 +1649,17 @@ function populateAssetSelect(id, selected = ''){
     + assets.map(a => `<option value="${a.id}" ${a.id===selected?'selected':''}>${a.id} - ${a.brand||''} ${a.model||a.type}</option>`).join('');
 }
 
+// ── Debug logger ──────────────────────────────────
+const _dbgLog = [];
+function dbg(msg){
+  const ts = new Date().toLocaleTimeString('th-TH');
+  const line = '[' + ts + '] ' + msg;
+  _dbgLog.push(line);
+  console.log('[DBG]', msg);
+  const box = document.getElementById('dbgBox');
+  if(box){ box.textContent = _dbgLog.slice(-30).join('\n'); box.scrollTop = box.scrollHeight; }
+}
+
 let toastT;
 function toast(msg, type='ok'){
   const t = document.getElementById('toast'), d = document.getElementById('tdot');
@@ -1772,6 +1808,48 @@ function logout(){
   document.getElementById('loginScreen').classList.remove('hidden');
   const rb = document.getElementById('roleBadge');
   rb.textContent = ''; rb.style.cssText = '';
+}
+
+// ═══════════════════════════════════════════════════
+// DEBUG TEST — กด "▶ ทดสอบ getAll" ใน Setup tab
+// ═══════════════════════════════════════════════════
+async function runDebugTest(){
+  dbg('=== runDebugTest START ===');
+  dbg('scriptUrl = ' + (scriptUrl || '(ไม่มี)'));
+  dbg('ticketUrl = ' + (ticketUrl || '(ไม่มี)'));
+
+  if(!scriptUrl && !ticketUrl){
+    dbg('ERROR: ยังไม่มี URL — ไปตั้งค่าก่อน');
+    toast('⚠ กรอก URL ก่อนทดสอบ','warn'); return;
+  }
+
+  // Test Asset URL
+  if(scriptUrl){
+    dbg('--- Testing Asset URL ---');
+    try{
+      const r1 = await callSheet({ action:'test' }, scriptUrl);
+      dbg('test → ' + JSON.stringify(r1));
+      const r2 = await callSheet({ action:'getAll', sheet:'Assets' }, scriptUrl);
+      dbg('getAll Assets → status=' + r2.status + ' rows=' + (r2.rows ? r2.rows.length : 'undefined'));
+      if(r2.rows && r2.rows.length > 0){
+        dbg('แถวแรก: ' + JSON.stringify(r2.rows[0]).slice(0,120));
+        dbg('แถวสุดท้าย: ' + JSON.stringify(r2.rows[r2.rows.length-1]).slice(0,120));
+      }
+    } catch(e){ dbg('Asset URL Exception: ' + e.message); }
+  }
+
+  // Test Ticket URL
+  if(ticketUrl){
+    dbg('--- Testing Ticket URL ---');
+    try{
+      const r1 = await callSheet({ action:'test' }, ticketUrl);
+      dbg('test → ' + JSON.stringify(r1));
+      const r2 = await callSheet({ action:'getAll', sheet:'Tickets' }, ticketUrl);
+      dbg('getAll Tickets → status=' + r2.status + ' rows=' + (r2.rows ? r2.rows.length : 'undefined'));
+    } catch(e){ dbg('Ticket URL Exception: ' + e.message); }
+  }
+
+  dbg('=== runDebugTest END ===');
 }
 
 // ═══ INIT ═══
