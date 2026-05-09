@@ -860,8 +860,37 @@ function jsonpFallback(params, url){ return _jsonpRequest(params, url); }
 // ═══════════════════════════════════════════════════
 // pushRow — network-only write to Sheets
 // ═══════════════════════════════════════════════════
+// ── Detected sheet names (set during loadFromSheets) ──
+const SHEET_NAMES = {
+  assets   : 'Assets',
+  transfers: 'Transfers',
+  tickets  : 'Tickets',
+};
+
+// ── Auto-detect sheet name from spreadsheet ──
+async function detectSheetName(url, candidates){
+  try{
+    const res = await callSheet({ action:'test' }, url);
+    if(res && res.sheets && Array.isArray(res.sheets)){
+      dbg('Available sheets: ' + res.sheets.join(', '));
+      for(let i = 0; i < candidates.length; i++){
+        for(let j = 0; j < res.sheets.length; j++){
+          if(res.sheets[j].toLowerCase() === candidates[i].toLowerCase()){
+            return res.sheets[j]; // return ชื่อจริงจาก Spreadsheet
+          }
+        }
+      }
+      // ถ้าไม่เจอ candidate ใดเลย ใช้ sheet แรก
+      dbg('No candidate matched — using first sheet: ' + res.sheets[0]);
+      return res.sheets[0];
+    }
+  } catch(e){ dbg('detectSheetName error: ' + e.message); }
+  return candidates[0]; // fallback
+}
+
 function getUrlForSheet(sheetName){
-  return (sheetName === 'Tickets' || sheetName === 'Transfers') ? ticketUrl : scriptUrl;
+  return (sheetName === SHEET_NAMES.tickets || sheetName === SHEET_NAMES.transfers)
+    ? ticketUrl : scriptUrl;
 }
 
 async function pushRow(sheetName, rowArr, key, action = 'add'){
@@ -896,8 +925,10 @@ async function loadFromSheets(){
   // ── Assets ──────────────────────────────────────────────
   if(scriptUrl){
     try{
-      dbg('Fetching Assets...');
-      const res = await callSheet({ action:'getAll', sheet:'Assets' }, scriptUrl);
+      // ตรวจชื่อ Sheet จริงก่อน แล้วใช้ชื่อนั้น
+      const assetSheetName = await detectSheetName(scriptUrl, ['Assets','IT Assets','Sheet1','asset']);
+      dbg('Fetching Assets from sheet: ' + assetSheetName);
+      const res = await callSheet({ action:'getAll', sheet:assetSheetName }, scriptUrl);
       dbg('Assets response: status=' + res.status + ' rows=' + (res.rows ? res.rows.length : 'n/a'));
 
       if(res.status === 'ok' && Array.isArray(res.rows) && res.rows.length > 0){
@@ -911,7 +942,8 @@ async function loadFromSheets(){
             note:String(r[12]||''),  synced:true,
           }));
         localStorage.setItem(AK, JSON.stringify(assets));
-        dbg('Assets loaded: ' + assets.length + ' items');
+        SHEET_NAMES.assets = assetSheetName;
+        dbg('Assets loaded: ' + assets.length + ' items from "' + assetSheetName + '"');
         loaded++;
       } else {
         dbg('Assets: no rows or error — ' + JSON.stringify(res).slice(0,100));
@@ -923,8 +955,9 @@ async function loadFromSheets(){
 
     // ── Transfers ──
     try{
-      dbg('Fetching Transfers...');
-      const res = await callSheet({ action:'getAll', sheet:'Transfers' }, scriptUrl);
+      const transferSheetName = await detectSheetName(scriptUrl, ['Transfers','IT Transfers','Transfer','Sheet2']);
+      dbg('Fetching Transfers from sheet: ' + transferSheetName);
+      const res = await callSheet({ action:'getAll', sheet:transferSheetName }, scriptUrl);
       dbg('Transfers response: status=' + res.status + ' rows=' + (res.rows ? res.rows.length : 'n/a'));
       if(res.status === 'ok' && Array.isArray(res.rows) && res.rows.length > 0){
         transfers = res.rows
@@ -937,7 +970,8 @@ async function loadFromSheets(){
             synced:true,
           }));
         localStorage.setItem(TRK, JSON.stringify(transfers));
-        dbg('Transfers loaded: ' + transfers.length + ' items');
+        SHEET_NAMES.transfers = transferSheetName;
+        dbg('Transfers loaded: ' + transfers.length + ' items from "' + transferSheetName + '"');
         loaded++;
       }
     } catch(e){
@@ -949,8 +983,9 @@ async function loadFromSheets(){
   // ── Tickets ─────────────────────────────────────────────
   if(ticketUrl){
     try{
-      dbg('Fetching Tickets...');
-      const res = await callSheet({ action:'getAll', sheet:'Tickets' }, ticketUrl);
+      const ticketSheetName = await detectSheetName(ticketUrl, ['IT Tickets','Tickets','IT Ticket','Sheet1']);
+      dbg('Fetching Tickets from sheet: ' + ticketSheetName);
+      const res = await callSheet({ action:'getAll', sheet:ticketSheetName }, ticketUrl);
       dbg('Tickets response: status=' + res.status + ' rows=' + (res.rows ? res.rows.length : 'n/a'));
       if(res.status === 'ok' && Array.isArray(res.rows) && res.rows.length > 0){
         tickets = res.rows
@@ -964,7 +999,8 @@ async function loadFromSheets(){
             closed:r[12]||null,   images:[], links:[], synced:true,
           }));
         localStorage.setItem(TK, JSON.stringify(tickets));
-        dbg('Tickets loaded: ' + tickets.length + ' items');
+        SHEET_NAMES.tickets = ticketSheetName;
+        dbg('Tickets loaded: ' + tickets.length + ' items from "' + ticketSheetName + '"');
         loaded++;
       }
     } catch(e){
@@ -1074,13 +1110,13 @@ async function syncAll(){
 
   if(scriptUrl){
     for(const a of assets.filter(x => !x.synced)){
-      const r = await pushRow('Assets',
+      const r = await pushRow(SHEET_NAMES.assets,
         [a._k,a.id,a.type,a.brand,a.model,a.user,a.dept,a.branch,a.status,a.date,a.serial,a.price,a.note,new Date().toLocaleDateString('th-TH')],
         a._k, 'add');
       if(r){ a.synced = true; ok++; }
     }
     for(const tr of transfers.filter(x => !x.synced)){
-      const r = await pushRow('Transfers',
+      const r = await pushRow(SHEET_NAMES.transfers,
         [tr._k,tr.id,tr.type,tr.asset,tr.from,tr.to,tr.receiver,tr.approver,tr.note,tr.date,tr.status,new Date().toLocaleDateString('th-TH')],
         tr._k, 'add');
       if(r){ tr.synced = true; ok++; }
@@ -1088,7 +1124,7 @@ async function syncAll(){
   }
   if(ticketUrl){
     for(const t of tickets.filter(x => !x.synced)){
-      const r = await pushRow('Tickets',
+      const r = await pushRow(SHEET_NAMES.tickets,
         [t._k,t.id,t.reporter,t.dept,t.category,t.asset,t.priority,t.status,t.desc,t.handler,t.solution,t.created,t.closed,new Date().toLocaleDateString('th-TH')],
         t._k, 'add');
       if(r){ t.synced = true; ok++; }
@@ -1268,7 +1304,7 @@ async function saveAsset(){
   if(scriptUrl){
     toast('⟳ กำลัง Sync...');
     const row = [obj._k,obj.id,obj.type,obj.brand,obj.model,obj.user,obj.dept,obj.branch,obj.status,obj.date,obj.serial,obj.price,obj.note,new Date().toLocaleDateString('th-TH')];
-    const ok = await pushRow('Assets', row, obj._k, action);
+    const ok = await pushRow(SHEET_NAMES.assets, row, obj._k, action);
     if(ok){
       const i = assets.findIndex(a => a._k === obj._k);
       if(i >= 0){ assets[i].synced = true; saveAll(); renderAssets(); }
@@ -1289,7 +1325,7 @@ async function delAsset(idx){
 
   if(scriptUrl){
     // ใช้ pushRow (ที่เลือก URL ถูก) แทน jsonp ตรง
-    const ok = await pushRow('Assets', [], a._k, 'delete');
+    const ok = await pushRow(SHEET_NAMES.assets, [], a._k, 'delete');
     if(!ok) toast('⚠ ลบใน Sheets ไม่สำเร็จ (ลบจาก local แล้ว)','warn');
   }
 
@@ -1367,7 +1403,7 @@ async function saveTransfer(){
   if(ticketUrl){
     toast('⟳ กำลัง Sync...');
     const row = [obj._k,obj.id,obj.type,obj.asset,obj.from,obj.to,obj.receiver,obj.approver,obj.note,obj.date,obj.status,new Date().toLocaleDateString('th-TH')];
-    const ok = await pushRow('Transfers', row, obj._k, 'add');
+    const ok = await pushRow(SHEET_NAMES.transfers, row, obj._k, 'add');
     if(ok){
       const i = transfers.findIndex(t => t._k === obj._k);
       if(i >= 0){ transfers[i].synced = true; saveAll(); renderTransfers(); }
@@ -1386,7 +1422,7 @@ async function approveTransfer(key){
   saveAll(); renderTransfers(); toast('✓ อนุมัติแล้ว');
   if(ticketUrl){
     const row = [tr._k,tr.id,tr.type,tr.asset,tr.from,tr.to,tr.receiver,tr.approver,tr.note,tr.date,tr.status,new Date().toLocaleDateString('th-TH')];
-    const ok = await pushRow('Transfers', row, tr._k, 'update');
+    const ok = await pushRow(SHEET_NAMES.transfers, row, tr._k, 'update');
     if(ok){ tr.synced = true; saveAll(); renderTransfers(); }
   }
 }
@@ -1398,7 +1434,7 @@ async function delTransfer(key){
   const tr = transfers.find(t => t._k === key); if(!tr) return;
   showLoading('กำลังลบจาก Sheets...');
   if(ticketUrl){
-    await pushRow('Transfers', [], key, 'delete');
+    await pushRow(SHEET_NAMES.transfers, [], key, 'delete');
   }
   transfers = transfers.filter(t => t._k !== key);
   saveAll(); hideLoading(); renderTransfers(); renderKPI(); toast('ลบแล้ว');
@@ -1506,7 +1542,7 @@ async function saveTicket(){
     toast('⟳ กำลัง Sync...');
     const action = isNew ? 'add' : 'update';
     const row = [obj._k,obj.id,obj.reporter,obj.dept,obj.category,obj.asset,obj.priority,obj.status,obj.desc,obj.handler,obj.solution,obj.created,obj.closed,new Date().toLocaleDateString('th-TH')];
-    const ok = await pushRow('Tickets', row, obj._k, action);
+    const ok = await pushRow(SHEET_NAMES.tickets, row, obj._k, action);
     if(ok){
       const i = tickets.findIndex(t => t._k === obj._k);
       if(i >= 0){ tickets[i].synced = true; saveAll(); renderTickets(); }
@@ -1533,7 +1569,7 @@ async function quickClose(key){
   saveAll(); renderTickets(); renderKPI(); toast('✓ ปิดงาน '+t.id+' แล้ว');
   if(ticketUrl){
     const row = [t._k,t.id,t.reporter,t.dept,t.category,t.asset,t.priority,t.status,t.desc,t.handler,t.solution,t.created,t.closed,new Date().toLocaleDateString('th-TH')];
-    const ok = await pushRow('Tickets', row, t._k, 'update');
+    const ok = await pushRow(SHEET_NAMES.tickets, row, t._k, 'update');
     if(ok){ t.synced = true; saveAll(); renderTickets(); }
     toast(ok ? '✓ ปิดงาน '+t.id+' และ Sync สำเร็จ' : '✓ ปิดงานแล้ว (Sync ไม่สำเร็จ)', ok?'ok':'warn');
   }
@@ -1546,7 +1582,7 @@ async function delTicket(key){
   if(!t || !confirm(`ยืนยันลบ Ticket ${t.id}?\nการลบจะอัปเดต Sheets ทันที`)) return;
   showLoading(`กำลังลบ ${t.id} จาก Sheets...`);
   if(ticketUrl){
-    await pushRow('Tickets', [], key, 'delete');
+    await pushRow(SHEET_NAMES.tickets, [], key, 'delete');
   }
   tickets = tickets.filter(t => t._k !== key);
   saveAll(); hideLoading(); renderTickets(); renderKPI(); toast('ลบแล้ว');
@@ -1869,8 +1905,10 @@ async function runDebugTest(){
     try{
       const r1 = await callSheet({ action:'test' }, scriptUrl);
       dbg('test → ' + JSON.stringify(r1));
-      const r2 = await callSheet({ action:'getAll', sheet:'Assets' }, scriptUrl);
-      dbg('getAll Assets → status=' + r2.status + ' rows=' + (r2.rows ? r2.rows.length : 'undefined'));
+      const detectedAsset = await detectSheetName(scriptUrl, ['Assets','IT Assets','Sheet1']);
+      dbg('Detected asset sheet: "' + detectedAsset + '"');
+      const r2 = await callSheet({ action:'getAll', sheet:detectedAsset }, scriptUrl);
+      dbg('getAll ' + detectedAsset + ' → status=' + r2.status + ' rows=' + (r2.rows ? r2.rows.length : 'undefined'));
       if(r2.rows && r2.rows.length > 0){
         dbg('แถวแรก: ' + JSON.stringify(r2.rows[0]).slice(0,120));
         dbg('แถวสุดท้าย: ' + JSON.stringify(r2.rows[r2.rows.length-1]).slice(0,120));
@@ -1884,8 +1922,10 @@ async function runDebugTest(){
     try{
       const r1 = await callSheet({ action:'test' }, ticketUrl);
       dbg('test → ' + JSON.stringify(r1));
-      const r2 = await callSheet({ action:'getAll', sheet:'Tickets' }, ticketUrl);
-      dbg('getAll Tickets → status=' + r2.status + ' rows=' + (r2.rows ? r2.rows.length : 'undefined'));
+      const detectedTicket = await detectSheetName(ticketUrl, ['IT Tickets','Tickets','IT Ticket','Sheet1']);
+      dbg('Detected ticket sheet: "' + detectedTicket + '"');
+      const r2 = await callSheet({ action:'getAll', sheet:detectedTicket }, ticketUrl);
+      dbg('getAll ' + detectedTicket + ' → status=' + r2.status + ' rows=' + (r2.rows ? r2.rows.length : 'undefined'));
     } catch(e){ dbg('Ticket URL Exception: ' + e.message); }
   }
 
