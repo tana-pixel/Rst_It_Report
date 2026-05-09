@@ -445,36 +445,82 @@ tbody tr:hover td{background:rgba(255,255,255,.02);cursor:pointer;}
           <div class="step"><div class="snum">1</div><div class="sbody">เปิด <a href="https://docs.google.com/spreadsheets/d/1lHKMQPfDY7NvH9l44JPjKsSfOXECJ37wgrKTLlF0k5E/edit" target="_blank">IT Asset Database</a> → <code>Extensions</code> → <code>Apps Script</code></div></div>
           <div class="step"><div class="snum">2</div><div class="sbody">วาง code ด้านล่าง → Save → Deploy → Web app → Anyone → Copy URL
             <div class="codebox" id="scriptCode">function doGet(e){return handleReq(e);}
-function doPost(e){return handleReq(e);}
-function handleReq(e){
-  try{
-    var ss=SpreadsheetApp.getActiveSpreadsheet();
-    var p=e.parameter;
-    var sheet=ss.getSheetByName(p.sheet||'Sheet1')||ss.getActiveSheet();
-    if(p.action==='add'){
+/**
+ * Google Apps Script API สำหรับ CRUD ข้อมูลใน Google Sheets
+ * ป้องกันข้อมูลค้าง (Cache) และการเขียนทับซ้อน (Concurrency)
+ */
+
+function doGet(e) { return handleReq(e); }
+function doPost(e) { return handleReq(e); }
+
+function handleReq(e) {
+  // 1. ตั้งค่า Lock ป้องกันการทำงานซ้อนกัน (สูงสุด 10 วินาที)
+  var lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(10000); 
+
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var p = e.parameter;
+    // ดึง Sheet ที่ต้องการ ถ้าไม่ระบุให้ใช้ Sheet1
+    var sheet = ss.getSheetByName(p.sheet || 'Sheet1') || ss.getActiveSheet();
+    var responseData = { status: 'ok' };
+
+    // 2. ตรวจสอบ Action และจัดการข้อมูลสดๆ (Fresh Data)
+    if (p.action === 'add') {
+      // เพิ่มแถวใหม่ต่อท้าย
       sheet.appendRow(JSON.parse(p.row));
-    }else if(p.action==='update'){
-      var v=sheet.getDataRange().getValues();
-      for(var i=1;i<v.length;i++){
-        if(String(v[i][0])===String(p.key)){
-          sheet.getRange(i+1,1,1,JSON.parse(p.row).length).setValues([JSON.parse(p.row)]);break;
+      
+    } else if (p.action === 'update' || p.action === 'delete') {
+      // ดึงข้อมูลปัจจุบันจาก Sheet ทุกครั้งที่มีการเรียกใช้ (ไม่ใช้ค่าค้าง)
+      var data = sheet.getDataRange().getValues();
+      var found = false;
+
+      // วนลูปจากล่างขึ้นบน (Reverse Loop) เพื่อป้องกันลำดับแถวเคลื่อนเวลาลบ
+      for (var i = data.length - 1; i >= 1; i--) {
+        if (String(data[i][0]) === String(p.key)) {
+          if (p.action === 'delete') {
+            sheet.deleteRow(i + 1);
+          } else if (p.action === 'update') {
+            var newRow = JSON.parse(p.row);
+            // อัปเดตข้อมูลแถวนั้นทั้งแถว
+            sheet.getRange(i + 1, 1, 1, newRow.length).setValues([newRow]);
+          }
+          found = true;
+          break; // เจอแล้วทำเสร็จแล้วให้หยุดทันที
         }
       }
-    }else if(p.action==='delete'){
-      var v=sheet.getDataRange().getValues();
-      for(var i=v.length-1;i>=1;i--){
-        if(String(v[i][0])===String(p.key)){sheet.deleteRow(i+1);break;}
-      }
+      if (!found) throw new Error('ไม่พบข้อมูลที่ตรงกับ Key: ' + p.key);
     }
-    var r=JSON.stringify({status:'ok'});
-    return ContentService.createTextOutput(p.cb?p.cb+'('+r+')':r)
-      .setMimeType(p.cb?ContentService.MimeType.JAVASCRIPT:ContentService.MimeType.JSON);
-  }catch(err){
-    var r=JSON.stringify({status:'error',msg:err.toString()});
-    return ContentService.createTextOutput(e.parameter.cb?e.parameter.cb+'('+r+')':r)
-      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+
+    // 3. บังคับให้ Spreadsheet เขียนข้อมูลลงไฟล์จริงทันที (เคลียร์ Cache)
+    SpreadsheetApp.flush();
+
+    return createOutput(responseData, p.cb);
+
+  } catch (err) {
+    return createOutput({ status: 'error', msg: err.toString() }, e.parameter.cb);
+  } finally {
+    // ปลดล็อคเพื่อให้คนต่อไปเข้ามาทำงานได้
+    lock.releaseLock();
   }
 }
+
+/**
+ * ฟังก์ชันสร้าง Response ส่งกลับไปยัง App
+ */
+function createOutput(res, cb) {
+  var outputString = JSON.stringify(res);
+  if (cb) {
+    // สำหรับการเรียกผ่าน JSONP (เช่น Web Browser บางประเภท)
+    return ContentService.createTextOutput(cb + '(' + outputString + ')')
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  } else {
+    // สำหรับการเรียกผ่าน JSON (App ทั่วไป)
+    return ContentService.createTextOutput(outputString)
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+              
 <button class="cbtn" onclick="copyScript()">📋 Copy</button></div>
           </div></div>
           <div style="display:grid;gap:10px;margin-top:14px;">
