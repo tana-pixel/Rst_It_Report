@@ -243,6 +243,8 @@ tbody tr:hover td{background:rgba(255,255,255,.02);cursor:pointer;}
 <div class="sync-bar">
   <span class="sdot" id="sDot"></span>
   <span style="color:var(--text2);font-size:11px;">IT Asset System</span>
+  <a href="https://docs.google.com/spreadsheets/d/1lHKMQPfDY7NvH9l44JPjKsSfOXECJ37wgrKTLlF0k5E/edit" target="_blank">📊 Asset DB</a>
+  <a href="https://docs.google.com/spreadsheets/d/1YqVTSe7TyWrwMlU_lvqiMG2_yzh8GtOuwan0t3HUJQc/edit" target="_blank">🎫 Ticket DB</a>
   <span id="sStatus"></span>
 </div>
 
@@ -445,82 +447,36 @@ tbody tr:hover td{background:rgba(255,255,255,.02);cursor:pointer;}
           <div class="step"><div class="snum">1</div><div class="sbody">เปิด <a href="https://docs.google.com/spreadsheets/d/1lHKMQPfDY7NvH9l44JPjKsSfOXECJ37wgrKTLlF0k5E/edit" target="_blank">IT Asset Database</a> → <code>Extensions</code> → <code>Apps Script</code></div></div>
           <div class="step"><div class="snum">2</div><div class="sbody">วาง code ด้านล่าง → Save → Deploy → Web app → Anyone → Copy URL
             <div class="codebox" id="scriptCode">function doGet(e){return handleReq(e);}
-/**
- * Google Apps Script API สำหรับ CRUD ข้อมูลใน Google Sheets
- * ป้องกันข้อมูลค้าง (Cache) และการเขียนทับซ้อน (Concurrency)
- */
-
-function doGet(e) { return handleReq(e); }
-function doPost(e) { return handleReq(e); }
-
-function handleReq(e) {
-  // 1. ตั้งค่า Lock ป้องกันการทำงานซ้อนกัน (สูงสุด 10 วินาที)
-  var lock = LockService.getScriptLock();
-  try {
-    lock.waitLock(10000); 
-
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var p = e.parameter;
-    // ดึง Sheet ที่ต้องการ ถ้าไม่ระบุให้ใช้ Sheet1
-    var sheet = ss.getSheetByName(p.sheet || 'Sheet1') || ss.getActiveSheet();
-    var responseData = { status: 'ok' };
-
-    // 2. ตรวจสอบ Action และจัดการข้อมูลสดๆ (Fresh Data)
-    if (p.action === 'add') {
-      // เพิ่มแถวใหม่ต่อท้าย
+function doPost(e){return handleReq(e);}
+function handleReq(e){
+  try{
+    var ss=SpreadsheetApp.getActiveSpreadsheet();
+    var p=e.parameter;
+    var sheet=ss.getSheetByName(p.sheet||'Sheet1')||ss.getActiveSheet();
+    if(p.action==='add'){
       sheet.appendRow(JSON.parse(p.row));
-      
-    } else if (p.action === 'update' || p.action === 'delete') {
-      // ดึงข้อมูลปัจจุบันจาก Sheet ทุกครั้งที่มีการเรียกใช้ (ไม่ใช้ค่าค้าง)
-      var data = sheet.getDataRange().getValues();
-      var found = false;
-
-      // วนลูปจากล่างขึ้นบน (Reverse Loop) เพื่อป้องกันลำดับแถวเคลื่อนเวลาลบ
-      for (var i = data.length - 1; i >= 1; i--) {
-        if (String(data[i][0]) === String(p.key)) {
-          if (p.action === 'delete') {
-            sheet.deleteRow(i + 1);
-          } else if (p.action === 'update') {
-            var newRow = JSON.parse(p.row);
-            // อัปเดตข้อมูลแถวนั้นทั้งแถว
-            sheet.getRange(i + 1, 1, 1, newRow.length).setValues([newRow]);
-          }
-          found = true;
-          break; // เจอแล้วทำเสร็จแล้วให้หยุดทันที
+    }else if(p.action==='update'){
+      var v=sheet.getDataRange().getValues();
+      for(var i=1;i<v.length;i++){
+        if(String(v[i][0])===String(p.key)){
+          sheet.getRange(i+1,1,1,JSON.parse(p.row).length).setValues([JSON.parse(p.row)]);break;
         }
       }
-      if (!found) throw new Error('ไม่พบข้อมูลที่ตรงกับ Key: ' + p.key);
+    }else if(p.action==='delete'){
+      var v=sheet.getDataRange().getValues();
+      for(var i=v.length-1;i>=1;i--){
+        if(String(v[i][0])===String(p.key)){sheet.deleteRow(i+1);break;}
+      }
     }
-
-    // 3. บังคับให้ Spreadsheet เขียนข้อมูลลงไฟล์จริงทันที (เคลียร์ Cache)
-    SpreadsheetApp.flush();
-
-    return createOutput(responseData, p.cb);
-
-  } catch (err) {
-    return createOutput({ status: 'error', msg: err.toString() }, e.parameter.cb);
-  } finally {
-    // ปลดล็อคเพื่อให้คนต่อไปเข้ามาทำงานได้
-    lock.releaseLock();
-  }
-}
-
-/**
- * ฟังก์ชันสร้าง Response ส่งกลับไปยัง App
- */
-function createOutput(res, cb) {
-  var outputString = JSON.stringify(res);
-  if (cb) {
-    // สำหรับการเรียกผ่าน JSONP (เช่น Web Browser บางประเภท)
-    return ContentService.createTextOutput(cb + '(' + outputString + ')')
+    var r=JSON.stringify({status:'ok'});
+    return ContentService.createTextOutput(p.cb?p.cb+'('+r+')':r)
+      .setMimeType(p.cb?ContentService.MimeType.JAVASCRIPT:ContentService.MimeType.JSON);
+  }catch(err){
+    var r=JSON.stringify({status:'error',msg:err.toString()});
+    return ContentService.createTextOutput(e.parameter.cb?e.parameter.cb+'('+r+')':r)
       .setMimeType(ContentService.MimeType.JAVASCRIPT);
-  } else {
-    // สำหรับการเรียกผ่าน JSON (App ทั่วไป)
-    return ContentService.createTextOutput(outputString)
-      .setMimeType(ContentService.MimeType.JSON);
   }
 }
-              
 <button class="cbtn" onclick="copyScript()">📋 Copy</button></div>
           </div></div>
           <div style="display:grid;gap:10px;margin-top:14px;">
@@ -536,7 +492,7 @@ function createOutput(res, cb) {
             </div>
             <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:14px;">
               <p style="font-size:12px;font-weight:500;color:var(--purple);margin-bottom:8px;">🎫 URL สำหรับ IT Ticket Database</p>
-         
+              <p style="font-size:11px;color:var(--text3);margin-bottom:8px;">Ticket แจ้งซ่อม + Transfer — ต้อง Deploy Apps Script ใน <a href="https://docs.google.com/spreadsheets/d/1YqVTSe7TyWrwMlU_lvqiMG2_yzh8GtOuwan0t3HUJQc/edit" target="_blank" style="color:var(--blue);">IT Ticket DB</a> แยกต่างหาก</p>
               <div class="url-row">
                 <input class="url-in" id="urlInTicket" placeholder="https://script.google.com/macros/s/.../exec">
                 <button class="btn btn-p" onclick="saveUrl('ticket')">💾 บันทึก</button>
@@ -547,7 +503,8 @@ function createOutput(res, cb) {
           </div>
         </div>
         <div style="background:var(--bg2);border:1px solid rgba(34,197,94,.2);border-radius:12px;padding:14px 18px;">
-        
+          <p style="font-size:12px;color:var(--green);font-weight:500;margin-bottom:6px;">✓ ระบบ Sheets ที่เชื่อมต่อ</p>
+          <p style="font-size:12px;color:var(--text2);line-height:1.8;">• <a href="https://docs.google.com/spreadsheets/d/1lHKMQPfDY7NvH9l44JPjKsSfOXECJ37wgrKTLlF0k5E/edit" target="_blank" style="color:var(--blue);">IT Asset Database</a> — ข้อมูลทรัพย์สิน + การเบิก/โอน<br>• <a href="https://docs.google.com/spreadsheets/d/1YqVTSe7TyWrwMlU_lvqiMG2_yzh8GtOuwan0t3HUJQc/edit" target="_blank" style="color:var(--blue);">IT Ticket Database</a> — Ticket แจ้งซ่อม + ปิดงาน</p>
         </div>
       </div>
     </div>
@@ -695,8 +652,10 @@ let editAssetKey = null, editTicketKey = null;
 let aFilter = '', tkFilter = '', trFilter = '';
 const CLR = ['#4f8ef7','#22c55e','#f59e0b','#a78bfa','#22d3ee','#f43f5e','#84cc16','#fb923c','#f472b6'];
 
-// Seed data
-if(assets.length === 0){
+// Seed data — ใช้ flag แยกต่างหาก ไม่เช็ค .length
+// เพื่อป้องกัน seed กลับมาเมื่อลบข้อมูลทั้งหมดแล้ว
+const SEEDED_KEY = 'ita_seeded_v4';
+if(!localStorage.getItem(SEEDED_KEY)){
   const ts = Date.now();
   assets = [
     {_k:'PC-FUJI-001_'+ts,       id:'PC-FUJI-001',  type:'คอมพิวเตอร์',brand:'FUJI',   model:'Desktop',         user:'ธนา พิทยธนาดล',dept:'IT',       branch:'สำนักงานใหญ่',status:'active', date:'2026-03-18',serial:'',price:25000,note:'ผู้จัดการฝ่าย IT',synced:false},
@@ -707,14 +666,11 @@ if(assets.length === 0){
     {_k:'NW-ORBI-001_'+(ts+5),   id:'NW-ORBI-001',  type:'Network',     brand:'Netgear',model:'Orbi34',          user:'',dept:'IT',                      branch:'สำนักงานใหญ่',status:'active', date:'2026-03-18',serial:'',price:5800, note:'',synced:false},
     {_k:'NB-RST-002_'+(ts+6),    id:'NB-RST-002',   type:'Notebook',    brand:'',       model:'ห้องบริการ',       user:'',dept:'Service',                 branch:'สำนักงานใหญ่',status:'repair', date:'2026-03-18',serial:'',price:0,    note:'Adapter/Jack เสีย',synced:false},
   ];
-  saveAll();
-}
-if(tickets.length === 0){
-  const ts = Date.now();
   tickets = [
     {_k:'TK-001_'+ts,     id:'TK-001',reporter:'สมชาย ใจดี',  dept:'Robotics',category:'เครือข่าย/อินเทอร์เน็ต',asset:'NW-ARUBA-001',priority:'med', status:'open',  desc:'เน็ตในห้อง Robotics ใช้งานไม่ได้',handler:'ธนา',solution:'',created:new Date(Date.now()-86400000*2).toISOString(),closed:null,   images:[],links:[],synced:false},
     {_k:'TK-002_'+(ts+1), id:'TK-002',reporter:'สมหญิง รักดี',dept:'บัญชี',   category:'Printer/สแกนเนอร์',          asset:'PR-MFC-001',  priority:'low', status:'closed',desc:'ปริ้นเตอร์ไม่ยอมพิมพ์',             handler:'ธนา',solution:'เปลี่ยน drum unit และเคลียร์ paper jam',created:new Date(Date.now()-86400000*5).toISOString(),closed:new Date(Date.now()-86400000*4).toISOString(),images:[],links:[],synced:false},
   ];
+  localStorage.setItem(SEEDED_KEY, '1');
   saveAll();
 }
 
@@ -929,6 +885,7 @@ function renderKPI(){
   document.getElementById('ticketStatus').innerHTML = [['เปิด',openTk,'var(--blue)'],['กำลังดำเนินการ',progTk,'var(--amber)'],['ปิดแล้ว',closedTk,'var(--green)']]
     .map(([l,n,c]) => `<div class="br"><div class="blbl">${l}</div><div class="bwrap"><div class="bfill" style="width:${n/mx4*100}%;background:${c}"></div></div><div class="bcnt">${n}</div></div>`)
     .join('');
+  setTimeout(applyRBAC, 0);
 }
 
 // ═══════════════════════════════════════════════════
@@ -962,6 +919,7 @@ function renderAssets(){
       </div></td>
     </tr>`;
   }).join('');
+  setTimeout(applyRBAC, 0);
 }
 
 function openAssetAdd(){
@@ -975,6 +933,7 @@ function openAssetAdd(){
   document.getElementById('assetOverlay').classList.add('show');
 }
 function openAssetEdit(idx){
+  if(!canEdit()) return;
   const a = assets[idx]; if(!a) return;
   editAssetKey = idx;
   document.getElementById('assetMTitle').textContent = 'แก้ไขทรัพย์สิน';
@@ -987,7 +946,7 @@ function openAssetEdit(idx){
 
 // ═══ แก้ไข saveAsset — real-time sync ═══
 async function saveAsset(){
-  if(currentRole !== 'admin'){ toast('เฉพาะ IT Admin เท่านั้น','warn'); return; }
+  if(!requirePerm(canEdit(),'แก้ไข/เพิ่มทรัพย์สิน')) return;
   const id = document.getElementById('a-id').value.trim();
   if(!id){ toast('กรุณากรอกรหัสอุปกรณ์','warn'); return; }
 
@@ -1019,7 +978,7 @@ async function saveAsset(){
 
 // ═══ แก้ไข delAsset — real-time delete ═══
 async function delAsset(idx){
-  if(currentRole !== 'admin'){ toast('เฉพาะ IT Admin เท่านั้น','warn'); return; }
+  if(!requirePerm(canDelete(),'ลบทรัพย์สิน')) return;
   const a = assets[idx]; if(!a) return;
   if(!confirm(`ยืนยันลบ ${a.id}?\n\n${a.brand} ${a.model}\nการลบจะอัปเดต Sheets ทันที`)) return;
 
@@ -1049,7 +1008,7 @@ function renderTransfers(){
   empty.style.display = 'none';
   const typeLabel = {borrow:'เบิกให้พนักงาน',branch:'โอนข้ามสาขา',return:'คืนทรัพย์สิน'};
   document.getElementById('trTbl').innerHTML = rows.map(tr => `
-    <tr>
+    <tr style="cursor:default">
       <td class="mono">${tr.id}</td>
       <td><span class="badge ${tr.type==='borrow'?'b-transfer':tr.type==='branch'?'b-issue':'b-ok'}">${typeLabel[tr.type]||tr.type}</span></td>
       <td style="color:var(--text2);">${tr.asset}</td>
@@ -1086,6 +1045,7 @@ function updateTRForm(){
 
 // ═══ แก้ไข saveTransfer — real-time sync ═══
 async function saveTransfer(){
+  if(!requirePerm(canEdit(),'สร้างใบเบิก/โอน')) return;
   const asset = g('tr-asset');
   if(!asset){ toast('⚠ เลือกทรัพย์สินก่อน','warn'); return; }
   const id = 'TR-'+String(transfers.length+1).padStart(3,'0')+'-'+Date.now().toString().slice(-4);
@@ -1117,6 +1077,7 @@ async function saveTransfer(){
 
 // ═══ แก้ไข approveTransfer — sync update ═══
 async function approveTransfer(key){
+  if(!requirePerm(canApprove(),'อนุมัติการโอน')) return;
   const tr = transfers.find(t => t._k === key); if(!tr) return;
   tr.status = 'approved'; tr.synced = false;
   saveAll(); renderTransfers(); toast('✓ อนุมัติแล้ว');
@@ -1129,6 +1090,7 @@ async function approveTransfer(key){
 
 // ═══ แก้ไข delTransfer — real-time delete ═══
 async function delTransfer(key){
+  if(!requirePerm(canDelete(),'ลบรายการโอน')) return;
   if(!confirm('ยืนยันลบรายการนี้?\nการลบจะอัปเดต Sheets ทันที')) return;
   const tr = transfers.find(t => t._k === key); if(!tr) return;
   showLoading('กำลังลบจาก Sheets...');
@@ -1154,7 +1116,8 @@ function renderTickets(){
   if(!rows.length){ document.getElementById('tkTbl').innerHTML=''; empty.style.display='block'; return; }
   empty.style.display = 'none';
   document.getElementById('tkTbl').innerHTML = rows.map(t => `
-    <tr onclick="openTicketEdit('${t._k}')">
+    <tr onclick="${canEdit()?'openTicketEdit(\"'+t._k+'\")':''}"
+        style="cursor:${canEdit()?'pointer':'default'}">
       <td class="mono">${t.id}</td>
       <td><div style="font-size:13px;">${t.reporter}</div><div style="font-size:11px;color:var(--text3);">${t.dept||''}</div></td>
       <td><span class="badge b-type">${t.category}</span></td>
@@ -1203,6 +1166,8 @@ function openTicketEdit(key){
 
 // ═══ แก้ไข saveTicket — real-time sync ═══
 async function saveTicket(){
+  // Staff can submit new tickets, but cannot edit existing ones
+  if(editTicketKey && !requirePerm(canEdit(),'แก้ไข Ticket')) return;
   const reporter = g('tk-reporter');
   if(!reporter){ toast('⚠ กรุณากรอกชื่อผู้แจ้ง','warn'); return; }
   const category = g('tk-category');
@@ -1258,6 +1223,7 @@ function closeTicket(){
 
 // ═══ แก้ไข quickClose — sync update ═══
 async function quickClose(key){
+  if(!requirePerm(canEdit(),'ปิด Ticket')) return;
   const t = tickets.find(x => x._k === key); if(!t) return;
   t.status = 'closed'; t.closed = new Date().toISOString(); t.synced = false;
   if(t.asset){ const a = assets.find(x => x.id === t.asset); if(a){ a.status='active'; a.synced=false; } }
@@ -1272,6 +1238,7 @@ async function quickClose(key){
 
 // ═══ แก้ไข delTicket — real-time delete ═══
 async function delTicket(key){
+  if(!requirePerm(canDelete(),'ลบ Ticket')) return;
   const t = tickets.find(x => x._k === key);
   if(!t || !confirm(`ยืนยันลบ Ticket ${t.id}?\nการลบจะอัปเดต Sheets ทันที`)) return;
   showLoading(`กำลังลบ ${t.id} จาก Sheets...`);
@@ -1304,6 +1271,7 @@ function renderRepair(){
       </div></td>
     </tr>`;
   }).join('');
+  setTimeout(applyRBAC, 0);
 }
 
 // ═══════════════════════════════════════════════════
@@ -1428,15 +1396,60 @@ function toast(msg, type='ok'){
 }
 
 // ═══════════════════════════════════════════════════
-// PIN LOGIN
+// ROLE-BASED ACCESS CONTROL (RBAC)
+// ─────────────────────────────────────────────────
+// PIN   Role      Edit  Delete  Approve  Sync  AddAsset  View
+// 1111  admin     ✓     ✓       ✓        ✓     ✓         ALL
+// 2222  manager   ✓     ✓       ✓        ✗     ✗         ALL
+// 3333  staff     ✗     ✗       ✗        ✗     ✗         Ticket only
 // ═══════════════════════════════════════════════════
 const PINS = {
-  '1111':{ role:'admin',   label:'IT Admin'  },
-  '2222':{ role:'manager', label:'ผู้จัดการ'  },
-  '3333':{ role:'staff',   label:'พนักงาน'   },
+  '1111':{ role:'admin',   label:'IT Admin', color:'rgba(239,68,68,.15)',  border:'rgba(239,68,68,.35)',  text:'#f87171' },
+  '2222':{ role:'manager', label:'ผู้จัดการ', color:'rgba(245,158,11,.15)', border:'rgba(245,158,11,.35)', text:'#fbbf24' },
+  '3333':{ role:'staff',   label:'พนักงาน',  color:'rgba(34,197,94,.15)',  border:'rgba(34,197,94,.35)',  text:'#4ade80' },
 };
 let currentRole = null, pinBuffer = '';
 
+// ── Permission helpers (Admin + Manager can edit/delete/approve) ──
+function canEdit()    { return currentRole==='admin' || currentRole==='manager'; }
+function canDelete()  { return currentRole==='admin' || currentRole==='manager'; }
+function canApprove() { return currentRole==='admin' || currentRole==='manager'; }
+function canSync()    { return currentRole==='admin'; }
+function canAddAsset(){ return currentRole==='admin'; }
+
+function requirePerm(ok, label='การดำเนินการนี้'){
+  if(!ok) toast(`🔒 ${label} — เฉพาะ Admin / ผู้จัดการเท่านั้น`, 'warn');
+  return ok;
+}
+
+// ── Hide/show action buttons based on role (called after each render) ──
+function applyRBAC(){
+  if(!currentRole) return;
+
+  // Edit pencil & Delete trash buttons → hide for staff
+  document.querySelectorAll('.ib:not(.grn)').forEach(b => {
+    b.style.display = canEdit() ? '' : 'none';
+  });
+
+  // Approve (green tick) buttons → hide for staff
+  document.querySelectorAll('.ib.grn').forEach(b => {
+    b.style.display = canApprove() ? '' : 'none';
+  });
+
+  // Row click-to-edit → neutralise for staff
+  if(!canEdit()){
+    document.querySelectorAll('#assetTbl tr, #rpTbl tr').forEach(tr => {
+      tr.style.cursor = 'default';
+      tr.onclick = null;
+    });
+  }
+
+  // quickAdd ticket button label & close-ticket button visibility
+  const tkCloseBtn = document.getElementById('tkCloseBtn');
+  if(tkCloseBtn) tkCloseBtn.style.display = canEdit() ? '' : 'none';
+}
+
+// ── PIN pad ──
 function checkSession(){
   const saved = sessionStorage.getItem('it_role');
   if(saved && PINS[saved]) doLogin(saved);
@@ -1445,6 +1458,7 @@ function pinPress(n){ if(pinBuffer.length>=4) return; pinBuffer+=n; updateDots()
 function pinBack(){ pinBuffer=pinBuffer.slice(0,-1); updateDots(); }
 function pinClear(){ pinBuffer=''; updateDots(); }
 function updateDots(){ for(let i=0;i<4;i++) document.getElementById('d'+i).classList.toggle('filled',i<pinBuffer.length); }
+
 function checkPin(){
   if(PINS[pinBuffer]){
     sessionStorage.setItem('it_role', pinBuffer);
@@ -1455,31 +1469,51 @@ function checkPin(){
     toast('PIN ไม่ถูกต้อง','warn');
   }
 }
+
 function doLogin(pin){
   const r = PINS[pin];
   currentRole = r.role;
   document.getElementById('loginScreen').classList.add('hidden');
-  document.getElementById('roleBadge').textContent = r.label;
-  const isAdmin = currentRole==='admin', isStaff = currentRole==='staff';
-  document.querySelectorAll('.ni').forEach(n=>{
+
+  // Coloured role badge
+  const rb = document.getElementById('roleBadge');
+  rb.textContent = r.label;
+  rb.style.cssText = `background:${r.color};border:1px solid ${r.border};color:${r.text};padding:3px 12px;border-radius:20px;font-size:11px;font-weight:500;`;
+
+  const isAdmin   = currentRole === 'admin';
+  const isManager = currentRole === 'manager';
+  const isStaff   = currentRole === 'staff';
+
+  // ── Sidebar nav ──
+  document.querySelectorAll('.ni').forEach(n => {
     const t = n.textContent.trim();
-    if(t.includes('เพิ่มทรัพย์สิน')||t.includes('ตั้งค่า')) n.style.display = isAdmin?'':'none';
-    if(t.includes('ทรัพย์สินทั้งหมด')||t.includes('ซ่อมบำรุง')) n.style.display = isStaff?'none':'';
+    // Admin-only
+    if(t.includes('เพิ่มทรัพย์สิน') || t.includes('ตั้งค่า'))
+      n.style.display = isAdmin ? '' : 'none';
+    // Hidden from staff
+    if(t.includes('ทรัพย์สินทั้งหมด') || t.includes('ซ่อมบำรุง') || t.includes('เบิก / โอน'))
+      n.style.display = isStaff ? 'none' : '';
   });
-  document.getElementById('syncBtn').style.display = isAdmin?'':'none';
-  document.getElementById('quickAddBtn').style.display = isStaff?'none':'';
+
+  // ── Topbar buttons ──
+  document.getElementById('syncBtn').style.display     = canSync()    ? '' : 'none';
+  document.getElementById('quickAddBtn').style.display = isStaff      ? 'none' : '';
+
   updateNav(); renderKPI();
   populateAssetSelect('tr-asset');
   populateAssetSelect('tk-asset');
+
   if(isStaff) gv('ticket', document.querySelector('.ni[onclick*="ticket"]'));
   else        gv('kpi',    document.querySelector('.ni'));
 }
+
 function logout(){
   if(!confirm('ออกจากระบบ?')) return;
   sessionStorage.removeItem('it_role');
-  currentRole=null; pinBuffer=''; updateDots();
+  currentRole = null; pinBuffer = ''; updateDots();
   document.getElementById('loginScreen').classList.remove('hidden');
-  document.getElementById('roleBadge').textContent='';
+  const rb = document.getElementById('roleBadge');
+  rb.textContent = ''; rb.style.cssText = '';
 }
 
 // ═══ INIT ═══
