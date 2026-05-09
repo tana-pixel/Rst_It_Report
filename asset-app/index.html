@@ -862,7 +862,7 @@ function jsonpFallback(params, url){ return _jsonpRequest(params, url); }
 // ═══════════════════════════════════════════════════
 // ── Detected sheet names (set during loadFromSheets) ──
 const SHEET_NAMES = {
-  assets   : 'IT Assets',
+  assets   : 'ชีต1',
   transfers: 'IT Transfers',
   tickets  : 'IT Tickets',
 };
@@ -926,7 +926,7 @@ async function loadFromSheets(){
   if(scriptUrl){
     try{
       // ตรวจชื่อ Sheet จริงก่อน แล้วใช้ชื่อนั้น
-      const assetSheetName = await detectSheetName(scriptUrl, ['IT Assets','Assets','Sheet1']);
+      const assetSheetName = await detectSheetName(scriptUrl, ['ชีต1','IT Assets','Assets','Sheet1','ชีท1']);
       dbg('Fetching Assets from sheet: ' + assetSheetName);
       const res = await callSheet({ action:'getAll', sheet:assetSheetName }, scriptUrl);
       dbg('Assets response: status=' + res.status + ' rows=' + (res.rows ? res.rows.length : 'n/a'));
@@ -955,7 +955,7 @@ async function loadFromSheets(){
 
     // ── Transfers ──
     try{
-      const transferSheetName = await detectSheetName(scriptUrl, ['IT Transfers','Transfers','Sheet2']);
+      const transferSheetName = await detectSheetName(scriptUrl, ['IT Transfers','Transfers','ชีต2','Sheet2']);
       dbg('Fetching Transfers from sheet: ' + transferSheetName);
       const res = await callSheet({ action:'getAll', sheet:transferSheetName }, scriptUrl);
       dbg('Transfers response: status=' + res.status + ' rows=' + (res.rows ? res.rows.length : 'n/a'));
@@ -1907,7 +1907,7 @@ async function runDebugTest(){
     try{
       const r1 = await callSheet({ action:'test' }, scriptUrl);
       dbg('test → ' + JSON.stringify(r1));
-      const detectedAsset = await detectSheetName(scriptUrl, ['IT Assets','Assets','Sheet1']);
+      const detectedAsset = await detectSheetName(scriptUrl, ['ชีต1','IT Assets','Assets','Sheet1','ชีท1']);
       dbg('Detected asset sheet: "' + detectedAsset + '"');
       const r2 = await callSheet({ action:'getAll', sheet:detectedAsset }, scriptUrl);
       dbg('getAll ' + detectedAsset + ' → status=' + r2.status + ' rows=' + (r2.rows ? r2.rows.length : 'undefined'));
