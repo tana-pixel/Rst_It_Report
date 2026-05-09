@@ -3,7 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IT Asset · RuamsinthaiGroup</title>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>IT Asset · RuamsinthaiGroup · v1778332876</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -1756,6 +1759,12 @@ function checkPin(){
 }
 
 function doLogin(pin){
+  // Re-read URLs from localStorage every login (in case set after page load)
+  scriptUrl = localStorage.getItem(UK)  || scriptUrl || '';
+  ticketUrl = localStorage.getItem(TUK) || ticketUrl || '';
+  dbg('doLogin: scriptUrl=' + (scriptUrl||'(none)').slice(0,60));
+  dbg('doLogin: ticketUrl=' + (ticketUrl||'(none)').slice(0,60));
+
   const r = PINS[pin];
   currentRole = r.role;
   document.getElementById('loginScreen').classList.add('hidden');
@@ -1796,7 +1805,8 @@ function doLogin(pin){
       else        gv('kpi',    document.querySelector('.ni'));
     }).catch(err => {
       hideLoading();
-      console.error('[doLogin] loadFromSheets failed:', err);
+      dbg('loadFromSheets error: ' + err.message);
+      toast('⚠ โหลดจาก Sheets ไม่ได้ — ใช้ข้อมูลใน cache', 'warn');
       updateNav(); renderKPI();
       populateAssetSelect('tr-asset');
       populateAssetSelect('tk-asset');
@@ -1804,6 +1814,7 @@ function doLogin(pin){
       else        gv('kpi',    document.querySelector('.ni'));
     });
   } else {
+    dbg('doLogin: no URLs configured — rendering from localStorage cache');
     updateNav(); renderKPI();
     populateAssetSelect('tr-asset');
     populateAssetSelect('tk-asset');
@@ -1816,9 +1827,16 @@ function logout(){
   if(!confirm('ออกจากระบบ?')) return;
   sessionStorage.removeItem('it_role');
   currentRole = null; pinBuffer = ''; updateDots();
+  // Clear in-memory data so next login fetches fresh from Sheets
+  assets = []; tickets = []; transfers = [];
+  // Reset detected sheet names
+  SHEET_NAMES.assets    = 'ชีต1';
+  SHEET_NAMES.transfers = 'IT Transfers';
+  SHEET_NAMES.tickets   = 'IT Tickets';
   document.getElementById('loginScreen').classList.remove('hidden');
   const rb = document.getElementById('roleBadge');
   rb.textContent = ''; rb.style.cssText = '';
+  dbg('Logged out — memory cleared, next login will fetch fresh data');
 }
 
 // ═══════════════════════════════════════════════════
@@ -1868,6 +1886,15 @@ async function runDebugTest(){
 }
 
 // ═══ INIT ═══
+// Force clear any stale state from cached old versions
+const APP_VER = '1778332876';
+if(localStorage.getItem('app_ver') !== APP_VER){
+  // New version detected — clear old cached sheet names
+  localStorage.removeItem('app_ver');
+  // Don't clear data, just mark for fresh load
+  localStorage.setItem('app_ver', APP_VER);
+  dbg('New app version 1778332876 — will force fresh load from Sheets');
+}
 checkSession();
 populateAssetSelect('tr-asset');
 populateAssetSelect('tk-asset');
