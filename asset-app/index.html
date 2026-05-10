@@ -246,8 +246,9 @@ tbody tr:hover td{background:rgba(255,255,255,.02);cursor:pointer;}
 <div class="sync-bar">
   <span class="sdot" id="sDot"></span>
   <span style="color:var(--text2);font-size:11px;">IT Asset System</span>
-  <a href="https://docs.google.com/spreadsheets/d/1lHKMQPfDY7NvH9l44JPjKsSfOXECJ37wgrKTLlF0k5E/edit" target="_blank">📊 Asset DB</a>
-  <a href="https://docs.google.com/spreadsheets/d/1YqVTSe7TyWrwMlU_lvqiMG2_yzh8GtOuwan0t3HUJQc/edit" target="_blank">🎫 Ticket DB</a>
+  <a href="https://docs.google.com/spreadsheets/d/14GL3BP6oYWtp5ewE-Z8tOVvY2pT2Jyl19B2-0Ip9th0/edit" target="_blank">📊 Asset DB</a>
+  <a href="https://docs.google.com/spreadsheets/d/1C4__MYNtzIohekmbm6xMVoRnYCEl4f34SVgyC3_zDbU/edit" target="_blank">🎫 Ticket DB</a>
+  <a href="https://docs.google.com/spreadsheets/d/1YhRbb3mTJmeWcy6H9vubv_oLpcryFa-gwcfzuFgbOd8/edit" target="_blank">📋 Transfer DB</a>
   <span id="sStatus"></span>
 </div>
 
@@ -447,7 +448,7 @@ tbody tr:hover td{background:rgba(255,255,255,.02);cursor:pointer;}
         <div class="setup-card">
           <h3>⚙️ เชื่อมต่อ Google Sheets (ทำครั้งเดียว)</h3>
           <div class="sdesc">แอปจะบันทึกทุกการกระทำลง Sheets อัตโนมัติหลังตั้งค่าเสร็จ</div>
-          <div class="step"><div class="snum">1</div><div class="sbody">เปิด <a href="https://docs.google.com/spreadsheets/d/1lHKMQPfDY7NvH9l44JPjKsSfOXECJ37wgrKTLlF0k5E/edit" target="_blank">IT Asset Database</a> → <code>Extensions</code> → <code>Apps Script</code></div></div>
+          <div class="step"><div class="snum">1</div><div class="sbody">เปิด <a href="https://docs.google.com/spreadsheets/d/14GL3BP6oYWtp5ewE-Z8tOVvY2pT2Jyl19B2-0Ip9th0/edit" target="_blank">IT Assets</a> → <code>Extensions</code> → <code>Apps Script</code></div></div>
           <div class="step"><div class="snum">2</div><div class="sbody">วาง code ด้านล่าง → Save → Deploy → Web app → Anyone → Copy URL
             <div class="codebox" id="scriptCode">function doGet(e)  { return main(e); }
 function doPost(e) { return main(e); }
@@ -559,7 +560,7 @@ function out(obj, cb) {
             </div>
             <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:14px;">
               <p style="font-size:12px;font-weight:500;color:var(--purple);margin-bottom:8px;">🎫 URL สำหรับ IT Ticket Database</p>
-              <p style="font-size:11px;color:var(--text3);margin-bottom:8px;">Ticket แจ้งซ่อม — Deploy Apps Script ใน <a href="https://docs.google.com/spreadsheets/d/1YqVTSe7TyWrwMlU_lvqiMG2_yzh8GtOuwan0t3HUJQc/edit" target="_blank" style="color:var(--blue);">IT Ticket DB</a></p>
+              <p style="font-size:11px;color:var(--text3);margin-bottom:8px;">Ticket แจ้งซ่อม — Deploy Apps Script ใน <a href="https://docs.google.com/spreadsheets/d/1C4__MYNtzIohekmbm6xMVoRnYCEl4f34SVgyC3_zDbU/edit" target="_blank" style="color:var(--blue);">IT Tickets</a></p>
               <div class="url-row">
                 <input class="url-in" id="urlInTicket" placeholder="https://script.google.com/macros/s/.../exec">
                 <button class="btn btn-p" onclick="saveUrl('ticket')">💾 บันทึก</button>
@@ -702,7 +703,7 @@ function out(obj, cb) {
           <label class="fl">รูปภาพหลักฐานการซ่อม</label>
           <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:14px;display:grid;gap:10px;">
             <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-              <a href="https://drive.google.com/drive/folders/1uahREJ_Nt20dVXXYWG50n8OuBYjDxyW6" target="_blank" class="btn btn-grn" style="text-decoration:none;font-size:12px;padding:6px 14px;">📁 เปิดโฟลเดอร์ Drive</a>
+              <a href="https://drive.google.com/drive/folders/18IJd9ZS1Av3b0E_qGgpHU0onbYzHzMfD" target="_blank" class="btn btn-grn" style="text-decoration:none;font-size:12px;padding:6px 14px;">📁 เปิดโฟลเดอร์ Drive</a>
               <span style="font-size:11px;color:var(--text3);">อัปรูปแล้ว copy link มาวางด้านล่าง</span>
             </div>
             <div style="display:grid;gap:6px;" id="tk-links-list"></div>
