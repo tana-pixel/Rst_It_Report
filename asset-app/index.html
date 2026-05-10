@@ -314,6 +314,9 @@ tbody tr:hover td{background:rgba(255,255,255,.02);cursor:pointer;}
         <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 1v10M1 6h10"/></svg>
         <span id="quickAddLbl">เพิ่มทรัพย์สิน</span>
       </button>
+      <button class="btn btn-g" onclick="printAllQR()" title="พิมพ์ QR ทั้งหมด" style="padding:6px 10px;" id="qrAllBtn">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="3" y="3" width="2" height="2" fill="currentColor" stroke="none"/><rect x="11" y="3" width="2" height="2" fill="currentColor" stroke="none"/><rect x="3" y="11" width="2" height="2" fill="currentColor" stroke="none"/><path d="M9 9h2v2H9zM13 9h2M9 13h2M13 11v4M15 9v2"/></svg>
+      </button>
       <button class="btn btn-g" onclick="logout()" title="ออกจากระบบ" style="padding:6px 10px;">
         <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3"/><path d="M11 11l3-3-3-3M14 8H6"/></svg>
       </button>
@@ -381,7 +384,7 @@ tbody tr:hover td{background:rgba(255,255,255,.02);cursor:pointer;}
       </div>
       <div class="card">
         <div class="ch">
-          <div class="ctitle" id="trTblTitle">ประวัติ/โอนทรัพย์สิน</div>
+          <div class="ctitle" id="trTblTitle">ประวัติการเบิก/โอนทรัพย์สิน</div>
           <div class="chips">
             <button class="chip on" onclick="setTRF('',this)">ทั้งหมด</button>
             <button class="chip" onclick="setTRF('borrow',this)">เบิกให้พนักงาน</button>
@@ -582,7 +585,7 @@ function out(obj, cb) {
         </div>
         <div style="background:var(--bg2);border:1px solid rgba(34,197,94,.2);border-radius:12px;padding:14px 18px;">
           <p style="font-size:12px;color:var(--green);font-weight:500;margin-bottom:6px;">✓ ระบบ Sheets ที่เชื่อมต่อ</p>
-          <p style="font-size:12px;color:var(--text2);line-height:1.8;">• <a href="https://docs.google.com/spreadsheets/d/1C4__MYNtzIohekmbm6xMVoRnYCEl4f34SVgyC3_zDbU/edit" target="_blank" style="color:var(--blue);">IT Asset Database</a> — ข้อมูลทรัพย์สิน + การเบิก/โอน<br>• <a href="https://docs.google.com/spreadsheets/d/14GL3BP6oYWtp5ewE-Z8tOVvY2pT2Jyl19B2-0Ip9th0/edit" target="_blank" style="color:var(--blue);">IT Ticket Database</a> — Ticket แจ้งซ่อม + ปิดงาน</p>
+          <p style="font-size:12px;color:var(--text2);line-height:1.8;">• <a href="https://docs.google.com/spreadsheets/d/1lHKMQPfDY7NvH9l44JPjKsSfOXECJ37wgrKTLlF0k5E/edit" target="_blank" style="color:var(--blue);">IT Asset Database</a> — ข้อมูลทรัพย์สิน + การเบิก/โอน<br>• <a href="https://docs.google.com/spreadsheets/d/1YqVTSe7TyWrwMlU_lvqiMG2_yzh8GtOuwan0t3HUJQc/edit" target="_blank" style="color:var(--blue);">IT Ticket Database</a> — Ticket แจ้งซ่อม + ปิดงาน</p>
         </div>
 
         <!-- DEBUG PANEL -->
@@ -723,6 +726,27 @@ function out(obj, cb) {
       <button class="btn btn-g" onclick="closeM('tk')">ยกเลิก</button>
       <button class="btn btn-amb" id="tkCloseBtn" onclick="closeTicket()" style="display:none;">✓ ปิดงาน + บันทึก</button>
       <button class="btn btn-p" onclick="saveTicket()">💾 บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- QR CODE MODAL -->
+<div class="overlay" id="qrOverlay" onclick="if(event.target===this)closeQR()">
+  <div class="modal" style="width:400px;text-align:center;">
+    <div class="mh">
+      <div class="mtitle" id="qrTitle">QR Code</div>
+      <div style="display:flex;gap:6px;">
+        <button class="btn btn-p" onclick="printQR()" style="font-size:12px;padding:5px 12px;">🖨 พิมพ์</button>
+        <button class="ib" onclick="closeQR()"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1l10 10M11 1L1 11"/></svg></button>
+      </div>
+    </div>
+    <div class="mb" id="qrContent" style="padding:24px;">
+      <div id="qrCanvas" style="display:flex;justify-content:center;margin-bottom:16px;"></div>
+      <div id="qrAssetId" style="font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px;"></div>
+      <div id="qrAssetInfo" style="font-size:12px;color:var(--text2);line-height:1.7;"></div>
+    </div>
+    <div style="padding:10px 22px 18px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;" id="qrBulkBtns">
+      <button class="btn btn-grn" onclick="printAllQR()" style="font-size:12px;">🖨 พิมพ์ทั้งหมด (${assets.length} รายการ)</button>
     </div>
   </div>
 </div>
@@ -1233,6 +1257,7 @@ function renderAssets(){
       <td><span class="badge ${a.synced?'b-ok':'b-pend'}">${a.synced?'✓':'⏳'}</span></td>
       <td onclick="event.stopPropagation()"><div class="acts">
         <button class="ib" onclick="openAssetEdit(${idx})"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l2.5 2.5-7 7L1 11l.5-2.5z"/></svg></button>
+        <button class="ib" onclick="showQR('${a.id}','${a.brand||''} ${a.model||''}','${a.user||''}','${a.dept||''}',event)" title="QR Code" style="color:var(--cyan);"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1" y="1" width="4" height="4" rx=".5"/><rect x="7" y="1" width="4" height="4" rx=".5"/><rect x="1" y="7" width="4" height="4" rx=".5"/><rect x="2.5" y="2.5" width="1" height="1" fill="currentColor" stroke="none"/><rect x="8.5" y="2.5" width="1" height="1" fill="currentColor" stroke="none"/><rect x="2.5" y="8.5" width="1" height="1" fill="currentColor" stroke="none"/><path d="M7 7h1v1H7zM9 7h2v1H9zM7 9h2M10 9v2M7 10h1v1H7z"/></svg></button>
         <button class="ib del" onclick="delAsset(${idx})"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4M3 3l.5 7h5L9 3"/></svg></button>
       </div></td>
     </tr>`;
@@ -1620,6 +1645,7 @@ function renderRepair(){
       <td class="mono" style="font-size:11px;color:var(--text3);">${a.date||'—'}</td>
       <td onclick="event.stopPropagation()"><div class="acts">
         <button class="ib" onclick="openAssetEdit(${idx})"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l2.5 2.5-7 7L1 11l.5-2.5z"/></svg></button>
+        <button class="ib" onclick="showQR('${a.id}','${a.brand||''} ${a.model||''}','${a.user||''}','${a.dept||''}',event)" title="QR Code" style="color:var(--cyan);"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1" y="1" width="4" height="4" rx=".5"/><rect x="7" y="1" width="4" height="4" rx=".5"/><rect x="1" y="7" width="4" height="4" rx=".5"/><rect x="2.5" y="2.5" width="1" height="1" fill="currentColor" stroke="none"/><rect x="8.5" y="2.5" width="1" height="1" fill="currentColor" stroke="none"/><rect x="2.5" y="8.5" width="1" height="1" fill="currentColor" stroke="none"/><path d="M7 7h1v1H7zM9 7h2v1H9zM7 9h2M10 9v2M7 10h1v1H7z"/></svg></button>
         <button class="ib del" onclick="delAsset(${idx})"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4M3 3l.5 7h5L9 3"/></svg></button>
       </div></td>
     </tr>`;
@@ -1974,6 +2000,101 @@ async function runDebugTest(){
   }
 
   dbg('=== runDebugTest END ===');
+}
+
+// ═══════════════════════════════════════════════════
+// QR CODE — ใช้ QR Server API (ไม่ต้องติดตั้ง library)
+// ═══════════════════════════════════════════════════
+function getQRUrl(text, size=200){
+  return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(text)}&format=png&ecc=M`;
+}
+
+function showQR(id, model, user, dept, event){
+  if(event) event.stopPropagation();
+  document.getElementById('qrTitle').textContent = 'QR Code — ' + id;
+  document.getElementById('qrAssetId').textContent = id;
+  document.getElementById('qrAssetInfo').innerHTML =
+    `${model ? '<span style="color:var(--text)">'+model+'</span><br>' : ''}` +
+    `${user  ? '👤 '+user+'<br>' : ''}` +
+    `${dept  ? '🏢 '+dept : ''}`;
+
+  // QR encode รหัส asset id
+  const qrUrl = getQRUrl(id, 200);
+  document.getElementById('qrCanvas').innerHTML =
+    `<img src="${qrUrl}" style="width:200px;height:200px;border-radius:8px;border:3px solid var(--border2);" alt="QR ${id}">`;
+
+  // update bulk print button
+  document.getElementById('qrBulkBtns').innerHTML =
+    `<button class="btn btn-grn" onclick="printAllQR()" style="font-size:12px;">🖨 พิมพ์ทั้งหมด (${assets.length} รายการ)</button>`;
+
+  document.getElementById('qrOverlay').classList.add('show');
+}
+
+function closeQR(){
+  document.getElementById('qrOverlay').classList.remove('show');
+}
+
+function printQR(){
+  const id   = document.getElementById('qrAssetId').textContent;
+  const info = document.getElementById('qrAssetInfo').innerHTML;
+  const qrUrl = getQRUrl(id, 300);
+  const win = window.open('','_blank','width=400,height=500');
+  win.document.write(`<!DOCTYPE html><html><head>
+    <meta charset="UTF-8">
+    <title>QR - ${id}</title>
+    <style>
+      body{font-family:Arial,sans-serif;text-align:center;padding:20px;background:#fff;}
+      .label{border:2px solid #333;border-radius:8px;padding:16px;display:inline-block;min-width:220px;}
+      .company{font-size:11px;color:#666;margin-bottom:4px;letter-spacing:.05em;}
+      img{display:block;margin:10px auto;}
+      .asset-id{font-family:monospace;font-size:18px;font-weight:700;margin:8px 0 4px;}
+      .info{font-size:12px;color:#444;line-height:1.6;}
+      @media print{body{padding:0;}button{display:none;}}
+    </style>
+  </head><body>
+    <div class="label">
+      <div class="company">RST ROBOTICS GROUP — IT Asset</div>
+      <img src="${qrUrl}" width="200" height="200" alt="QR">
+      <div class="asset-id">${id}</div>
+      <div class="info">${info.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim()}</div>
+    </div>
+    <br><button onclick="window.print()">🖨 Print</button>
+    <script>setTimeout(()=>window.print(),600);<\/script>
+  </body></html>`);
+  win.document.close();
+}
+
+function printAllQR(){
+  if(!assets.length){ toast('ไม่มีข้อมูลทรัพย์สิน','warn'); return; }
+  const rows = assets.map(a => {
+    const qrUrl = getQRUrl(a.id, 150);
+    return `<div class="label">
+      <div class="company">RST ROBOTICS GROUP</div>
+      <img src="${qrUrl}" width="150" height="150" alt="${a.id}">
+      <div class="asset-id">${a.id}</div>
+      <div class="info">${a.brand||''} ${a.model||''}<br>${a.user||''}${a.dept?' · '+a.dept:''}</div>
+    </div>`;
+  }).join('');
+
+  const win = window.open('','_blank','width=900,height=700');
+  win.document.write(`<!DOCTYPE html><html><head>
+    <meta charset="UTF-8"><title>IT Asset QR Codes</title>
+    <style>
+      body{font-family:Arial,sans-serif;background:#fff;padding:10px;}
+      .grid{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-start;}
+      .label{border:1.5px solid #333;border-radius:6px;padding:10px;text-align:center;width:180px;break-inside:avoid;}
+      .company{font-size:9px;color:#666;margin-bottom:2px;}
+      img{display:block;margin:4px auto;}
+      .asset-id{font-family:monospace;font-size:13px;font-weight:700;margin:4px 0 2px;}
+      .info{font-size:10px;color:#444;line-height:1.5;}
+      @media print{button{display:none;} body{padding:0;} .label{border-color:#000;}}
+    </style>
+  </head><body>
+    <button onclick="window.print()" style="margin-bottom:10px;padding:8px 20px;font-size:14px;cursor:pointer;">🖨 พิมพ์ทั้งหมด</button>
+    <div class="grid">${rows}</div>
+  </body></html>`);
+  win.document.close();
+  toast('เปิดหน้าต่างพิมพ์ QR ทั้งหมดแล้ว');
 }
 
 // ═══ INIT ═══
