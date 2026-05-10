@@ -246,7 +246,8 @@ tbody tr:hover td{background:rgba(255,255,255,.02);cursor:pointer;}
 <div class="sync-bar">
   <span class="sdot" id="sDot"></span>
   <span style="color:var(--text2);font-size:11px;">IT Asset System</span>
-
+  <a href="https://docs.google.com/spreadsheets/d/1lHKMQPfDY7NvH9l44JPjKsSfOXECJ37wgrKTLlF0k5E/edit" target="_blank">📊 Asset DB</a>
+  <a href="https://docs.google.com/spreadsheets/d/1YqVTSe7TyWrwMlU_lvqiMG2_yzh8GtOuwan0t3HUJQc/edit" target="_blank">🎫 Ticket DB</a>
   <span id="sStatus"></span>
 </div>
 
@@ -558,7 +559,7 @@ function out(obj, cb) {
             </div>
             <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:14px;">
               <p style="font-size:12px;font-weight:500;color:var(--purple);margin-bottom:8px;">🎫 URL สำหรับ IT Ticket Database</p>
-              <p style="font-size:11px;color:var(--text3);margin-bottom:8px;">Ticket แจ้งซ่อม + Transfer — ต้อง Deploy Apps Script ใน <a href="https://docs.google.com/spreadsheets/d/1YqVTSe7TyWrwMlU_lvqiMG2_yzh8GtOuwan0t3HUJQc/edit" target="_blank" style="color:var(--blue);">IT Ticket DB</a> แยกต่างหาก</p>
+              <p style="font-size:11px;color:var(--text3);margin-bottom:8px;">Ticket แจ้งซ่อม — Deploy Apps Script ใน <a href="https://docs.google.com/spreadsheets/d/1YqVTSe7TyWrwMlU_lvqiMG2_yzh8GtOuwan0t3HUJQc/edit" target="_blank" style="color:var(--blue);">IT Ticket DB</a></p>
               <div class="url-row">
                 <input class="url-in" id="urlInTicket" placeholder="https://script.google.com/macros/s/.../exec">
                 <button class="btn btn-p" onclick="saveUrl('ticket')">💾 บันทึก</button>
@@ -566,10 +567,21 @@ function out(obj, cb) {
               </div>
               <div class="smsg" id="setupMsgTicket"></div>
             </div>
+            <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:14px;">
+              <p style="font-size:12px;font-weight:500;color:var(--cyan);margin-bottom:8px;">📋 URL สำหรับ IT Transfers</p>
+              <p style="font-size:11px;color:var(--text3);margin-bottom:8px;">เบิก/โอนทรัพย์สิน — Deploy Apps Script ใน <a href="https://docs.google.com/spreadsheets/d/1YhRbb3mTJmeWcy6H9vubv_oLpcryFa-gwcfzuFgbOd8/edit" target="_blank" style="color:var(--blue);">IT Transfers</a></p>
+              <div class="url-row">
+                <input class="url-in" id="urlInTransfer" placeholder="https://script.google.com/macros/s/.../exec">
+                <button class="btn btn-p" onclick="saveUrl('transfer')">💾 บันทึก</button>
+                <button class="btn btn-g" onclick="testUrl('transfer')">🔌 ทดสอบ</button>
+              </div>
+              <div class="smsg" id="setupMsgTransfer"></div>
+            </div>
           </div>
         </div>
         <div style="background:var(--bg2);border:1px solid rgba(34,197,94,.2);border-radius:12px;padding:14px 18px;">
-        
+          <p style="font-size:12px;color:var(--green);font-weight:500;margin-bottom:6px;">✓ ระบบ Sheets ที่เชื่อมต่อ</p>
+          <p style="font-size:12px;color:var(--text2);line-height:1.8;">• <a href="https://docs.google.com/spreadsheets/d/1lHKMQPfDY7NvH9l44JPjKsSfOXECJ37wgrKTLlF0k5E/edit" target="_blank" style="color:var(--blue);">IT Asset Database</a> — ข้อมูลทรัพย์สิน + การเบิก/โอน<br>• <a href="https://docs.google.com/spreadsheets/d/1YqVTSe7TyWrwMlU_lvqiMG2_yzh8GtOuwan0t3HUJQc/edit" target="_blank" style="color:var(--blue);">IT Ticket Database</a> — Ticket แจ้งซ่อม + ปิดงาน</p>
         </div>
 
         <!-- DEBUG PANEL -->
@@ -725,16 +737,19 @@ let assets    = JSON.parse(localStorage.getItem(AK)  || '[]');
 let tickets   = JSON.parse(localStorage.getItem(TK)  || '[]');
 let transfers = JSON.parse(localStorage.getItem(TRK) || '[]');
 // ── URLs ที่ใช้งาน (hardcoded — ทุกเครื่องใช้ได้ทันที) ──
-const DEFAULT_ASSET_URL  = 'https://script.google.com/macros/s/AKfycbz508Eh9Z7uq0YERQBLBkM3YX8pMxLXhqMBpbeqm61OK3h8ukE8EyjpmfT37K0sUvLo/exec';
-const DEFAULT_TICKET_URL = 'https://script.google.com/macros/s/AKfycbzkyQyA_nT9VMkAMIkoBenEEo8p1CnRkGNQtcNe6iNTtei8tZBeeU9KqqpfkvLhSX7f/exec';
+const DEFAULT_ASSET_URL    = 'https://script.google.com/macros/s/AKfycbz508Eh9Z7uq0YERQBLBkM3YX8pMxLXhqMBpbeqm61OK3h8ukE8EyjpmfT37K0sUvLo/exec';
+const DEFAULT_TICKET_URL   = 'https://script.google.com/macros/s/AKfycbzkyQyA_nT9VMkAMIkoBenEEo8p1CnRkGNQtcNe6iNTtei8tZBeeU9KqqpfkvLhSX7f/exec';
+const DEFAULT_TRANSFER_URL = ''; // ← ใส่ URL Apps Script จากไฟล์ IT Transfers
 
-// ใช้ URL จาก localStorage ถ้า admin update แล้ว ไม่งั้นใช้ default
-let scriptUrl = localStorage.getItem(UK)  || DEFAULT_ASSET_URL;
-let ticketUrl = localStorage.getItem(TUK) || DEFAULT_TICKET_URL;
+const TRU = 'it_transfer_url'; // localStorage key สำหรับ transfer URL
 
-// บันทึก default ลง localStorage (ทุกเครื่องจะมี URL ทันที)
+let scriptUrl   = localStorage.getItem(UK)  || DEFAULT_ASSET_URL;
+let ticketUrl   = localStorage.getItem(TUK) || DEFAULT_TICKET_URL;
+let transferUrl = localStorage.getItem(TRU) || DEFAULT_TRANSFER_URL;
+
 if(!localStorage.getItem(UK))  localStorage.setItem(UK,  DEFAULT_ASSET_URL);
 if(!localStorage.getItem(TUK)) localStorage.setItem(TUK, DEFAULT_TICKET_URL);
+if(!localStorage.getItem(TRU) && DEFAULT_TRANSFER_URL) localStorage.setItem(TRU, DEFAULT_TRANSFER_URL);
 let editAssetKey = null, editTicketKey = null;
 let aFilter = '', tkFilter = '', trFilter = '';
 const CLR = ['#4f8ef7','#22c55e','#f59e0b','#a78bfa','#22d3ee','#f43f5e','#84cc16','#fb923c','#f472b6'];
@@ -764,6 +779,8 @@ if(!localStorage.getItem(SEEDED_KEY)){
 // แสดง URL ปัจจุบันใน Setup tab
 document.getElementById('urlIn').value = scriptUrl || DEFAULT_ASSET_URL;
 document.getElementById('urlInTicket').value = ticketUrl || DEFAULT_TICKET_URL;
+const trInput = document.getElementById('urlInTransfer');
+if(trInput) trInput.value = transferUrl || DEFAULT_TRANSFER_URL;
 updateBar(); updateNav();
 
 function saveAll(){
@@ -874,7 +891,7 @@ function jsonpFallback(params, url){ return _jsonpRequest(params, url); }
 // ── Detected sheet names (set during loadFromSheets) ──
 const SHEET_NAMES = {
   assets   : 'ชีต1',
-  transfers: 'IT Transfers',
+  transfers: 'IT Ticket & Asset Transfer',
   tickets  : 'IT Tickets',
 };
 
@@ -900,8 +917,9 @@ async function detectSheetName(url, candidates){
 }
 
 function getUrlForSheet(sheetName){
-  return (sheetName === SHEET_NAMES.tickets || sheetName === SHEET_NAMES.transfers)
-    ? ticketUrl : scriptUrl;
+  if(sheetName === SHEET_NAMES.tickets)   return ticketUrl;
+  if(sheetName === SHEET_NAMES.transfers) return transferUrl || scriptUrl;
+  return scriptUrl; // assets
 }
 
 async function pushRow(sheetName, rowArr, key, action = 'add'){
@@ -966,28 +984,42 @@ async function loadFromSheets(){
 
     // ── Transfers ──
     try{
-      const transferSheetName = await detectSheetName(scriptUrl, ['IT Transfers','Transfers','ชีต2','Sheet2']);
-      dbg('Fetching Transfers from sheet: ' + transferSheetName);
-      const res = await callSheet({ action:'getAll', sheet:transferSheetName }, scriptUrl);
+      const transferSheetName = await detectSheetName(transferUrl||scriptUrl, ['IT Ticket & Asset Transfer','IT Transfers','Transfers','Sheet1']);
+      dbg('Fetching Transfers from sheet: ' + transferSheetName + ' via ' + (transferUrl?'transferUrl':'scriptUrl'));
+      const res = await callSheet({ action:'getAll', sheet:transferSheetName }, transferUrl||scriptUrl);
       dbg('Transfers response: status=' + res.status + ' rows=' + (res.rows ? res.rows.length : 'n/a'));
-      if(res.status === 'ok' && Array.isArray(res.rows) && res.rows.length > 0){
+      if(res.status === 'error'){
+        // sheet ไม่มีหรือ error — ใช้ localStorage แทน (อย่า clear transfers)
+        dbg('Transfers sheet error — keeping localStorage data');
+        const cached = localStorage.getItem(TRK);
+        if(cached) transfers = JSON.parse(cached);
+      } else if(res.status === 'ok' && Array.isArray(res.rows) && res.rows.length > 0){
+        const localTransfers = JSON.parse(localStorage.getItem(TRK)||'[]');
         transfers = res.rows
           .filter(r => r[0] && String(r[0]).trim() !== '')
-          .map(r => ({
-            _k:String(r[0]),   id:String(r[1]||''),       type:String(r[2]||''),
-            asset:String(r[3]||''),from:String(r[4]||''),  to:String(r[5]||''),
-            receiver:String(r[6]||''),approver:String(r[7]||''),
-            note:String(r[8]||''),   date:String(r[9]||''), status:String(r[10]||'pending'),
-            synced:true,
-          }));
+          .map(r => {
+            // ถ้า local มีสถานะ approved ให้ใช้ของ local (อย่า override ด้วย Sheets)
+            const local = localTransfers.find(lt => lt._k === String(r[0]));
+            const sheetStatus = String(r[10]||'pending');
+            const finalStatus = (local && local.status==='approved') ? 'approved' : sheetStatus;
+            return {
+              _k:String(r[0]),   id:String(r[1]||''),       type:String(r[2]||''),
+              asset:String(r[3]||''),from:String(r[4]||''),  to:String(r[5]||''),
+              receiver:String(r[6]||''),approver:String(r[7]||''),
+              note:String(r[8]||''),   date:String(r[9]||''), status:finalStatus,
+              synced:true,
+            };
+          });
         localStorage.setItem(TRK, JSON.stringify(transfers));
         SHEET_NAMES.transfers = transferSheetName;
         dbg('Transfers loaded: ' + transfers.length + ' items from "' + transferSheetName + '"');
         loaded++;
-      }
+      } // end if rows
     } catch(e){
-      dbg('Transfers EXCEPTION: ' + e.message);
-      console.error('[loadFromSheets] Transfers:', e);
+      dbg('Transfers: using localStorage cache (sheet may not exist)');
+      // Keep existing transfers from localStorage — don't clear them
+      const cached = localStorage.getItem(TRK);
+      if(cached) transfers = JSON.parse(cached);
     }
   }
 
@@ -1346,7 +1378,8 @@ async function saveTransfer(){
   transfers.push(obj);
   saveAll(); closeM('tr'); renderTransfers(); renderKPI();
 
-  if(ticketUrl){
+  // Transfers อยู่ใน IT Assets spreadsheet → ใช้ scriptUrl
+  if(scriptUrl){
     toast('⟳ กำลัง Sync...');
     const row = [obj._k,obj.id,obj.type,obj.asset,obj.from,obj.to,obj.receiver,obj.approver,obj.note,obj.date,obj.status,new Date().toLocaleDateString('th-TH')];
     const ok = await pushRow(SHEET_NAMES.transfers, row, obj._k, 'add');
@@ -1355,6 +1388,7 @@ async function saveTransfer(){
       if(i >= 0){ transfers[i].synced = true; saveAll(); renderTransfers(); }
     }
     toast(ok ? '✓ สร้างใบเบิก/โอนและ Sync สำเร็จ' : '⚠ สร้างแล้ว (Sync ไม่สำเร็จ)', ok?'ok':'warn');
+    dbg('saveTransfer → ' + SHEET_NAMES.transfers + ' via scriptUrl: ' + (ok?'OK':'FAIL'));
   } else {
     toast('✓ สร้างใบเบิก/โอนสำเร็จ — รออนุมัติ');
   }
@@ -1364,12 +1398,44 @@ async function saveTransfer(){
 async function approveTransfer(key){
   if(!requirePerm(canApprove(),'อนุมัติการโอน')) return;
   const tr = transfers.find(t => t._k === key); if(!tr) return;
-  tr.status = 'approved'; tr.synced = false;
-  saveAll(); renderTransfers(); toast('✓ อนุมัติแล้ว');
-  if(ticketUrl){
-    const row = [tr._k,tr.id,tr.type,tr.asset,tr.from,tr.to,tr.receiver,tr.approver,tr.note,tr.date,tr.status,new Date().toLocaleDateString('th-TH')];
-    const ok = await pushRow(SHEET_NAMES.transfers, row, tr._k, 'update');
-    if(ok){ tr.synced = true; saveAll(); renderTransfers(); }
+
+  tr.status  = 'approved';
+  tr.synced  = false;
+  saveAll(); renderTransfers(); toast('⟳ กำลังอนุมัติ...');
+
+  // Sync สถานะ approved ขึ้น IT Transfers sheet ทันที
+  if(scriptUrl){
+    try{
+      const row = [
+        tr._k, tr.id, tr.type, tr.asset,
+        tr.from, tr.to, tr.receiver, tr.approver,
+        tr.note, tr.date, 'approved',
+        new Date().toLocaleDateString('th-TH')
+      ];
+      // ลอง update ก่อน ถ้าไม่มีให้ add แทน
+      let ok = await pushRow(SHEET_NAMES.transfers, row, tr._k, 'update');
+      if(!ok) ok = await pushRow(SHEET_NAMES.transfers, row, tr._k, 'add');
+      if(ok){
+        tr.synced = true;
+        saveAll(); renderTransfers();
+        toast('✓ อนุมัติและ Sync สำเร็จ');
+        dbg('approveTransfer: synced to ' + SHEET_NAMES.transfers);
+      } else {
+        tr.synced = true; // mark true ใน local เพื่อไม่ให้โดน override
+        saveAll();
+        toast('✓ อนุมัติแล้ว (Sync ไม่สำเร็จ — บันทึกใน local)','warn');
+        dbg('approveTransfer: sync failed, keeping local approved status');
+      }
+    } catch(e){
+      tr.synced = true; // กันโดน override
+      saveAll();
+      dbg('approveTransfer error: ' + e.message);
+      toast('✓ อนุมัติแล้ว (ไม่สามารถ Sync ได้)','warn');
+    }
+  } else {
+    tr.synced = true;
+    saveAll();
+    toast('✓ อนุมัติแล้ว');
   }
 }
 
@@ -1379,7 +1445,8 @@ async function delTransfer(key){
   if(!confirm('ยืนยันลบรายการนี้?\nการลบจะอัปเดต Sheets ทันที')) return;
   const tr = transfers.find(t => t._k === key); if(!tr) return;
   showLoading('กำลังลบจาก Sheets...');
-  if(ticketUrl){
+  // Transfers อยู่ใน IT Assets spreadsheet → ใช้ scriptUrl
+  if(scriptUrl){
     await pushRow(SHEET_NAMES.transfers, [], key, 'delete');
   }
   transfers = transfers.filter(t => t._k !== key);
@@ -1603,22 +1670,30 @@ function removeImg(i){ tkImages.splice(i,1); renderImgGrid(); }
 // SETUP
 // ═══════════════════════════════════════════════════
 function saveUrl(type = 'asset'){
-  const isTicket = type === 'ticket';
-  const inputId  = isTicket ? 'urlInTicket' : 'urlIn';
-  const msgId    = isTicket ? 'setupMsgTicket' : 'setupMsg';
-  const u = document.getElementById(inputId).value.trim();
+  const map = {
+    asset:    { inputId:'urlIn',          msgId:'setupMsg',         key:UK,  setter:(u)=>{ scriptUrl=u; },   label:'Asset' },
+    ticket:   { inputId:'urlInTicket',    msgId:'setupMsgTicket',   key:TUK, setter:(u)=>{ ticketUrl=u; },   label:'Ticket' },
+    transfer: { inputId:'urlInTransfer',  msgId:'setupMsgTransfer', key:TRU, setter:(u)=>{ transferUrl=u; }, label:'Transfer' },
+  };
+  const cfg = map[type] || map.asset;
+  const u = document.getElementById(cfg.inputId).value.trim();
   if(!u){ toast('⚠ กรุณากรอก URL','warn'); return; }
-  if(isTicket){ ticketUrl = u; localStorage.setItem(TUK, u); }
-  else         { scriptUrl = u; localStorage.setItem(UK,  u); }
+  cfg.setter(u); localStorage.setItem(cfg.key, u);
   updateBar();
-  const m = document.getElementById(msgId);
+  const m = document.getElementById(cfg.msgId);
   m.textContent = '✓ บันทึก URL แล้ว กด "ทดสอบ" เพื่อเช็ค'; m.style.color = 'var(--green)';
-  toast(`✓ บันทึก ${isTicket?'Ticket':'Asset'} URL สำเร็จ`);
+  toast(`✓ บันทึก ${cfg.label} URL สำเร็จ`);
 }
 async function testUrl(type = 'asset'){
-  const isTicket = type === 'ticket';
-  const url = isTicket ? ticketUrl : scriptUrl;
-  const msgId = isTicket ? 'setupMsgTicket' : 'setupMsg';
+  const map = {
+    asset:    { url:scriptUrl,   msgId:'setupMsg',         label:'Asset' },
+    ticket:   { url:ticketUrl,   msgId:'setupMsgTicket',   label:'Ticket' },
+    transfer: { url:transferUrl, msgId:'setupMsgTransfer', label:'Transfer' },
+  };
+  const cfg = map[type] || map.asset;
+  const url = cfg.url;
+  const msgId = cfg.msgId;
+  const isTicket = type === 'ticket'; // keep for compat below
   if(!url){ toast('⚠ กรอก URL ก่อน','warn'); return; }
   const m = document.getElementById(msgId);
   m.textContent = '⟳ กำลังทดสอบ...'; m.style.color = 'var(--text2)';
@@ -1845,8 +1920,9 @@ function logout(){
   assets = []; tickets = []; transfers = [];
   // Reset detected sheet names
   SHEET_NAMES.assets    = 'ชีต1';
-  SHEET_NAMES.transfers = 'IT Transfers';
+  SHEET_NAMES.transfers = 'IT Ticket & Asset Transfer';
   SHEET_NAMES.tickets   = 'IT Tickets';
+  transferUrl = localStorage.getItem(TRU) || DEFAULT_TRANSFER_URL;
   document.getElementById('loginScreen').classList.remove('hidden');
   const rb = document.getElementById('roleBadge');
   rb.textContent = ''; rb.style.cssText = '';
