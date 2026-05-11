@@ -1366,6 +1366,7 @@ function renderTransfers(){
         <button class="ib del" onclick="delTransfer('${tr._k}')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4M3 3l.5 7h5L9 3"/></svg></button>
       </div></td>
     </tr>`).join('');
+  setTimeout(applyRBAC, 0);
 }
 
 function openTransferAdd(){
@@ -1389,7 +1390,7 @@ function updateTRForm(){
 
 // ═══ แก้ไข saveTransfer — real-time sync ═══
 async function saveTransfer(){
-  if(!requirePerm(canEdit(),'สร้างใบเบิก/โอน')) return;
+  if(!requireTransferPerm()) return;
   const asset = g('tr-asset');
   if(!asset){ toast('⚠ เลือกทรัพย์สินก่อน','warn'); return; }
   const id = 'TR-'+String(transfers.length+1).padStart(3,'0')+'-'+Date.now().toString().slice(-4);
@@ -1797,10 +1798,10 @@ function toast(msg, type='ok'){
 // ═══════════════════════════════════════════════════
 // ROLE-BASED ACCESS CONTROL (RBAC)
 // ─────────────────────────────────────────────────
-// PIN   Role      Edit  Delete  Approve  Sync  AddAsset  View
-// 1111  admin     ✓     ✓       ✓        ✓     ✓         ALL
-// 2222  manager   ✓     ✓       ✓        ✗     ✗         ALL
-// 3333  staff     ✗     ✗       ✗        ✗     ✗         Ticket only
+// PIN   Role      Edit  Delete  Approve  Sync  AddAsset  CreateTransfer  View
+// 1111  admin     ✓     ✓       ✓        ✓     ✓         ✓               ALL
+// 2222  manager   ✓     ✓       ✓        ✗     ✗         ✓               ALL
+// 3333  staff     ✗     ✗       ✗        ✗     ✗         ✓(pending)      Ticket + Transfer
 // ═══════════════════════════════════════════════════
 const PINS = {
   '1111':{ role:'admin',   label:'IT Admin', color:'rgba(239,68,68,.15)',  border:'rgba(239,68,68,.35)',  text:'#f87171' },
@@ -1815,10 +1816,15 @@ function canDelete()  { return currentRole==='admin' || currentRole==='manager';
 function canApprove() { return currentRole==='admin' || currentRole==='manager'; }
 function canSync()    { return currentRole==='admin'; }
 function canAddAsset(){ return currentRole==='admin'; }
+function canCreateTransfer(){ return currentRole==='admin' || currentRole==='manager' || currentRole==='staff'; }
 
 function requirePerm(ok, label='การดำเนินการนี้'){
   if(!ok) toast(`🔒 ${label} — เฉพาะ Admin / ผู้จัดการเท่านั้น`, 'warn');
   return ok;
+}
+function requireTransferPerm(){
+  if(!canCreateTransfer()){ toast('🔒 สร้างใบเบิก/โอน — ไม่มีสิทธิ์', 'warn'); return false; }
+  return true;
 }
 
 // ── Hide/show action buttons based on role (called after each render) ──
@@ -1842,6 +1848,10 @@ function applyRBAC(){
       tr.onclick = null;
     });
   }
+
+  // Transfer create button — always visible for all roles (staff can create)
+  const trCreateBtn = document.querySelector('#view-transfer .btn-p');
+  if(trCreateBtn) trCreateBtn.style.display = canCreateTransfer() ? '' : 'none';
 
   // quickAdd ticket button label & close-ticket button visibility
   const tkCloseBtn = document.getElementById('tkCloseBtn');
@@ -1901,14 +1911,18 @@ function doLogin(pin){
     // Admin-only
     if(t.includes('เพิ่มทรัพย์สิน') || t.includes('ตั้งค่า'))
       n.style.display = isAdmin ? '' : 'none';
-    // Hidden from staff
-    if(t.includes('ทรัพย์สินทั้งหมด') || t.includes('ซ่อมบำรุง') || t.includes('เบิก / โอน'))
+    // Hidden from staff: KPI, ทรัพย์สิน, ซ่อมบำรุง
+    if(t.includes('ทรัพย์สินทั้งหมด') || t.includes('ซ่อมบำรุง') || t.includes('KPI'))
       n.style.display = isStaff ? 'none' : '';
+    // Staff CAN see เบิก/โอน
+    if(t.includes('เบิก / โอน'))
+      n.style.display = '';
   });
 
   // ── Topbar buttons ──
   document.getElementById('syncBtn').style.display     = canSync()    ? '' : 'none';
   document.getElementById('quickAddBtn').style.display = isStaff      ? 'none' : '';
+  document.getElementById('qrAllBtn').style.display    = isStaff      ? 'none' : '';
 
   // โหลดข้อมูลสดจาก Sheets ทุกครั้งที่ login
   if(scriptUrl || ticketUrl){
