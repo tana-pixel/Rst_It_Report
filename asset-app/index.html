@@ -589,6 +589,79 @@ function out(obj, cb) {
           <p style="font-size:12px;color:var(--text2);line-height:1.8;">• <a href="https://docs.google.com/spreadsheets/d/14GL3BP6oYWtp5ewE-Z8tOVvY2pT2Jyl19B2-0Ip9th0/edit?gid=0#gid=0" target="_blank" style="color:var(--blue);">IT Asset Database</a> — ข้อมูลทรัพย์สิน + การเบิก/โอน<br>• <a href="https://docs.google.com/spreadsheets/d/1C4__MYNtzIohekmbm6xMVoRnYCEl4f34SVgyC3_zDbU/edit?gid=850085091#gid=850085091" target="_blank" style="color:var(--blue);">IT Ticket Database</a> — Ticket แจ้งซ่อม + ปิดงาน</p>
         </div>
 
+        <!-- LINE NOTIFY PANEL -->
+        <div style="background:var(--bg2);border:1px solid rgba(6,214,160,.3);border-radius:12px;padding:16px;margin-top:12px;">
+          <p style="font-size:13px;color:#06d6a0;font-weight:600;margin-bottom:4px;">💬 แจ้งเตือน LINE (Messaging API)</p>
+          <p style="font-size:11px;color:var(--text3);margin-bottom:12px;">รับแจ้งเตือนไลน์เมื่อมีการสร้าง Ticket / เพิ่มทรัพย์สิน / เบิกโอน</p>
+          <div style="display:grid;gap:10px;">
+            <div>
+              <label class="fl" style="margin-bottom:5px;display:block;">Channel Access Token</label>
+              <div style="display:flex;gap:8px;">
+                <input class="url-in" id="lineTokenIn" type="password" placeholder="วาง Channel Access Token ที่นี่..." style="font-family:'IBM Plex Mono',monospace;font-size:11px;">
+                <button class="btn btn-p" onclick="saveLineSettings()" style="white-space:nowrap;font-size:12px;">💾 บันทึก</button>
+              </div>
+            </div>
+            <div>
+              <label class="fl" style="margin-bottom:5px;display:block;">LINE User ID (รับข้อความ)</label>
+              <div style="display:flex;gap:8px;">
+                <input class="url-in" id="lineUserIn" placeholder="Uxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" style="font-family:'IBM Plex Mono',monospace;font-size:11px;">
+                <button class="btn btn-g" onclick="testLineMsg()" style="white-space:nowrap;font-size:12px;">🔔 ทดสอบ</button>
+              </div>
+              <p style="font-size:10px;color:var(--text3);margin-top:5px;">หา User ID ได้จาก LINE Official Account Manager → Chat → คลิกชื่อผู้ใช้</p>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+              <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);cursor:pointer;">
+                <input type="checkbox" id="lineOnTicket" style="accent-color:var(--green);width:14px;height:14px;" checked> แจ้งเตือนเมื่อสร้าง Ticket
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);cursor:pointer;">
+                <input type="checkbox" id="lineOnAsset" style="accent-color:var(--blue);width:14px;height:14px;" checked> แจ้งเตือนเมื่อเพิ่มทรัพย์สิน
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);cursor:pointer;">
+                <input type="checkbox" id="lineOnTransfer" style="accent-color:var(--cyan);width:14px;height:14px;"> แจ้งเตือนเมื่อเบิก/โอน
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);cursor:pointer;">
+                <input type="checkbox" id="lineOnClose" style="accent-color:var(--amber);width:14px;height:14px;" checked> แจ้งเตือนเมื่อปิด Ticket
+              </label>
+            </div>
+            <div id="lineMsg" style="font-size:12px;min-height:16px;"></div>
+          </div>
+          <div style="margin-top:12px;padding:10px;background:var(--bg3);border-radius:8px;border:1px solid var(--border);">
+            <p style="font-size:11px;color:var(--amber);font-weight:500;margin-bottom:4px;">⚠️ เกี่ยวกับ CORS — ต้องใช้ Apps Script Proxy</p>
+            <p style="font-size:10px;color:var(--text3);line-height:1.7;">Browser ไม่สามารถส่งตรงไป api.line.me ได้ (CORS) ระบบจะส่งผ่าน Apps Script ที่ตั้งค่าไว้ใน Ticket URL โดยอัตโนมัติ<br>ต้องเพิ่มโค้ด <code style="font-family:monospace;background:var(--bg4);padding:1px 5px;border-radius:3px;color:var(--cyan);">sendLine()</code> ใน Apps Script ของคุณ (ดูคำแนะนำด้านล่าง)</p>
+            <button class="btn btn-g" onclick="toggleLineGuide()" style="font-size:11px;padding:4px 10px;margin-top:8px;">📋 ดูโค้ด Apps Script สำหรับ LINE</button>
+            <div id="lineGuide" style="display:none;margin-top:10px;">
+              <div class="codebox" style="font-size:10px;">// เพิ่มฟังก์ชันนี้ใน Apps Script เดิมของคุณ (IT Ticket หรือ IT Asset)
+// แล้ว Deploy ใหม่
+
+function sendLine(token, userId, msg) {
+  var url = 'https://api.line.me/v2/bot/message/push';
+  var payload = JSON.stringify({
+    to: userId,
+    messages: [{ type: 'text', text: msg }]
+  });
+  var options = {
+    method: 'post',
+    contentType: 'application/json',
+    headers: { 'Authorization': 'Bearer ' + token },
+    payload: payload,
+    muteHttpExceptions: true
+  };
+  try {
+    var res = UrlFetchApp.fetch(url, options);
+    return res.getResponseCode() === 200;
+  } catch(e) { return false; }
+}
+
+// แก้ไขฟังก์ชัน main() เดิม — เพิ่ม block นี้ต่อท้าย action อื่นๆ
+if (action === 'sendLine') {
+  var ok = sendLine(param.token, param.userId, param.msg);
+  return out({ status: ok ? 'ok' : 'error' }, cb);
+}
+<button class="cbtn" onclick="copyLineScript()">📋 Copy</button></div>
+            </div>
+          </div>
+        </div>
+
         <!-- DEBUG PANEL -->
         <div style="background:var(--bg2);border:1px solid rgba(245,158,11,.25);border-radius:12px;padding:16px;margin-top:12px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
@@ -1318,6 +1391,18 @@ async function saveAsset(){
   } else {
     toast('✓ บันทึกสำเร็จ (ยังไม่ได้ตั้งค่า Sheets)');
   }
+  // ── LINE Notification ──
+  const _lp = getLinePrefs();
+  if(_lp.asset !== false && isNew){
+    sendLineMessage(
+      `🖥️ IT Asset — เพิ่มทรัพย์สินใหม่\n` +
+      `📋 รหัส: ${obj.id}\n` +
+      `🏷️ ประเภท: ${obj.type||'-'}  ยี่ห้อ/รุ่น: ${obj.brand||''} ${obj.model||''}\n` +
+      `👤 ผู้ใช้: ${obj.user||'-'}  แผนก: ${obj.dept||'-'}\n` +
+      `📍 สถานะ: ${aStatusTH(obj.status)}\n` +
+      `🕐 ${new Date().toLocaleString('th-TH')}`
+    );
+  }
 }
 
 // ═══ แก้ไข delAsset — real-time delete ═══
@@ -1419,6 +1504,19 @@ async function saveTransfer(){
     dbg('saveTransfer → ' + SHEET_NAMES.transfers + ' via scriptUrl: ' + (ok?'OK':'FAIL'));
   } else {
     toast('✓ สร้างใบเบิก/โอนสำเร็จ — รออนุมัติ');
+  }
+  // ── LINE Notification ──
+  const _lp3 = getLinePrefs();
+  if(_lp3.transfer){
+    const typeLabel3 = {borrow:'เบิกให้พนักงาน',branch:'โอนข้ามสาขา',return:'คืนทรัพย์สิน'};
+    sendLineMessage(
+      `📋 IT Transfer — ${typeLabel3[obj.type]||obj.type}\n` +
+      `🔢 เลขที่: ${obj.id}\n` +
+      `🖥️ ทรัพย์สิน: ${obj.asset}\n` +
+      `📍 จาก: ${obj.from||'-'}  →  ไป: ${obj.to||'-'}\n` +
+      `👤 ผู้รับ: ${obj.receiver||'-'}\n` +
+      `🕐 ${new Date().toLocaleString('th-TH')}`
+    );
   }
 }
 
@@ -1593,6 +1691,28 @@ async function saveTicket(){
       : '⚠ บันทึกแล้ว (Sync ไม่สำเร็จ)', ok?'ok':'warn');
   } else {
     toast(status === 'closed' ? '✓ ปิดงานเรียบร้อย!' : '✓ บันทึก Ticket สำเร็จ');
+  }
+  // ── LINE Notification ──
+  const _lp2 = getLinePrefs();
+  if(isNew && _lp2.ticket !== false){
+    const _pri = obj.priority==='high'?'🔴 เร่งด่วน':obj.priority==='med'?'🟡 ด่วน':'🟢 ปกติ';
+    sendLineMessage(
+      `🎫 IT Ticket — แจ้งซ่อมใหม่ [${obj.id}]\n` +
+      `👤 ผู้แจ้ง: ${obj.reporter}  แผนก: ${obj.dept||'-'}\n` +
+      `🔧 ประเภท: ${obj.category}\n` +
+      `📝 ปัญหา: ${obj.desc||'-'}\n` +
+      `${_pri}\n` +
+      `🕐 ${new Date(obj.created).toLocaleString('th-TH')}`
+    );
+  } else if(!isNew && status==='closed' && _lp2.close !== false){
+    sendLineMessage(
+      `✅ IT Ticket — ปิดงานแล้ว [${obj.id}]\n` +
+      `👤 ผู้แจ้ง: ${obj.reporter}  แผนก: ${obj.dept||'-'}\n` +
+      `🔧 ประเภท: ${obj.category}\n` +
+      `💡 วิธีแก้ไข: ${obj.solution||'-'}\n` +
+      `👷 IT ผู้รับงาน: ${obj.handler||'-'}\n` +
+      `🕐 ปิดงาน: ${new Date().toLocaleString('th-TH')}`
+    );
   }
 }
 
@@ -2111,6 +2231,97 @@ function printAllQR(){
   win.document.close();
   toast('เปิดหน้าต่างพิมพ์ QR ทั้งหมดแล้ว');
 }
+
+// ═══════════════════════════════════════════════════
+// LINE MESSAGING — แยกอิสระ ไม่กระทบโค้ดเดิม
+// ═══════════════════════════════════════════════════
+const LINE_KEY   = 'line_token';
+const LINE_UID   = 'line_userId';
+const LINE_PREFS = 'line_prefs';
+
+function getLinePrefs(){
+  try{ return JSON.parse(localStorage.getItem(LINE_PREFS)||'{}'); }catch{ return {}; }
+}
+function saveLineSettings(){
+  const token  = document.getElementById('lineTokenIn').value.trim();
+  const userId = document.getElementById('lineUserIn').value.trim();
+  if(!token){ showLineMsg('⚠ กรุณากรอก Channel Access Token','warn'); return; }
+  if(!userId){ showLineMsg('⚠ กรุณากรอก User ID','warn'); return; }
+  localStorage.setItem(LINE_KEY,  token);
+  localStorage.setItem(LINE_UID,  userId);
+  // save checkboxes
+  const prefs = {
+    ticket:   document.getElementById('lineOnTicket').checked,
+    asset:    document.getElementById('lineOnAsset').checked,
+    transfer: document.getElementById('lineOnTransfer').checked,
+    close:    document.getElementById('lineOnClose').checked
+  };
+  localStorage.setItem(LINE_PREFS, JSON.stringify(prefs));
+  showLineMsg('✓ บันทึกการตั้งค่า LINE แล้ว','ok');
+}
+
+function showLineMsg(msg, type='ok'){
+  const el = document.getElementById('lineMsg');
+  if(!el) return;
+  el.textContent = msg;
+  el.style.color = type==='ok' ? 'var(--green)' : 'var(--amber)';
+  setTimeout(() => { if(el) el.textContent=''; }, 4000);
+}
+
+function toggleLineGuide(){
+  const g = document.getElementById('lineGuide');
+  if(g) g.style.display = g.style.display==='none' ? 'block' : 'none';
+}
+
+function copyLineScript(){
+  const code = document.getElementById('lineGuide').querySelector('.codebox').innerText
+    .replace('📋 Copy','').trim();
+  navigator.clipboard.writeText(code).then(() => toast('✓ Copy โค้ด LINE แล้ว'));
+}
+
+// ส่ง LINE ผ่าน Apps Script Proxy (เพื่อแก้ CORS)
+async function sendLineMessage(msg){
+  const token  = localStorage.getItem(LINE_KEY);
+  const userId = localStorage.getItem(LINE_UID);
+  const proxyUrl = ticketUrl || scriptUrl;  // ใช้ Apps Script ที่ตั้งค่าไว้เป็น proxy
+  if(!token || !userId || !proxyUrl){ return; }
+  try{
+    await callSheet({ action:'sendLine', token, userId, msg }, proxyUrl);
+    dbg('LINE sent: ' + msg.slice(0,60));
+  } catch(e){
+    dbg('LINE error: ' + e.message);
+  }
+}
+
+async function testLineMsg(){
+  const token  = document.getElementById('lineTokenIn').value.trim() || localStorage.getItem(LINE_KEY);
+  const userId = document.getElementById('lineUserIn').value.trim()  || localStorage.getItem(LINE_UID);
+  if(!token || !userId){ showLineMsg('⚠ กรอก Token และ User ID ก่อน','warn'); return; }
+  // temp save เพื่อทดสอบ
+  const oldT = localStorage.getItem(LINE_KEY), oldU = localStorage.getItem(LINE_UID);
+  localStorage.setItem(LINE_KEY, token); localStorage.setItem(LINE_UID, userId);
+  showLineMsg('⟳ กำลังส่งทดสอบ...');
+  await sendLineMessage('🔔 IT Asset System\n✅ ทดสอบการแจ้งเตือน LINE สำเร็จ!\nระบบพร้อมส่งแจ้งเตือนแล้ว');
+  showLineMsg('✓ ส่งทดสอบแล้ว — ตรวจสอบ LINE ของคุณ', 'ok');
+  if(!oldT) localStorage.removeItem(LINE_KEY); else localStorage.setItem(LINE_KEY, oldT);
+  if(!oldU) localStorage.removeItem(LINE_UID); else localStorage.setItem(LINE_UID, oldU);
+}
+
+// โหลดค่าที่บันทึกไว้เข้าฟอร์ม Setup
+function loadLineSettingsUI(){
+  const tokenEl  = document.getElementById('lineTokenIn');
+  const userEl   = document.getElementById('lineUserIn');
+  const prefs    = getLinePrefs();
+  if(tokenEl)  tokenEl.value  = localStorage.getItem(LINE_KEY)  || '';
+  if(userEl)   userEl.value   = localStorage.getItem(LINE_UID)  || '';
+  const ck = (id, key, def) => { const el=document.getElementById(id); if(el) el.checked = key in prefs ? prefs[key] : def; };
+  ck('lineOnTicket',  'ticket',   true);
+  ck('lineOnAsset',   'asset',    true);
+  ck('lineOnTransfer','transfer', false);
+  ck('lineOnClose',   'close',    true);
+}
+// เรียกใช้เมื่อโหลดหน้า
+setTimeout(loadLineSettingsUI, 200);
 
 // ═══ INIT ═══
 // Force clear any stale state from cached old versions
