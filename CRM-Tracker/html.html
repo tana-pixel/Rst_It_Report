@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PreTrack Web App v2.1</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --secondary-color: #64748b;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Prompt', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background-color: #1e293b; color: white; padding: 20px; flex-shrink: 0; }
+        .sidebar h2 { font-size: 20px; text-align: center; padding-bottom: 20px; border-bottom: 1px solid #334155; margin-bottom: 20px; color: #38bdf8; }
+        .menu-btn { background: none; border: none; color: #94a3b8; padding: 12px 15px; text-align: left; font-size: 15px; cursor: pointer; border-radius: 8px; margin-bottom: 5px; width: 100%; transition: all 0.3s; }
+        .menu-btn:hover, .menu-btn.active { background-color: var(--primary-color); color: white; }
+        .main-content { flex-grow: 1; padding: 30px; overflow-y: auto; }
+        .card { background: var(--card-bg); border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 25px; }
+        .card-title { font-size: 18px; font-weight: 500; margin-bottom: 20px; border-left: 4px solid var(--primary-color); padding-left: 10px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group.full-width { grid-column: 1 / -1; }
+        label { font-size: 14px; color: var(--text-muted); font-weight: 500; }
+        input, select, textarea { padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 15px; outline: none; }
+        input:focus, select:focus { border-color: var(--primary-color); }
+        .btn-container { display: flex; gap: 12px; justify-content: flex-end; margin-top: 15px; }
+        .btn { padding: 10px 20px; border-radius: 8px; font-size: 15px; font-weight: 500; cursor: pointer; border: none; }
+        .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-primary:hover { background-color: var(--primary-hover); }
+        .btn-inline { padding: 8px 15px; height: 42px; margin-top: 24px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+        th { background-color: #f1f5f9; color: #475569; padding: 12px 16px; }
+        td { padding: 12px 16px; border-bottom: 1px solid var(--border-color); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .flex-inputs { display: flex; gap: 10px; align-items: flex-end; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>PreTrack v2.1</h2>
+        <button class="menu-btn active" onclick="switchTab('search-tab')">🔍 Disp ค้นหา / แก้ไข</button>
+        <button class="menu-btn" onclick="switchTab('add-customer-tab')">➕ เพิ่ม PreTrack (ลูกค้า)</button>
+        <button class="menu-btn" onclick="switchTab('add-job-tab')">💼 เพิ่ม/รายการจัดงาน</button>
+        <button class="menu-btn" onclick="switchTab('settings-tab')">⚙️ จัดจัดการข้อมูลพื้นฐาน</button>
+    </div>
+
+    <div class="main-content">
+        <div id="search-tab" class="tab-content active">
+            <div class="card">
+                <div class="card-title">รายการข้อมูลลูกค้าในฐานข้อมูลชีต</div>
+                <table id="customer-table">
+                    <thead>
+                        <tr>
+                            <th>ชื่อ - สกุล</th><th>ตำบล / อำเภอ</th><th>ประเภท</th><th>สินค้าที่สนใจ</th><th>เบอร์โทร</th><th>จังหวัด</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td colspan="6" style="text-align:center;">กำลังโหลดข้อมูล...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="add-customer-tab" class="tab-content">
+            <div class="card">
+                <div class="card-title">ฟอร์มบันทึกข้อมูลลูกค้าบุคคล</div>
+                <form id="customer-form">
+                    <div class="form-grid">
+                        <div class="form-group"><label>วัน/เดือน/ปี</label><input type="date" id="cust-date" required></div>
+                        <div class="form-group"><label>ชื่อ</label><input type="text" id="cust-fname" placeholder="กรอกชื่อ" required></div>
+                        <div class="form-group"><label>นามสกุล</label><input type="text" id="cust-lname" placeholder="กรอกนามสกุล" required></div>
+                        <div class="form-group"><label>เบอร์โทรศัพท์ 1</label><input type="tel" id="cust-phone1" placeholder="08XXXXXXXX"></div>
+                        <div class="form-group"><label>ประเภท (Type)</label><select id="cust-type"><option>ลงทะเบียน</option><option>จอง</option><option>ติดตาม</option></select></div>
+                        <div class="form-group"><label>สินค้าที่สนใจ</label><select id="cust-product"><option>กำลังโหลด...</option></select></div>
+                        
+                        <div class="form-group"><label>ตำบล</label><input type="text" id="cust-subdistrict" placeholder="ระบุตำบล"></div>
+                        <div class="form-group"><label>อำเภอ</label><input type="text" id="cust-district" placeholder="ระบุอำเภอ"></div>
+                        <div class="form-group"><label>จังหวัด</label><input type="text" id="cust-province" value="อุบลฯ" placeholder="ระบุจังหวัด"></div>
+                        <div class="form-group"><label>รหัสไปรษณีย์</label><input type="text" id="cust-zipcode" placeholder="เช่น 34000"></div>
+                        
+                        <div class="form-group full-width"><label>หมายเหตุ</label><textarea id="cust-note" rows="2" placeholder="ระบุรายละเอียดเพิ่มเติม..."></textarea></div>
+                    </div>
+                    <div class="btn-container"><button type="submit" class="btn btn-primary">💾 บันทึกข้อมูลลูกค้า</button></div>
+                </form>
+            </div>
+        </div>
+
+        <div id="add-job-tab" class="tab-content">
+            <div class="card">
+                <div class="card-title">เพิ่มงานจัดแสดงสินค้าใหม่</div>
+                <div class="form-grid">
+                    <div class="form-group"><label>ชื่อจัดงาน</label><input type="text" id="job-name"></div>
+                    <div class="form-group"><label>รายละเอียด สถานที่</label><input type="text" id="job-location"></div>
+                    <div class="form-group"><label>วันที่จัดงาน</label><input type="date" id="job-date"></div>
+                </div>
+                <div class="btn-container"><button class="btn btn-primary" onclick="handleJobSubmit()">➕ บันทึกงานจัดแสดง</button></div>
+            </div>
+        </div>
+
+        <div id="settings-tab" class="tab-content">
+            <div class="form-grid">
+                <div class="card">
+                    <div class="card-title">รายการสินค้า (AddGoods)</div>
+                    <div class="flex-inputs" style="margin-bottom: 20px;">
+                        <div class="form-group" style="flex-grow: 1;"><label>ชื่อสินค้าใหม่</label><input type="text" id="new-good-name" placeholder="เช่น รถแทรกเตอร์"></div>
+                        <button class="btn btn-primary btn-inline" onclick="addGoodSubmit()">➕ บันทึก</button>
+                    </div>
+                    <table id="goods-table"><tbody><tr><td>กำลังโหลดรายการสินค้า...</td></tr></tbody></table>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">รายการตำบล (AddTam)</div>
+                    <div class="form-grid" style="grid-template-columns: 1fr 1fr auto; gap: 10px; align-items: flex-end; margin-bottom: 20px;">
+                        <div class="form-group"><label>ชื่อตำบล</label><input type="text" id="new-subdistrict" placeholder="เช่น ขามใหญ่"></div>
+                        <div class="form-group"><label>อำเภอ</label><input type="text" id="new-district" placeholder="เช่น เมืองอุบลฯ"></div>
+                        <button class="btn btn-primary" style="height: 42px;" onclick="addSubdistrictSubmit()">➕ บันทึก</button>
+                    </div>
+                    <table id="subdistricts-table">
+                        <thead><tr><th>ตำบล</th><th>อำเภอ</th></tr></thead>
+                        <tbody><tr><td colspan="2">กำลังโหลดรายการตำบล...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // === สำคัญมาก: นำลิงก์ Web App URL จาก Google Sheet มาใส่ตรงนี้ ===
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbztcF0GGawyqG4LGXTSeI0_o7QyjgoHnutRKiSr8A9mhZmEYQmfsLCcbcWqNea6P_NHcQ/exec';
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            if (window.event) window.event.currentTarget.classList.add('active');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('cust-date').valueAsDate = new Date();
+            loadDataFromGoogleSheets();
+            document.getElementById('customer-form').addEventListener('submit', handleCustomerSubmit);
+        });
+
+        function loadDataFromGoogleSheets() {
+            if (!WEB_APP_URL || WEB_APP_URL.includes('ใส่ลิงก์_WEB_APP_URL')) return;
+            fetch(`${WEB_APP_URL}?action=getData`)
+                .then(res => res.json())
+                .then(data => {
+                    renderCustomerTable(data.customers || []);
+                    renderGoodsTableAndDropdown(data.goods || []);
+                    renderSubdistrictsTable(data.subdistricts || []);
+                });
+        }
+
+        function renderCustomerTable(customers) {
+            const tbody = document.querySelector('#customer-table tbody');
+            tbody.innerHTML = '';
+            customers.forEach(row => {
+                if(!row[1]) return;
+                tbody.innerHTML += `<tr><td><b>${row[1]} ${row[2]}</b></td><td>${row[10] || '-'} / ${row[11] || '-'}</td><td>${row[5]}</td><td>${row[6]}</td><td>${row[3]}</td><td>${row[12]||'อุบลฯ'}</td></tr>`;
+            });
+        }
+
+        function handleCustomerSubmit(e) {
+            e.preventDefault();
+            // ผูกข้อมูลจังหวัด (cust-province) และรหัสไปรษณีย์ (cust-zipcode) ส่งไปยังชีต
+            const clientData = {
+                date: document.getElementById('cust-date').value,
+                firstName: document.getElementById('cust-fname').value,
+                lastName: document.getElementById('cust-lname').value,
+                phone1: document.getElementById('cust-phone1').value,
+                phone2: '', 
+                type: document.getElementById('cust-type').value,
+                product: document.getElementById('cust-product').value,
+                addressNo: '', moo: '', village: '',
+                subdistrict: document.getElementById('cust-subdistrict').value,
+                district: document.getElementById('cust-district').value,
+                province: document.getElementById('cust-province').value, 
+                zipcode: document.getElementById('cust-zipcode').value, 
+                note: document.getElementById('cust-note').value
+            };
+            sendPostData({ action: 'addCustomer', data: clientData }, 'บันทึกข้อมูลลูกค้าสำเร็จ!');
+        }
+
+        function handleJobSubmit() {
+            const jobData = {
+                jobName: document.getElementById('job-name').value,
+                jobDate: document.getElementById('job-date').value,
+                location: document.getElementById('job-location').value
+            };
+            sendPostData({ action: 'addJob', data: jobData }, 'เพิ่มกิจกรรมเรียบร้อย!');
+        }
+
+        function addGoodSubmit() {
+            const name = document.getElementById('new-good-name').value;
+            if(!name) return alert('กรุณากรอกชื่อสินค้า');
+            sendPostData({ action: 'addGood', productName: name }, 'เพิ่มสินค้าใหม่ลงฐานข้อมูลแล้ว!');
+            document.getElementById('new-good-name').value = '';
+        }
+
+        function addSubdistrictSubmit() {
+            const sub = document.getElementById('new-subdistrict').value;
+            const dist = document.getElementById('new-district').value;
+            if(!sub || !dist) return alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+            sendPostData({ action: 'addSubdistrict', subdistrict: sub, district: dist }, 'บันทึกข้อมูลตำบลใหม่แล้ว!');
+            document.getElementById('new-subdistrict').value = '';
+            document.getElementById('new-district').value = '';
+        }
+
+        function sendPostData(payload, successMessage) {
+            fetch(WEB_APP_URL, {
+                method: 'POST', mode: 'no-cors', cache: 'no-cache',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).then(() => {
+                alert(successMessage);
+                loadDataFromGoogleSheets();
+            });
+        }
+
+        function renderGoodsTableAndDropdown(goods) {
+            const tbody = document.querySelector('#goods-table tbody');
+            const select = document.getElementById('cust-product');
+            tbody.innerHTML = ''; select.innerHTML = '';
+            goods.forEach((row, i) => {
+                if(!row[0]) return;
+                tbody.innerHTML += `<tr><td>${i+1}. ${row[0]}</td></tr>`;
+                select.innerHTML += `<option>${row[0]}</option>`;
+            });
+        }
+
+        function renderSubdistrictsTable(subdistricts) {
+            const tbody = document.querySelector('#subdistricts-table tbody');
+            tbody.innerHTML = '';
+            subdistricts.forEach(row => {
+                if(!row[0]) return;
+                tbody.innerHTML += `<tr><td>${row[0]}</td><td>${row[1]}</td></tr>`;
+            });
+        }
+    </script>
+</body>
+</html>
