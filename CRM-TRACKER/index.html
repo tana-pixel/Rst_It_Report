@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRM-TRACKER v3.0</title>
+    <title>CRM-TRACKER v3.1</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -18,6 +18,7 @@
             --text-muted: #64748b;
             --border-color: #e2e8f0;
             --edit-color: #eab308;
+            --table-header: #f1f5f9;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Prompt', sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-main); display: flex; min-height: 100vh; }
@@ -34,7 +35,7 @@
         label { font-size: 14px; color: var(--text-muted); font-weight: 500; }
         input, select, textarea { padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 15px; outline: none; }
         input:focus, select:focus { border-color: var(--primary-color); }
-        .search-box { padding: 10px 16px; border: 2px solid var(--primary-color); border-radius: 8px; font-size: 15px; width: 300px; outline: none; }
+        .search-box { padding: 10px 16px; border: 2px solid var(--primary-color); border-radius: 8px; font-size: 14px; width: 300px; outline: none; }
         .btn-container { display: flex; gap: 12px; justify-content: flex-end; margin-top: 15px; }
         .btn { padding: 10px 20px; border-radius: 8px; font-size: 15px; font-weight: 500; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 6px; }
         .btn-primary { background-color: var(--primary-color); color: white; }
@@ -43,7 +44,7 @@
         .btn-warning:hover { opacity: 0.9; }
         .btn-inline { padding: 8px 15px; height: 42px; margin-top: 24px; }
         table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
-        th { background-color: #f1f5f9; color: #475569; padding: 12px 16px; font-weight: 600; }
+        th { background-color: var(--table-header); color: #475569; padding: 12px 16px; font-weight: 600; }
         td { padding: 12px 16px; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
@@ -89,7 +90,6 @@
                 <div class="card-title" id="form-mode-title">ฟอร์มบันทึกข้อมูลลูกค้าบุคคล</div>
                 <form id="customer-form">
                     <input type="hidden" id="cust-row-index" value="">
-                    
                     <div class="form-grid">
                         <div class="form-group"><label>วัน/เดือน/ปี</label><input type="date" id="cust-date" required></div>
                         <div class="form-group"><label>ชื่อ</label><input type="text" id="cust-fname" placeholder="กรอกชื่อ" required></div>
@@ -97,12 +97,10 @@
                         <div class="form-group"><label>เบอร์โทรศัพท์ 1</label><input type="tel" id="cust-phone1" placeholder="08XXXXXXXX"></div>
                         <div class="form-group"><label>ประเภท (Type)</label><select id="cust-type"><option>ลงทะเบียน</option><option>จอง</option><option>ติดตาม</option></select></div>
                         <div class="form-group"><label>สินค้าที่สนใจ</label><select id="cust-product"><option>กำลังโหลด...</option></select></div>
-                        
                         <div class="form-group"><label>ตำบล</label><input type="text" id="cust-subdistrict" placeholder="ระบุตำบล"></div>
                         <div class="form-group"><label>อำเภอ</label><input type="text" id="cust-district" placeholder="ระบุอำเภอ"></div>
                         <div class="form-group"><label>จังหวัด</label><input type="text" id="cust-province" value="อุบลฯ" placeholder="ระบุจังหวัด"></div>
                         <div class="form-group"><label>รหัสไปรษณีย์</label><input type="text" id="cust-zipcode" placeholder="เช่น 34000"></div>
-                        
                         <div class="form-group full-width"><label>หมายเหตุ</label><textarea id="cust-note" rows="2" placeholder="ระบุรายละเอียดเพิ่มเติม..."></textarea></div>
                     </div>
                     <div class="btn-container">
@@ -117,11 +115,30 @@
             <div class="card">
                 <div class="card-title">เพิ่มงานจัดแสดงสินค้าใหม่</div>
                 <div class="form-grid">
-                    <div class="form-group"><label>ชื่อจัดงาน</label><input type="text" id="job-name"></div>
-                    <div class="form-group"><label>รายละเอียด สถานที่</label><input type="text" id="job-location"></div>
+                    <div class="form-group"><label>ชื่อจัดงาน</label><input type="text" id="job-name" placeholder="เช่น สาธิตแทรกเตอร์"></div>
+                    <div class="form-group"><label>รายละเอียด สถานที่</label><input type="text" id="job-location" placeholder="ระบุ บ. / ต. / อ."></div>
                     <div class="form-group"><label>วันที่จัดงาน</label><input type="date" id="job-date"></div>
                 </div>
-                <div class="btn-container"><button class="btn btn-primary" onclick="handleJobSubmit()">➕ บันทึกงานจัดแสดง</button></div>
+                <div class="btn-container">
+                    <button class="btn btn-primary" onclick="handleJobSubmit()">💾 บันทึกงานจัดแสดง</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <span>ตารางรายการจัดงานทั้งหมด (ListAct)</span>
+                    <input type="text" id="search-job-input" class="search-box" placeholder="🔎 ค้นหาชื่องานหรือสถานที่..." onkeyup="filterJobTable()">
+                </div>
+                <table id="job-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 80px;">Act_ID</th><th>ชื่อจัดงาน</th><th>รายละเอียด สถานที่จัดงาน</th><th style="width: 150px;">วันที่จัดงาน</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td colspan="4" style="text-align:center;">กำลังโหลดรายการกิจกรรม...</td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
@@ -157,6 +174,7 @@
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzNwdWwWjBVhz_nP0ncPIymfUxRMHxsoZvw8V1qkR0v47yQxujoxr3co5XFryGs-_rmcA/exec';
 
         let globalCustomersData = [];
+        let globalJobsData = [];
 
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -168,6 +186,7 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('cust-date').valueAsDate = new Date();
+            document.getElementById('job-date').valueAsDate = new Date();
             loadDataFromGoogleSheets();
             document.getElementById('customer-form').addEventListener('submit', handleCustomerSubmit);
         });
@@ -178,7 +197,9 @@
                 .then(res => res.json())
                 .then(data => {
                     globalCustomersData = data.customers || [];
+                    globalJobsData = data.activities || [];
                     renderCustomerTable(globalCustomersData);
+                    renderJobTable(globalJobsData);
                     renderGoodsTableAndDropdown(data.goods || []);
                     renderSubdistrictsTable(data.subdistricts || []);
                 });
@@ -191,7 +212,6 @@
                 tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">ไม่พบข้อมูลลูกค้า</td></tr>';
                 return;
             }
-            // เพิ่มปุ่มแก้ไขในตาราง (ใส่ row index เพื่อชี้เป้าแถวบน Google Sheets ถูกต้อง)
             customers.forEach((row, index) => {
                 if(!row[1]) return;
                 let badgeClass = 'badge-reg';
@@ -210,7 +230,30 @@
             });
         }
 
-        // ฟังก์ชันระบบค้นหาด่วน พิมพ์แล้วกรองตารางทันทีไม่ต้องกดปุ่ม
+        // ฟังก์ชันวาดตารางและประมวลผลข้อมูลรายการจัดงาน (Activities)
+        function renderJobTable(jobs) {
+            const tbody = document.querySelector('#job-table tbody');
+            tbody.innerHTML = '';
+            if(jobs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">ยังไม่มีรายการจัดงานในฐานข้อมูล</td></tr>';
+                return;
+            }
+            jobs.forEach((row) => {
+                if(!row[1]) return; // ข้ามแถวที่ว่าง
+                // ฟอร์แมตวันที่ให้อ่านง่ายขึ้น (กรณีเป็น ISO String)
+                let formattedDate = row[2];
+                if(row[2] && row[2].includes('T')) {
+                    formattedDate = row[2].split('T')[0];
+                }
+                tbody.innerHTML += `<tr>
+                    <td><code>${row[0]}</code></td>
+                    <td><b>${row[1]}</b></td>
+                    <td>${row[3] || '-'}</td>
+                    <td>${formattedDate || '-'}</td>
+                </tr>`;
+            });
+        }
+
         function filterCustomerTable() {
             const val = document.getElementById('search-input').value.toLowerCase();
             const filtered = globalCustomersData.filter(row => {
@@ -223,9 +266,17 @@
             renderCustomerTable(filtered);
         }
 
-        // ฟังก์ชันเมื่อกดปุ่ม "แก้ไข" ท้ายแถวลูกค้า จะโยนค่าเข้าฟอร์มให้อัตโนมัติ
+        // ฟังก์ชันระบบค้นหางาน พิมพ์แล้วค้นหาได้ทันที
+        function filterJobTable() {
+            const val = document.getElementById('search-job-input').value.toLowerCase();
+            const filtered = globalJobsData.filter(row => {
+                return (row[1] && row[1].toLowerCase().includes(val)) || 
+                       (row[3] && row[3].toLowerCase().includes(val));
+            });
+            renderJobTable(filtered);
+        }
+
         function editCustomerData(sheetRowIndex) {
-            // ค้นหาแถวที่ต้องการจากตัวแปร global (หักลบหัวตารางออก)
             const targetData = globalCustomersData[sheetRowIndex - 2];
             if(!targetData) return;
 
@@ -241,11 +292,8 @@
             document.getElementById('cust-zipcode').value = targetData[13] || '';
             document.getElementById('cust-note').value = targetData[14] || '';
 
-            // เปลี่ยนหัวข้อฟอร์มและปุ่มบันทึกให้พนักงานรู้ว่ากำลังแก้ไขข้อมูลอยู่
             document.getElementById('form-mode-title').innerText = "📝 แก้ไขข้อมูลลูกค้า (แถวที่ " + sheetRowIndex + ")";
             document.getElementById('submit-cust-btn').innerHTML = "💾 อัปเดตข้อมูลลูกค้า";
-            
-            // สลับหน้าไปยังหน้าฟอร์มทันที
             switchTab('add-customer-tab');
         }
 
@@ -275,27 +323,32 @@
                 note: document.getElementById('cust-note').value
             };
             
-            // เช็คว่าเป็นการเพิ่มใหม่ หรือ เป็นการแก้ไขข้อมูลเดิม
             const actionType = rowIndex ? 'editCustomer' : 'addCustomer';
             const msg = rowIndex ? 'อัปเดตข้อมูลลูกค้าเรียบร้อย!' : 'บันทึกข้อมูลลูกค้าสำเร็จ!';
 
-            sendPostData({ action: actionType, rowIndex: rowIndex, data: clientData }, msg);
+            sendPostData({ action: actionType, rowIndex: rowIndex, data: clientData }, msg, 'search-tab');
             resetCustomerForm();
         }
 
         function handleJobSubmit() {
+            const jobName = document.getElementById('job-name').value;
+            const jobLocation = document.getElementById('job-location').value;
+            if(!jobName) return alert('กรุณากรอกชื่อจัดงานก่อนครับ');
+
             const jobData = {
-                jobName: document.getElementById('job-name').value,
+                jobName: jobName,
                 jobDate: document.getElementById('job-date').value,
-                location: document.getElementById('job-location').value
+                location: jobLocation
             };
-            sendPostData({ action: 'addJob', data: jobData }, 'เพิ่มกิจกรรมเรียบร้อย!');
+            sendPostData({ action: 'addJob', data: jobData }, 'เพิ่มกิจกรรมเรียบร้อย!', 'add-job-tab');
+            document.getElementById('job-name').value = '';
+            document.getElementById('job-location').value = '';
         }
 
         function addGoodSubmit() {
             const name = document.getElementById('new-good-name').value;
             if(!name) return alert('กรุณากรอกชื่อสินค้า');
-            sendPostData({ action: 'addGood', productName: name }, 'เพิ่มสินค้าใหม่ลงฐานข้อมูลแล้ว!');
+            sendPostData({ action: 'addGood', productName: name }, 'เพิ่มสินค้าใหม่ลงฐานข้อมูลแล้ว!', 'settings-tab');
             document.getElementById('new-good-name').value = '';
         }
 
@@ -303,12 +356,12 @@
             const sub = document.getElementById('new-subdistrict').value;
             const dist = document.getElementById('new-district').value;
             if(!sub || !dist) return alert('กรุณากรอกข้อมูลให้ครบถ้วน');
-            sendPostData({ action: 'addSubdistrict', subdistrict: sub, district: dist }, 'บันทึกข้อมูลตำบลใหม่แล้ว!');
+            sendPostData({ action: 'addSubdistrict', subdistrict: sub, district: dist }, 'บันทึกข้อมูลตำบลใหม่แล้ว!', 'settings-tab');
             document.getElementById('new-subdistrict').value = '';
             document.getElementById('new-district').value = '';
         }
 
-        function sendPostData(payload, successMessage) {
+        function sendPostData(payload, successMessage, targetTab) {
             fetch(WEB_APP_URL, {
                 method: 'POST', mode: 'no-cors', cache: 'no-cache',
                 headers: { 'Content-Type': 'application/json' },
@@ -316,7 +369,7 @@
             }).then(() => {
                 alert(successMessage);
                 loadDataFromGoogleSheets();
-                switchTab('search-tab');
+                switchTab(targetTab);
             });
         }
 
