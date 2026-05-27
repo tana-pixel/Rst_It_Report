@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PreTrack Web App v2.1</title>
+    <title>CRM-TRACKER v3.0</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -17,57 +17,68 @@
             --text-main: #1e293b;
             --text-muted: #64748b;
             --border-color: #e2e8f0;
+            --edit-color: #eab308;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Prompt', sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-main); display: flex; min-height: 100vh; }
         .sidebar { width: 260px; background-color: #1e293b; color: white; padding: 20px; flex-shrink: 0; }
-        .sidebar h2 { font-size: 20px; text-align: center; padding-bottom: 20px; border-bottom: 1px solid #334155; margin-bottom: 20px; color: #38bdf8; }
+        .sidebar h2 { font-size: 22px; text-align: center; padding-bottom: 20px; border-bottom: 1px solid #334155; margin-bottom: 20px; color: #38bdf8; font-weight: 600; letter-spacing: 0.5px; }
         .menu-btn { background: none; border: none; color: #94a3b8; padding: 12px 15px; text-align: left; font-size: 15px; cursor: pointer; border-radius: 8px; margin-bottom: 5px; width: 100%; transition: all 0.3s; }
         .menu-btn:hover, .menu-btn.active { background-color: var(--primary-color); color: white; }
         .main-content { flex-grow: 1; padding: 30px; overflow-y: auto; }
         .card { background: var(--card-bg); border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 25px; }
-        .card-title { font-size: 18px; font-weight: 500; margin-bottom: 20px; border-left: 4px solid var(--primary-color); padding-left: 10px; }
+        .card-title { font-size: 18px; font-weight: 500; margin-bottom: 20px; border-left: 4px solid var(--primary-color); padding-left: 10px; display: flex; justify-content: space-between; align-items: center; }
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px; }
         .form-group { display: flex; flex-direction: column; gap: 6px; }
         .form-group.full-width { grid-column: 1 / -1; }
         label { font-size: 14px; color: var(--text-muted); font-weight: 500; }
         input, select, textarea { padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 15px; outline: none; }
         input:focus, select:focus { border-color: var(--primary-color); }
+        .search-box { padding: 10px 16px; border: 2px solid var(--primary-color); border-radius: 8px; font-size: 15px; width: 300px; outline: none; }
         .btn-container { display: flex; gap: 12px; justify-content: flex-end; margin-top: 15px; }
-        .btn { padding: 10px 20px; border-radius: 8px; font-size: 15px; font-weight: 500; cursor: pointer; border: none; }
+        .btn { padding: 10px 20px; border-radius: 8px; font-size: 15px; font-weight: 500; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 6px; }
         .btn-primary { background-color: var(--primary-color); color: white; }
         .btn-primary:hover { background-color: var(--primary-hover); }
+        .btn-warning { background-color: var(--edit-color); color: white; padding: 6px 12px; font-size: 13px; border-radius: 6px; }
+        .btn-warning:hover { opacity: 0.9; }
         .btn-inline { padding: 8px 15px; height: 42px; margin-top: 24px; }
         table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
-        th { background-color: #f1f5f9; color: #475569; padding: 12px 16px; }
-        td { padding: 12px 16px; border-bottom: 1px solid var(--border-color); }
+        th { background-color: #f1f5f9; color: #475569; padding: 12px 16px; font-weight: 600; }
+        td { padding: 12px 16px; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         .flex-inputs { display: flex; gap: 10px; align-items: flex-end; }
+        .badge { padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 500; }
+        .badge-reg { background-color: #dbeafe; color: #1e40af; }
+        .badge-book { background-color: #dcfce7; color: #166534; }
+        .badge-track { background-color: #fef9c3; color: #854d0e; }
     </style>
 </head>
 <body>
 
     <div class="sidebar">
-        <h2>PreTrack v2.1</h2>
-        <button class="menu-btn active" onclick="switchTab('search-tab')">🔍 Disp ค้นหา / แก้ไข</button>
-        <button class="menu-btn" onclick="switchTab('add-customer-tab')">➕ เพิ่ม PreTrack (ลูกค้า)</button>
+        <h2>CRM-TRACKER</h2>
+        <button class="menu-btn active" onclick="switchTab('search-tab')">🔍 Disp ค้นหา / แก้ไขข้อมูล</button>
+        <button class="menu-btn" id="nav-customer-btn" onclick="switchTab('add-customer-tab')">➕ เพิ่มข้อมูลลูกค้า (CRM)</button>
         <button class="menu-btn" onclick="switchTab('add-job-tab')">💼 เพิ่ม/รายการจัดงาน</button>
-        <button class="menu-btn" onclick="switchTab('settings-tab')">⚙️ จัดจัดการข้อมูลพื้นฐาน</button>
+        <button class="menu-btn" onclick="switchTab('settings-tab')">⚙️ จัดการข้อมูลพื้นฐาน</button>
     </div>
 
     <div class="main-content">
         <div id="search-tab" class="tab-content active">
             <div class="card">
-                <div class="card-title">รายการข้อมูลลูกค้าในฐานข้อมูลชีต</div>
+                <div class="card-title">
+                    <span>รายการข้อมูลลูกค้าในฐานข้อมูลชีต</span>
+                    <input type="text" id="search-input" class="search-box" placeholder="🔎 พิมพ์เพื่อค้นหาลูกค้าทันที..." onkeyup="filterCustomerTable()">
+                </div>
                 <table id="customer-table">
                     <thead>
                         <tr>
-                            <th>ชื่อ - สกุล</th><th>ตำบล / อำเภอ</th><th>ประเภท</th><th>สินค้าที่สนใจ</th><th>เบอร์โทร</th><th>จังหวัด</th>
+                            <th>ชื่อ - สกุล</th><th>ตำบล / อำเภอ</th><th>ประเภท</th><th>สินค้าที่สนใจ</th><th>เบอร์โทร</th><th>จังหวัด</th><th>การจัดการ</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td colspan="6" style="text-align:center;">กำลังโหลดข้อมูล...</td></tr>
+                        <tr><td colspan="7" style="text-align:center;">กำลังโหลดข้อมูล...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -75,8 +86,10 @@
 
         <div id="add-customer-tab" class="tab-content">
             <div class="card">
-                <div class="card-title">ฟอร์มบันทึกข้อมูลลูกค้าบุคคล</div>
+                <div class="card-title" id="form-mode-title">ฟอร์มบันทึกข้อมูลลูกค้าบุคคล</div>
                 <form id="customer-form">
+                    <input type="hidden" id="cust-row-index" value="">
+                    
                     <div class="form-grid">
                         <div class="form-group"><label>วัน/เดือน/ปี</label><input type="date" id="cust-date" required></div>
                         <div class="form-group"><label>ชื่อ</label><input type="text" id="cust-fname" placeholder="กรอกชื่อ" required></div>
@@ -92,7 +105,10 @@
                         
                         <div class="form-group full-width"><label>หมายเหตุ</label><textarea id="cust-note" rows="2" placeholder="ระบุรายละเอียดเพิ่มเติม..."></textarea></div>
                     </div>
-                    <div class="btn-container"><button type="submit" class="btn btn-primary">💾 บันทึกข้อมูลลูกค้า</button></div>
+                    <div class="btn-container">
+                        <button type="button" class="btn" style="background:#cbd5e1; color:#334155;" onclick="resetCustomerForm()">🔄 ล้างฟอร์ม</button>
+                        <button type="submit" class="btn btn-primary" id="submit-cust-btn">💾 บันทึกข้อมูลลูกค้า</button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -137,14 +153,17 @@
     </div>
 
     <script>
-        // === สำคัญมาก: นำลิงก์ Web App URL จาก Google Sheet มาใส่ตรงนี้ ===
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbztcF0GGawyqG4LGXTSeI0_o7QyjgoHnutRKiSr8A9mhZmEYQmfsLCcbcWqNea6P_NHcQ/exec';
+        // === นำลิงก์ Web App URL จาก Google Sheet มาใส่ตรงนี้ ===
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzNwdWwWjBVhz_nP0ncPIymfUxRMHxsoZvw8V1qkR0v47yQxujoxr3co5XFryGs-_rmcA/exec';
+
+        let globalCustomersData = [];
 
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
-            if (window.event) window.event.currentTarget.classList.add('active');
+            const currentTrigger = window.event ? window.event.currentTarget : document.getElementById('nav-customer-btn');
+            if(currentTrigger) currentTrigger.classList.add('active');
         }
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -158,7 +177,8 @@
             fetch(`${WEB_APP_URL}?action=getData`)
                 .then(res => res.json())
                 .then(data => {
-                    renderCustomerTable(data.customers || []);
+                    globalCustomersData = data.customers || [];
+                    renderCustomerTable(globalCustomersData);
                     renderGoodsTableAndDropdown(data.goods || []);
                     renderSubdistrictsTable(data.subdistricts || []);
                 });
@@ -167,31 +187,100 @@
         function renderCustomerTable(customers) {
             const tbody = document.querySelector('#customer-table tbody');
             tbody.innerHTML = '';
-            customers.forEach(row => {
+            if(customers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">ไม่พบข้อมูลลูกค้า</td></tr>';
+                return;
+            }
+            // เพิ่มปุ่มแก้ไขในตาราง (ใส่ row index เพื่อชี้เป้าแถวบน Google Sheets ถูกต้อง)
+            customers.forEach((row, index) => {
                 if(!row[1]) return;
-                tbody.innerHTML += `<tr><td><b>${row[1]} ${row[2]}</b></td><td>${row[10] || '-'} / ${row[11] || '-'}</td><td>${row[5]}</td><td>${row[6]}</td><td>${row[3]}</td><td>${row[12]||'อุบลฯ'}</td></tr>`;
+                let badgeClass = 'badge-reg';
+                if(row[5] === 'จอง') badgeClass = 'badge-book';
+                if(row[5] === 'ติดตาม') badgeClass = 'badge-track';
+
+                tbody.innerHTML += `<tr>
+                    <td><b>${row[1]} ${row[2]}</b></td>
+                    <td>${row[10] || '-'} / ${row[11] || '-'}</td>
+                    <td><span class="badge ${badgeClass}">${row[5]}</span></td>
+                    <td>${row[6]}</td>
+                    <td>${row[3]}</td>
+                    <td>${row[12]||'อุบลฯ'}</td>
+                    <td><button class="btn btn-warning" onclick="editCustomerData(${index + 2})">✏️ แก้ไข</button></td>
+                </tr>`;
             });
+        }
+
+        // ฟังก์ชันระบบค้นหาด่วน พิมพ์แล้วกรองตารางทันทีไม่ต้องกดปุ่ม
+        function filterCustomerTable() {
+            const val = document.getElementById('search-input').value.toLowerCase();
+            const filtered = globalCustomersData.filter(row => {
+                return (row[1] && row[1].toLowerCase().includes(val)) || 
+                       (row[2] && row[2].toLowerCase().includes(val)) || 
+                       (row[3] && row[3].toString().includes(val)) || 
+                       (row[10] && row[10].toLowerCase().includes(val)) || 
+                       (row[11] && row[11].toLowerCase().includes(val));
+            });
+            renderCustomerTable(filtered);
+        }
+
+        // ฟังก์ชันเมื่อกดปุ่ม "แก้ไข" ท้ายแถวลูกค้า จะโยนค่าเข้าฟอร์มให้อัตโนมัติ
+        function editCustomerData(sheetRowIndex) {
+            // ค้นหาแถวที่ต้องการจากตัวแปร global (หักลบหัวตารางออก)
+            const targetData = globalCustomersData[sheetRowIndex - 2];
+            if(!targetData) return;
+
+            document.getElementById('cust-row-index').value = sheetRowIndex;
+            document.getElementById('cust-fname').value = targetData[1] || '';
+            document.getElementById('cust-lname').value = targetData[2] || '';
+            document.getElementById('cust-phone1').value = targetData[3] || '';
+            document.getElementById('cust-type').value = targetData[5] || 'ลงทะเบียน';
+            document.getElementById('cust-product').value = targetData[6] || '';
+            document.getElementById('cust-subdistrict').value = targetData[10] || '';
+            document.getElementById('cust-district').value = targetData[11] || '';
+            document.getElementById('cust-province').value = targetData[12] || 'อุบลฯ';
+            document.getElementById('cust-zipcode').value = targetData[13] || '';
+            document.getElementById('cust-note').value = targetData[14] || '';
+
+            // เปลี่ยนหัวข้อฟอร์มและปุ่มบันทึกให้พนักงานรู้ว่ากำลังแก้ไขข้อมูลอยู่
+            document.getElementById('form-mode-title').innerText = "📝 แก้ไขข้อมูลลูกค้า (แถวที่ " + sheetRowIndex + ")";
+            document.getElementById('submit-cust-btn').innerHTML = "💾 อัปเดตข้อมูลลูกค้า";
+            
+            // สลับหน้าไปยังหน้าฟอร์มทันที
+            switchTab('add-customer-tab');
+        }
+
+        function resetCustomerForm() {
+            document.getElementById('customer-form').reset();
+            document.getElementById('cust-row-index').value = '';
+            document.getElementById('cust-date').valueAsDate = new Date();
+            document.getElementById('form-mode-title').innerText = "ฟอร์มบันทึกข้อมูลลูกค้าบุคคล";
+            document.getElementById('submit-cust-btn').innerHTML = "💾 บันทึกข้อมูลลูกค้า";
         }
 
         function handleCustomerSubmit(e) {
             e.preventDefault();
-            // ผูกข้อมูลจังหวัด (cust-province) และรหัสไปรษณีย์ (cust-zipcode) ส่งไปยังชีต
+            const rowIndex = document.getElementById('cust-row-index').value;
             const clientData = {
                 date: document.getElementById('cust-date').value,
                 firstName: document.getElementById('cust-fname').value,
                 lastName: document.getElementById('cust-lname').value,
                 phone1: document.getElementById('cust-phone1').value,
-                phone2: '', 
-                type: document.getElementById('cust-type').value,
+                phone2: '', type: document.getElementById('cust-type').value,
                 product: document.getElementById('cust-product').value,
                 addressNo: '', moo: '', village: '',
                 subdistrict: document.getElementById('cust-subdistrict').value,
                 district: document.getElementById('cust-district').value,
-                province: document.getElementById('cust-province').value, 
-                zipcode: document.getElementById('cust-zipcode').value, 
+                province: document.getElementById('cust-province').value,
+                zipcode: document.getElementById('cust-zipcode').value,
                 note: document.getElementById('cust-note').value
             };
-            sendPostData({ action: 'addCustomer', data: clientData }, 'บันทึกข้อมูลลูกค้าสำเร็จ!');
+            
+            // เช็คว่าเป็นการเพิ่มใหม่ หรือ เป็นการแก้ไขข้อมูลเดิม
+            const actionType = rowIndex ? 'editCustomer' : 'addCustomer';
+            const msg = rowIndex ? 'อัปเดตข้อมูลลูกค้าเรียบร้อย!' : 'บันทึกข้อมูลลูกค้าสำเร็จ!';
+
+            sendPostData({ action: actionType, rowIndex: rowIndex, data: clientData }, msg);
+            resetCustomerForm();
         }
 
         function handleJobSubmit() {
@@ -227,6 +316,7 @@
             }).then(() => {
                 alert(successMessage);
                 loadDataFromGoogleSheets();
+                switchTab('search-tab');
             });
         }
 
