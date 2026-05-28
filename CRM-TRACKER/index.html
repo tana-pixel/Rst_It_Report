@@ -256,7 +256,7 @@
         function triggerServerSearch() {
             const keyword = document.getElementById('search-input').value.trim();
             const tbody = document.querySelector('#customer-table tbody');
-            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">🔍 กำลังสแกนหาข้อมูลความเร็วสูงจากฐานข้อมูล 400,000 แถว...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">🔍 กำลังสแกนหาข้อมูลความเร็วสูงจากฐานข้อมูล RSTYM</td></tr>';
             
             fetch(WEB_APP_URL, {
                 method: 'POST',
