@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRM-TRACKER v3.1</title>
+    <title>CRM-TRACKER v3.2</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -18,6 +18,7 @@
             --text-muted: #64748b;
             --border-color: #e2e8f0;
             --edit-color: #eab308;
+            --print-color: #10b981;
             --table-header: #f1f5f9;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Prompt', sans-serif; }
@@ -28,18 +29,21 @@
         .menu-btn:hover, .menu-btn.active { background-color: var(--primary-color); color: white; }
         .main-content { flex-grow: 1; padding: 30px; overflow-y: auto; }
         .card { background: var(--card-bg); border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 25px; }
-        .card-title { font-size: 18px; font-weight: 500; margin-bottom: 20px; border-left: 4px solid var(--primary-color); padding-left: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .card-title { font-size: 18px; font-weight: 500; margin-bottom: 20px; border-left: 4px solid var(--primary-color); padding-left: 10px; display: flex; justify-content: space-between; align-items: center; gap: 15px; }
+        .search-area { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px; }
         .form-group { display: flex; flex-direction: column; gap: 6px; }
         .form-group.full-width { grid-column: 1 / -1; }
         label { font-size: 14px; color: var(--text-muted); font-weight: 500; }
         input, select, textarea { padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 15px; outline: none; }
         input:focus, select:focus { border-color: var(--primary-color); }
-        .search-box { padding: 10px 16px; border: 2px solid var(--primary-color); border-radius: 8px; font-size: 14px; width: 300px; outline: none; }
+        .search-box { padding: 10px 16px; border: 2px solid var(--primary-color); border-radius: 8px; font-size: 14px; width: 280px; outline: none; }
         .btn-container { display: flex; gap: 12px; justify-content: flex-end; margin-top: 15px; }
-        .btn { padding: 10px 20px; border-radius: 8px; font-size: 15px; font-weight: 500; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 6px; }
+        .btn { padding: 10px 20px; border-radius: 8px; font-size: 15px; font-weight: 500; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.2s; }
         .btn-primary { background-color: var(--primary-color); color: white; }
         .btn-primary:hover { background-color: var(--primary-hover); }
+        .btn-success { background-color: var(--print-color); color: white; }
+        .btn-success:hover { opacity: 0.9; }
         .btn-warning { background-color: var(--edit-color); color: white; padding: 6px 12px; font-size: 13px; border-radius: 6px; }
         .btn-warning:hover { opacity: 0.9; }
         .btn-inline { padding: 8px 15px; height: 42px; margin-top: 24px; }
@@ -53,6 +57,19 @@
         .badge-reg { background-color: #dbeafe; color: #1e40af; }
         .badge-book { background-color: #dcfce7; color: #166534; }
         .badge-track { background-color: #fef9c3; color: #854d0e; }
+        
+        /* CSS พิเศษสำหรับจัดหน้ากระดาษตอนสั่งพิมพ์เลย์เอาต์ */
+        @media print {
+            body { background: white; color: black; }
+            .sidebar, .btn, .search-area, th:last-child, td:last-child, .card-title span:last-child { display: none !important; }
+            .main-content { padding: 0; width: 100%; }
+            .card { box-shadow: none; padding: 0; margin: 0; }
+            .card-title { border: none; padding: 0; margin-bottom: 15px; font-size: 22px; font-weight: bold; justify-content: center; text-align: center; }
+            table { width: 100%; border: 1px solid #000; }
+            th { background-color: #e2e8f0 !important; color: black !important; border: 1px solid #000; }
+            td { border: 1px solid #000; padding: 8px; }
+            .badge { background: none !important; color: black !important; padding: 0; font-weight: bold; }
+        }
     </style>
 </head>
 <body>
@@ -69,13 +86,16 @@
         <div id="search-tab" class="tab-content active">
             <div class="card">
                 <div class="card-title">
-                    <span>รายการข้อมูลลูกค้าในฐานข้อมูลชีต</span>
-                    <input type="text" id="search-input" class="search-box" placeholder="🔎 พิมพ์เพื่อค้นหาลูกค้าทันที..." onkeyup="filterCustomerTable()">
+                    <span>รายงานข้อมูลลูกค้าในฐานข้อมูลชีต</span>
+                    <div class="search-area">
+                        <input type="text" id="search-input" class="search-box" placeholder="🔎 พิมพ์เงื่อนไข (เช่น ไร่น้อย, จอง)..." onkeyup="filterCustomerTable()">
+                        <button class="btn btn-success" onclick="printFilteredReport()">🖨️ พิมพ์รายงานตามตัวกรอง</button>
+                    </div>
                 </div>
                 <table id="customer-table">
                     <thead>
                         <tr>
-                            <th>ชื่อ - สกุล</th><th>ตำบล / อำเภอ</th><th>ประเภท</th><th>สินค้าที่สนใจ</th><th>เบอร์โทร</th><th>จังหวัด</th><th>การจัดการ</th>
+                            <th>ชื่อ - สกุล</th><th>ตำบล / อำเภอ</th><th>ประเภท</th><th>สินค้าที่สนใจ</th><th>เบอร์โทร</th><th>จังหวัด</th><th class="no-print">การจัดการ</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -95,7 +115,7 @@
                         <div class="form-group"><label>ชื่อ</label><input type="text" id="cust-fname" placeholder="กรอกชื่อ" required></div>
                         <div class="form-group"><label>นามสกุล</label><input type="text" id="cust-lname" placeholder="กรอกนามสกุล" required></div>
                         <div class="form-group"><label>เบอร์โทรศัพท์ 1</label><input type="tel" id="cust-phone1" placeholder="08XXXXXXXX"></div>
-                        <div class="form-group"><label>ประเภท (Type)</label><select id="cust-type"><option>ลงทะเบียน</option><option>จอง</option><option>ติดตาม</option></select></div>
+                        <div class="form-group"><label>ประเภท (Type)</label><select id="cust-type"><option>ลงทะเบียน</option><option>จอง</option><option>ติดตาม</option><option>เป้าหมาย</option></select></div>
                         <div class="form-group"><label>สินค้าที่สนใจ</label><select id="cust-product"><option>กำลังโหลด...</option></select></div>
                         <div class="form-group"><label>ตำบล</label><input type="text" id="cust-subdistrict" placeholder="ระบุตำบล"></div>
                         <div class="form-group"><label>อำเภอ</label><input type="text" id="cust-district" placeholder="ระบุอำเภอ"></div>
@@ -171,7 +191,7 @@
 
     <script>
         // === นำลิงก์ Web App URL จาก Google Sheet มาใส่ตรงนี้ ===
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzNwdWwWjBVhz_nP0ncPIymfUxRMHxsoZvw8V1qkR0v47yQxujoxr3co5XFryGs-_rmcA/exec';
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby8gVFiL7zLBF-WzPo0D5YI8zLYfQx-A9WI37gpl9DjEZhZEUjHbHklUEnP3BIs4XYFKg/exec';
 
         let globalCustomersData = [];
         let globalJobsData = [];
@@ -225,12 +245,11 @@
                     <td>${row[6]}</td>
                     <td>${row[3]}</td>
                     <td>${row[12]||'อุบลฯ'}</td>
-                    <td><button class="btn btn-warning" onclick="editCustomerData(${index + 2})">✏️ แก้ไข</button></td>
+                    <td class="no-print"><button class="btn btn-warning" onclick="editCustomerData(${index + 2})">✏️ แก้ไข</button></td>
                 </tr>`;
             });
         }
 
-        // ฟังก์ชันวาดตารางและประมวลผลข้อมูลรายการจัดงาน (Activities)
         function renderJobTable(jobs) {
             const tbody = document.querySelector('#job-table tbody');
             tbody.innerHTML = '';
@@ -239,8 +258,7 @@
                 return;
             }
             jobs.forEach((row) => {
-                if(!row[1]) return; // ข้ามแถวที่ว่าง
-                // ฟอร์แมตวันที่ให้อ่านง่ายขึ้น (กรณีเป็น ISO String)
+                if(!row[1]) return;
                 let formattedDate = row[2];
                 if(row[2] && row[2].includes('T')) {
                     formattedDate = row[2].split('T')[0];
@@ -261,12 +279,12 @@
                        (row[2] && row[2].toLowerCase().includes(val)) || 
                        (row[3] && row[3].toString().includes(val)) || 
                        (row[10] && row[10].toLowerCase().includes(val)) || 
-                       (row[11] && row[11].toLowerCase().includes(val));
+                       (row[11] && row[11].toLowerCase().includes(val)) ||
+                       (row[5] && row[5].toLowerCase().includes(val));
             });
             renderCustomerTable(filtered);
         }
 
-        // ฟังก์ชันระบบค้นหางาน พิมพ์แล้วค้นหาได้ทันที
         function filterJobTable() {
             const val = document.getElementById('search-job-input').value.toLowerCase();
             const filtered = globalJobsData.filter(row => {
@@ -274,6 +292,25 @@
                        (row[3] && row[3].toLowerCase().includes(val));
             });
             renderJobTable(filtered);
+        }
+
+        // ฟังก์ชันสั่งปริ้นรายงานเฉพาะข้อมูลที่กรองอยู่บนหน้าตาราง
+        function printFilteredReport() {
+            const currentSearch = document.getElementById('search-input').value.trim();
+            const originalTitle = document.querySelector('.card-title span').innerText;
+            
+            // ตั้งชื่อหัวกระดาษรายงานตามเงื่อนไขที่ค้นหาเพื่อให้พนักงานไม่งง
+            if(currentSearch) {
+                document.querySelector('.card-title span').innerText = `รายงานข้อมูลลูกค้า (เงื่อนไขตัวกรอง: "${currentSearch}")`;
+            } else {
+                document.querySelector('.card-title span').innerText = `รายงานข้อมูลลูกค้าทั้งหมดในระบบ`;
+            }
+            
+            // เรียกคำสั่งพิมพ์ของระบบปฏิบัติการ
+            window.print();
+            
+            // คืนค่าหัวข้อตารางกลับเป็นเหมือนเดิมหลังจากพิมพ์เสร็จ
+            document.querySelector('.card-title span').innerText = originalTitle;
         }
 
         function editCustomerData(sheetRowIndex) {
