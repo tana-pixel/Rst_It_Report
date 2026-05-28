@@ -81,7 +81,7 @@
 <body>
 
     <div class="sidebar">
-        <h2>RST CRM-TRACKER</h2>
+        <h2>CRM-TRACKER</h2>
         <button class="menu-btn active" onclick="switchTab('search-tab')">🔍 Disp ค้นหา / แก้ไขข้อมูล</button>
         <button class="menu-btn" id="nav-customer-btn" onclick="switchTab('add-customer-tab')">➕ เพิ่มข้อมูลลูกค้า (CRM)</button>
         <button class="menu-btn" onclick="switchTab('add-job-tab')">💼 เพิ่ม/รายการจัดงาน</button>
@@ -212,7 +212,7 @@
 
     <script>
         // === นำลิงก์ Web App URL จาก Google Sheet เวอร์ชัน v4.0 มาใส่ตรงนี้ ===
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxF5ekDUMcbPEyLBxiBHnVqFMmPVbn2CHalenHXqnQqEYGPBQmCgpu-Tj1jWcFSLPt-qg/exec';
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyNaaPMitsLKGfAARG7XmEdZPcVmgnr_MUzPvAGirxNgTDhjz2BitJR8c05HIToexqBZg/exec';
 
         let globalTotalCount = 0; 
         let cachedJobsData = []; // ตัวแปรเก็บข้อมูลงานจัดแสดงในเครื่องชั่วคราวเพื่อทำการค้นหาความเร็วสูง
@@ -256,7 +256,7 @@
         function triggerServerSearch() {
             const keyword = document.getElementById('search-input').value.trim();
             const tbody = document.querySelector('#customer-table tbody');
-            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">🔍 กำลังสแกนหาข้อมูลความเร็วสูงจากฐานข้อมูล RSTYM</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">🔍 กำลังสแกนหาข้อมูลความเร็วสูงจากฐานข้อมูล 400,000 แถว...</td></tr>';
             
             fetch(WEB_APP_URL, {
                 method: 'POST',
