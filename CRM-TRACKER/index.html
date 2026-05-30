@@ -209,7 +209,7 @@
     </div>
 
     <script>
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxisgDCPbEy-_kbGFLnj6LFulm5Z4Xu_c0pVSWlKh7OIXLL0O9_46Sy6FofhwOAxulV3w/exec';
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwjM_pephgQYgRopzpDqqfTDJckotM32oQszUvAM-7wGx2kH-5e4WwZHFyswoV2gLi-6A/exec';
         let globalTotalCount = 0; 
         let currentFetchedCustomers = []; 
 
@@ -316,47 +316,55 @@
         }
 
         // 🎯 ฟังก์ชันพ่นตารางแยกกล่อง ตำบล / อำเภอ / จังหวัด อย่างเที่ยงตรง (ครบ 10 ช่องพิกัด)
-        function renderCustomerTable(customers) {
-            const tbody = document.querySelector('#customer-table tbody');
-            tbody.innerHTML = '';
-            if(!customers || customers.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;">❌ ไม่พบข้อมูลรายชื่อที่ตรงตามตัวกรองข้อความและพื้นที่นี้</td></tr>';
-                return;
-            }
-            customers.forEach((row) => {
-                let typeText = row.type || 'ลงทะเบียน';
-                let badgeClass = 'badge-reg';
-                if(typeText === 'จอง' || typeText === 'จองสินค้า') badgeClass = 'badge-book';
-                if(typeText === 'ติดตาม' || typeText === 'เป้าหมาย') badgeClass = 'badge-track';
-
-                let lineDisplay = row.line && row.line !== '-' ? `<span class="social-link line-text">🟢 ${row.line}</span>` : '-';
-                let fbDisplay = row.facebook && row.facebook !== '-' ? `<span class="social-link fb-text">🔵 ${row.facebook}</span>` : '-';
-
-                tbody.innerHTML += `<tr>
-                    <td><b>${row.name || '-'}</b></td>
-                    <td>${row.subdistrict || '-'}</td>
-                    <td>${row.district || '-'}</td>
-                    <td><span class="badge ${badgeClass}">${typeText}</span></td>
-                    <td>${row.product || '-'}</td>
-                    <td>${row.phone || '-'}</td>
-                    <td>${lineDisplay}</td>
-                    <td>${fbDisplay}</td>
-                    <td>${row.province || '-'}</td>
-                    <td class="no-print">
-                        <button class="btn btn-warning" onclick="editCustomerData(${row.sheetRowIndex})">✏️ แก้ไข</button>
-                    </td>
-                </tr>`;
-            });
+       function renderCustomerTable(customers) {
+    const tbody = document.querySelector('#customer-table tbody');
+    tbody.innerHTML = '';
+    
+    if(!customers || customers.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;">❌ ไม่พบข้อมูลรายชื่อที่ตรงตามตัวกรองข้อความและพื้นที่นี้</td></tr>';
+        return;
+    }
+    
+    customers.forEach((row) => {
+        // 1. 🛑 กรองแถวที่ไม่มีข้อมูลออก (ถ้าชื่อว่าง หรือเป็นเครื่องหมายลบ จะไม่เอามาแสดงในตาราง)
+        let nameText = row.name ? row.name.trim() : '';
+        if (nameText === "" || nameText === "-") {
+            return; // ข้ามแถวนี้ไปทันที
         }
 
-        function clearAllFilters() {
-            document.getElementById('filter-keyword').value = '';
-            document.getElementById('filter-type').value = 'ALL';
-            document.getElementById('filter-subdistrict').value = '';
-            document.getElementById('filter-district').value = '';
-            document.getElementById('filter-province').value = '';
-            triggerServerSearch();
+        // 2. 📱 จัดการเบอร์โทรศัพท์ บังคับให้มีเลข 0 นำหน้าเสมอ
+        let phoneText = row.phone ? row.phone.toString().trim() : '';
+        if (phoneText && phoneText !== "-" && !phoneText.startsWith('0')) {
+            phoneText = '0' + phoneText;
         }
+
+        // ตั้งค่าประเภทลูกค้าและสี Badge ตามโครงสร้างเดิม
+        let typeText = row.type || 'ลงทะเบียน';
+        let badgeClass = 'badge-reg';
+        if(typeText === 'จอง' || typeText === 'จองสินค้า') badgeClass = 'badge-book';
+        if(typeText === 'ติดตาม' || typeText === 'เป้าหมาย') badgeClass = 'badge-track';
+
+        // รักษาดีไซน์ป้ายโซเชียลมีเดีย 🟢 Line / 🔵 FB ของคุณไว้ตามเดิม
+        let lineDisplay = row.line && row.line !== '-' ? `<span class="social-link line-text">🟢 ${row.line}</span>` : '-';
+        let fbDisplay = row.facebook && row.facebook !== '-' ? `<span class="social-link fb-text">🔵 ${row.facebook}</span>` : '-';
+
+        // 3. 🎯 วาดข้อมูลลงล็อกตาราง 10 คอลัมน์อย่างแม่นยำ
+        tbody.innerHTML += `<tr>
+            <td><b>${nameText}</b></td>
+            <td>${row.subdistrict || '-'}</td>
+            <td>${row.district || '-'}</td>
+            <td><span class="badge ${badgeClass}">${typeText}</span></td>
+            <td>${row.product || '-'}</td>
+            <td><b style="color: #1e3a8a; font-size: 14px;">${phoneText || '-'}</b></td>
+            <td>${lineDisplay}</td>
+            <td>${fbDisplay}</td>
+            <td>${row.province || '-'}</td>
+            <td class="no-print">
+                <button class="btn btn-warning" onclick="editCustomerData(${row.sheetRowIndex})">✏️ แก้ไข</button>
+            </td>
+        </tr>`;
+    });
+}
 
         function editCustomerData(sheetRowIndex) {
             if(!sheetRowIndex) return;
