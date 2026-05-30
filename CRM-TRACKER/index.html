@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRM-TRACKER v5.2 (Perfect Split Column)</title>
+    <title>CRM-TRACKER v5.3 (Address Split Columns)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght=300;400;500;600&display=swap" rel="stylesheet">
@@ -57,9 +57,9 @@
         .badge-info-display { background-color: #f0fdf4; color: #166534; }
 
         .table-responsive { width: 100%; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
-        th { background-color: var(--table-header); color: #475569; padding: 12px 16px; font-weight: 600; border-bottom: 2px solid var(--border-color); }
-        td { padding: 12px 16px; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; white-space: nowrap; }
+        th { background-color: var(--table-header); color: #475569; padding: 12px 14px; font-weight: 600; border-bottom: 2px solid var(--border-color); }
+        td { padding: 12px 14px; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
         
         .badge { padding: 4px 12px; border-radius: 6px; font-size: 13px; font-weight: 500; display: inline-block; text-align: center; }
         .badge-reg { background-color: #dbeafe; color: #1e40af; }
@@ -159,19 +159,22 @@
                         <thead>
                             <tr>
                                 <th>ชื่อ - สกุล</th>
+                                <th>บ้านเลขที่</th>
+                                <th>หมู่ที่</th>
+                                <th>ชื่อหมู่บ้าน</th>
                                 <th>ตำบล</th>
                                 <th>อำเภอ</th>
+                                <th>จังหวัด</th>
                                 <th>ประเภท</th>
                                 <th>สินค้าที่สนใจ</th>
                                 <th>เบอร์โทร</th>
                                 <th>LINE ID</th>
                                 <th>Facebook</th>
-                                <th>จังหวัด</th>
-                                <th class="no-print">การจัดการ</th>
+                                <th>หมายเหตุ (Remark)</th> <th class="no-print">การจัดการ</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr><td colspan="10" style="text-align:center;">กรุณากดปุ่ม "ดึงข้อมูลจากฐานใหญ่" เพื่อดึงรายชื่อลูกค้าล่าสุด</td></tr>
+                            <tr><td colspan="14" style="text-align:center;">กรุณากดปุ่ม "ดึงข้อมูลจากฐานใหญ่" เพื่อดึงรายชื่อลูกค้าล่าสุด</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -190,6 +193,11 @@
                         <div class="form-group"><label>เบอร์โทรศัพท์ 1</label><input type="tel" id="cust-phone1" class="form-control"></div>
                         <div class="form-group"><label>ประเภท (Type)</label><select id="cust-type" class="form-control"><option>ลงทะเบียน</option><option>เป้าหมาย</option><option>จอง</option><option>ติดตาม</option></select></div>
                         <div class="form-group"><label>สินค้าที่สนใจ</label><select id="cust-product" class="form-control"><option value="">-- เลือกสินค้า --</option></select></div>
+                        
+                        <div class="form-group"><label>บ้านเลขที่</label><input type="text" id="cust-addressno" class="form-control" placeholder="เช่น 5"></div>
+                        <div class="form-group"><label>หมู่ที่</label><input type="text" id="cust-moo" class="form-control" placeholder="เช่น 10"></div>
+                        <div class="form-group"><label>ชื่อหมู่บ้าน</label><input type="text" id="cust-village" class="form-control" placeholder="เช่น บ้านหนองบัว"></div>
+                        
                         <div class="form-group"><label>ตำบล</label><input type="text" id="cust-subdistrict" class="form-control"></div>
                         <div class="form-group"><label>อำเภอ</label><input type="text" id="cust-district" class="form-control"></div>
                         <div class="form-group"><label>จังหวัด</label><input type="text" id="cust-province" class="form-control" value="อุบลฯ"></div>
@@ -209,7 +217,7 @@
     </div>
 
     <script>
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwjM_pephgQYgRopzpDqqfTDJckotM32oQszUvAM-7wGx2kH-5e4WwZHFyswoV2gLi-6A/exec';
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbw_wYHNVYbZRqBhDE3-QPHs1uclMJxBf7FAdD4_ZPvjKn1ARPzsFFE4XmJl6-Kvp0Oa/exec';
         let globalTotalCount = 0; 
         let currentFetchedCustomers = []; 
 
@@ -265,10 +273,19 @@
             if (e.key === 'Enter') { triggerServerSearch(); }
         }
 
+        function clearAllFilters() {
+            document.getElementById('filter-keyword').value = '';
+            document.getElementById('filter-type').value = 'ALL';
+            document.getElementById('filter-subdistrict').value = '';
+            document.getElementById('filter-district').value = '';
+            document.getElementById('filter-province').value = '';
+            applyAdvancedFilters();
+        }
+
         function triggerServerSearch() {
             const keyword = document.getElementById('filter-keyword').value.trim();
             const tbody = document.querySelector('#customer-table tbody');
-            tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;">🔍 กำลังกวาดข้อมูลอัปเดตล่าสุดจากฐานระบบใหญ่...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="14" style="text-align:center;">🔍 กำลังกวาดข้อมูลอัปเดตล่าสุดจากฐานระบบใหญ่...</td></tr>';
             
             fetch(WEB_APP_URL, {
                 method: 'POST',
@@ -285,10 +302,10 @@
                         updateTotalUI(globalTotalCount);
                     }
                 } else {
-                    tbody.innerHTML = `<tr><td colspan="10" style="text-align:center; color:red;">❌ ข้อผิดพลาด: ${resData.message}</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="14" style="text-align:center; color:red;">❌ ข้อผิดพลาด: ${resData.message}</td></tr>`;
                 }
             }).catch(()=>{
-                tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; color:red;">🛑 เกิดข้อผิดพลาดเชื่อมต่อฐานข้อมูลล้มเหลว</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="14" style="text-align:center; color:red;">🛑 เกิดข้อผิดพลาดเชื่อมต่อฐานข้อมูลล้มเหลว</td></tr>';
             });
         }
 
@@ -315,56 +332,55 @@
             renderCustomerTable(filtered);
         }
 
-        // 🎯 ฟังก์ชันพ่นตารางแยกกล่อง ตำบล / อำเภอ / จังหวัด อย่างเที่ยงตรง (ครบ 10 ช่องพิกัด)
-       function renderCustomerTable(customers) {
-    const tbody = document.querySelector('#customer-table tbody');
-    tbody.innerHTML = '';
-    
-    if(!customers || customers.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;">❌ ไม่พบข้อมูลรายชื่อที่ตรงตามตัวกรองข้อความและพื้นที่นี้</td></tr>';
-        return;
-    }
-    
-    customers.forEach((row) => {
-        // 1. 🛑 กรองแถวที่ไม่มีข้อมูลออก (ถ้าชื่อว่าง หรือเป็นเครื่องหมายลบ จะไม่เอามาแสดงในตาราง)
-        let nameText = row.name ? row.name.trim() : '';
-        if (nameText === "" || nameText === "-") {
-            return; // ข้ามแถวนี้ไปทันที
+        function renderCustomerTable(customers) {
+            const tbody = document.querySelector('#customer-table tbody');
+            tbody.innerHTML = '';
+            
+            if(!customers || customers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="14" style="text-align:center;">❌ ไม่พบข้อมูลรายชื่อที่ตรงตามตัวกรองข้อความและพื้นที่นี้</td></tr>';
+                return;
+            }
+            
+            customers.forEach((row) => {
+                let nameText = row.name ? row.name.trim() : '';
+                if (nameText === "" || nameText === "-") {
+                    return; 
+                }
+
+                let phoneText = row.phone ? row.phone.toString().trim() : '';
+                if (phoneText && phoneText !== "-" && !phoneText.startsWith('0')) {
+                    phoneText = '0' + phoneText;
+                }
+
+                let typeText = row.type || 'ลงทะเบียน';
+                let badgeClass = 'badge-reg';
+                if(typeText === 'จอง' || typeText === 'จองสินค้า') badgeClass = 'badge-book';
+                if(typeText === 'ติดตาม' || typeText === 'เป้าหมาย') badgeClass = 'badge-track';
+
+                let lineDisplay = row.line && row.line !== '-' ? `<span class="social-link line-text">🟢 ${row.line}</span>` : '-';
+                let fbDisplay = row.facebook && row.facebook !== '-' ? `<span class="social-link fb-text">🔵 ${row.facebook}</span>` : '-';
+
+                // 🎯 เพิ่มกล่องแสดงผลหมายเหตุ row.note เข้าบล็อกตารางแถวรองสุดท้าย
+                tbody.innerHTML += `<tr>
+                    <td><b>${nameText}</b></td>
+                    <td>${row.addressno || '-'}</td>
+                    <td>${row.moo || '-'}</td>
+                    <td>${row.village || '-'}</td>
+                    <td>${row.subdistrict || '-'}</td>
+                    <td>${row.district || '-'}</td>
+                    <td>${row.province || '-'}</td>
+                    <td><span class="badge ${badgeClass}">${typeText}</span></td>
+                    <td>${row.product || '-'}</td>
+                    <td><b style="color: #1e3a8a; font-size: 14px;">${phoneText || '-'}</b></td>
+                    <td>${lineDisplay}</td>
+                    <td>${fbDisplay}</td>
+                    <td><span style="color: #64748b; font-size: 13px; max-width: 200px; display: inline-block; overflow: hidden; text-overflow: ellipsis;">${row.note || '-'}</span></td>
+                    <td class="no-print">
+                        <button class="btn btn-warning" onclick="editCustomerData(${row.sheetRowIndex})">✏️ แก้ไข</button>
+                    </td>
+                </tr>`;
+            });
         }
-
-        // 2. 📱 จัดการเบอร์โทรศัพท์ บังคับให้มีเลข 0 นำหน้าเสมอ
-        let phoneText = row.phone ? row.phone.toString().trim() : '';
-        if (phoneText && phoneText !== "-" && !phoneText.startsWith('0')) {
-            phoneText = '0' + phoneText;
-        }
-
-        // ตั้งค่าประเภทลูกค้าและสี Badge ตามโครงสร้างเดิม
-        let typeText = row.type || 'ลงทะเบียน';
-        let badgeClass = 'badge-reg';
-        if(typeText === 'จอง' || typeText === 'จองสินค้า') badgeClass = 'badge-book';
-        if(typeText === 'ติดตาม' || typeText === 'เป้าหมาย') badgeClass = 'badge-track';
-
-        // รักษาดีไซน์ป้ายโซเชียลมีเดีย 🟢 Line / 🔵 FB ของคุณไว้ตามเดิม
-        let lineDisplay = row.line && row.line !== '-' ? `<span class="social-link line-text">🟢 ${row.line}</span>` : '-';
-        let fbDisplay = row.facebook && row.facebook !== '-' ? `<span class="social-link fb-text">🔵 ${row.facebook}</span>` : '-';
-
-        // 3. 🎯 วาดข้อมูลลงล็อกตาราง 10 คอลัมน์อย่างแม่นยำ
-        tbody.innerHTML += `<tr>
-            <td><b>${nameText}</b></td>
-            <td>${row.subdistrict || '-'}</td>
-            <td>${row.district || '-'}</td>
-            <td><span class="badge ${badgeClass}">${typeText}</span></td>
-            <td>${row.product || '-'}</td>
-            <td><b style="color: #1e3a8a; font-size: 14px;">${phoneText || '-'}</b></td>
-            <td>${lineDisplay}</td>
-            <td>${fbDisplay}</td>
-            <td>${row.province || '-'}</td>
-            <td class="no-print">
-                <button class="btn btn-warning" onclick="editCustomerData(${row.sheetRowIndex})">✏️ แก้ไข</button>
-            </td>
-        </tr>`;
-    });
-}
 
         function editCustomerData(sheetRowIndex) {
             if(!sheetRowIndex) return;
@@ -388,6 +404,11 @@
                         document.getElementById('cust-phone1').value = client[3] || '';
                         document.getElementById('cust-type').value = client[5] || 'ลงทะเบียน';
                         document.getElementById('cust-product').value = client[6] || '';
+                        
+                        document.getElementById('cust-addressno').value = client[7] || '';
+                        document.getElementById('cust-moo').value = client[8] || '';
+                        document.getElementById('cust-village').value = client[9] || '';
+                        
                         document.getElementById('cust-subdistrict').value = client[10] || '';
                         document.getElementById('cust-district').value = client[11] || '';
                         document.getElementById('cust-province').value = client[12] || 'อุบลฯ';
@@ -409,13 +430,18 @@
         function handleCustomerSubmit(e) {
             e.preventDefault();
             const rowIndex = document.getElementById('cust-row-index').value;
+            
             const clientDataArr = [
                 document.getElementById('cust-date').value,
                 document.getElementById('cust-fname').value,
                 document.getElementById('cust-lname').value,
-                document.getElementById('cust-phone1').value, '',
+                document.getElementById('cust-phone1').value, 
+                '', 
                 document.getElementById('cust-type').value,
-                document.getElementById('cust-product').value, '', '', '',
+                document.getElementById('cust-product').value, 
+                document.getElementById('cust-addressno').value,
+                document.getElementById('cust-moo').value,
+                document.getElementById('cust-village').value,
                 document.getElementById('cust-subdistrict').value,
                 document.getElementById('cust-district').value,
                 document.getElementById('cust-province').value,
@@ -424,6 +450,7 @@
                 document.getElementById('cust-line').value,
                 document.getElementById('cust-facebook').value
             ];
+            
             if (rowIndex) {
                 sendPostData({ action: 'editCustomer', rowIndex: rowIndex, arrayData: clientDataArr }, '✏️ อัปเดตข้อมูลเรียบร้อย!');
             } else {
