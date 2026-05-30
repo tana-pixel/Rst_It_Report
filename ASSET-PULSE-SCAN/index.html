@@ -2,7 +2,9 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <title>ระบบจัดซื้ออะไหล่มาตรฐาน & สแกนบาร์โค้ด (SME & Remarks Update)</title>
+    <title>ระบบจัดซื้ออะไหล่มาตรฐาน & สแกนบาร์โค้ดจริงผ่านกล้อง</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    
     <style>
         @page {
             size: A4 landscape;
@@ -77,11 +79,11 @@
         }
 
         .col-sidebar {
-            width: 30%;
+            width: 32%;
         }
 
         .col-main {
-            width: 70%;
+            width: 68%;
         }
 
         /* Card Component Styling */
@@ -104,44 +106,14 @@
             border-bottom: 2px solid #edf2f7;
         }
 
-        /* Mock UI Elements */
-        .scanner-viewport {
-            background-color: #000000;
+        /* Scanner Area */
+        #reader {
+            width: 100%;
+            background-color: #000;
             border-radius: 6px;
-            height: 130px;
-            position: relative;
-            overflow: hidden;
-            margin-bottom: 15px;
             border: 2px solid #3b82f6;
-        }
-
-        .scanner-laser {
-            position: absolute;
-            top: 50%;
-            left: 5%;
-            width: 90%;
-            height: 2px;
-            background-color: #ef4444;
-            box-shadow: 0 0 8px #ef4444;
-            animation: laserScan 2s infinite ease-in-out;
-        }
-
-        @keyframes laserScan {
-            0% { top: 10%; }
-            50% { top: 90%; }
-            100% { top: 10%; }
-        }
-
-        .scanner-overlay {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.4);
-            text-align: center;
-            color: #ffffff;
-            padding-top: 50px;
-            font-size: 9.5pt;
-            font-weight: bold;
-            letter-spacing: 1px;
+            overflow: hidden;
+            margin-bottom: 10px;
         }
 
         /* Form Controls */
@@ -188,13 +160,9 @@
             cursor: pointer;
         }
 
-        .btn-success {
-            background-color: #16a34a;
-        }
-        
-        .btn-success:hover {
-            background-color: #15803d;
-        }
+        .btn-success { background-color: #16a34a; }
+        .btn-success:hover { background-color: #15803d; }
+        .btn-scan { background-color: #0f172a; margin-bottom: 10px; }
 
         /* Status Indicator Badge */
         .badge {
@@ -231,26 +199,9 @@
             vertical-align: middle;
         }
 
-        .data-table tr:nth-child(even) td {
-            background-color: #f8fafc;
-        }
-        
-        .data-table tr:hover td {
-            background-color: #f1f5f9;
-            cursor: pointer;
-        }
-
+        .data-table tr:nth-child(even) td { background-color: #f8fafc; }
+        .data-table tr:hover td { background-color: #f1f5f9; cursor: pointer; }
         .text-center { text-align: center; }
-        .text-right { text-align: right; }
-        
-        .meta-info-box {
-            background-color: #fdf2f8;
-            border-left: 4px solid #db2777;
-            padding: 8px 10px;
-            margin-bottom: 15px;
-            font-size: 9pt;
-            border-radius: 0 6px 6px 0;
-        }
     </style>
 </head>
 <body>
@@ -258,8 +209,8 @@
     <div class="app-header">
         <div class="header-grid">
             <div class="header-cell">
-                <div class="app-title">⚙️ Smart Part Scanner Dashboard (v2)</div>
-                <div class="app-subtitle">ระบบสแกนรับเข้าและขอซื้ออะไหล่มาตรฐานพร้อมฟิลด์ SME และหมายเหตุ (Google Sheets Live Sync)</div>
+                <div class="app-title">⚙️ Smart Part Scanner Dashboard (กล้องจริง)</div>
+                <div class="app-subtitle">ระบบสแกนผ่านกล้องมือถือและขอซื้ออะไหล่มาตรฐาน (Google Sheets Live Sync)</div>
             </div>
             <div class="header-cell header-right">
                 <div><strong>ใบขอซื้อเลขที่:</strong> TK69/21...</div>
@@ -274,14 +225,13 @@
         <div class="layout-column col-sidebar">
             
             <div class="card">
-                <div class="card-title">🎥 กล้องสแกนบาร์โค้ด</div>
-                <div class="scanner-viewport">
-                    <div class="scanner-laser"></div>
-                    <div class="scanner-overlay">สแกนผ่านกล้องมือถือ / เว็บแคม</div>
-                </div>
+                <div class="card-title">🎥 กล้องสแกนบาร์โค้ดจริง</div>
+                <div id="reader"></div>
+                <button type="button" class="btn btn-scan" onclick="startScanner()">🔄 เปิด/สลับกล้องหลังมือถือ</button>
+                
                 <div class="form-group">
                     <label>รหัสที่สแกนได้ล่าสุด</label>
-                    <input type="text" id="partId" class="form-input" value="148210-49120" style="font-weight: bold; color: #2563eb; text-align: center;">
+                    <input type="text" id="partId" class="form-input" value="" style="font-weight: bold; color: #2563eb; text-align: center;" placeholder="รหัสบาร์โค้ดจะเด้งเข้าที่นี่">
                 </div>
             </div>
 
@@ -290,17 +240,17 @@
                 
                 <div class="form-group">
                     <label>ชื่ออะไหล่</label>
-                    <input type="text" id="partName" class="form-input" value="ประเก็นฝาจ้างตัวการลดกระแทก">
+                    <input type="text" id="partName" class="form-input" value="" placeholder="ระบบจะดึงชื่อออโต้ หรือพิมพ์เองกรณีสินค้าใหม่">
                 </div>
                 
                 <div class="form-group" style="display: table; width: 100%;">
                     <div style="display: table-cell; width: 48%; padding-right: 4%;">
                         <label>Stock เดิม</label>
-                        <input type="number" id="stock" class="form-input" value="1">
+                        <input type="number" id="stock" class="form-input" value="0">
                     </div>
                     <div style="display: table-cell; width: 48%;">
                         <label>จำนวนขอซื้อ</label>
-                        <input type="number" id="quantity" class="form-input" value="5" style="border-color: #3b82f6; font-weight: bold;">
+                        <input type="number" id="quantity" class="form-input" value="1" style="border-color: #3b82f6; font-weight: bold;">
                     </div>
                 </div>
 
@@ -316,16 +266,14 @@
 
                 <button type="button" onclick="sendDataToGoogleSheet()" class="btn btn-success">✓ บันทึกลง Google Sheet</button>
             </div>
-
         </div>
 
         <div class="layout-column col-main">
-            
             <div class="card" style="margin-bottom: 0;">
                 <div class="card-title" style="display: table; width: 100%;">
-                    <div style="display: table-cell;">📊 ตารางรายการอะไหล่ในระบบ (คลิกเลือกแถวเพื่อดึงข้อมูลเข้าฟอร์มได้)</div>
+                    <div style="display: table-cell;">📊 ตารางอ้างอิงรายการอะไหล่ในระบบ</div>
                     <div style="display: table-cell; text-align: right;">
-                        <span class="badge badge-primary">รวมทั้งหมด 13 รายการ</span>
+                        <span class="badge badge-primary">รวมทั้งหมด 3 รายการตัวอย่าง</span>
                     </div>
                 </div>
                 
@@ -333,146 +281,91 @@
                     <thead>
                         <tr>
                             <th class="text-center" style="width: 5%;">ลำดับ</th>
-                            <th style="width: 18%;">รหัสอะไหล่</th>
-                            <th style="width: 32%;">ชื่ออะไหล่</th>
-                            <th class="text-center" style="width: 8%;">Stock</th>
+                            <th style="width: 25%;">รหัสอะไหล่ (Barcode)</th>
+                            <th style="width: 35%;">ชื่ออะไหล่</th>
+                            <th class="text-center" style="width: 10%;">Stock</th>
                             <th class="text-center" style="width: 10%;">จำนวน</th>
-                            <th style="width: 10%;">SME</th>
-                            <th style="width: 17%;">หมายเหตุ</th>
+                            <th style="width: 15%;">SME</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="inventory-list">
                         <tr onclick="selectRow('24911-000200', 'แหวนยาง 1AP-20.0', 0, 10)">
                             <td class="text-center">1</td>
                             <td><strong>24911-000200</strong></td>
                             <td>แหวนยาง 1AP-20.0</td>
                             <td class="text-center">0</td>
-                            <td class="text-center" style="font-weight: bold; color: #16a34a;">10</td>
+                            <td class="text-center">10</td>
                             <td>-</td>
-                            <td style="color: #94a3b8; font-size: 8.5pt;">-</td>
-                        </tr>
-                        <tr onclick="selectRow('198200-96422', 'ฝาครอบเกียร์', 0, 15)">
-                            <td class="text-center">2</td>
-                            <td><strong>198200-96422</strong></td>
-                            <td>ฝาครอบเกียร์</td>
-                            <td class="text-center">0</td>
-                            <td class="text-center" style="font-weight: bold; color: #16a34a;">15</td>
-                            <td>-</td>
-                            <td style="color: #94a3b8; font-size: 8.5pt;">-</td>
                         </tr>
                         <tr onclick="selectRow('148210-49120', 'ประเก็นฝาจ้างตัวการลดกระแทก', 1, 5)">
-                            <td class="text-center">3</td>
+                            <td class="text-center">2</td>
                             <td><strong>148210-49120</strong></td>
                             <td>ประเก็นฝาจ้างตัวการลดกระแทก</td>
                             <td class="text-center">1</td>
-                            <td class="text-center" style="font-weight: bold; color: #16a34a;">5</td>
-                            <td>-</td>
-                            <td style="color: #94a3b8; font-size: 8.5pt;">-</td>
-                        </tr>
-                        <tr onclick="selectRow('148210-21610', 'แผ่นกดคลัตช์ EF39', 1, 5)">
-                            <td class="text-center">4</td>
-                            <td><strong>148210-21610</strong></td>
-                            <td>แผ่นกดคลัตช์ EF39</td>
-                            <td class="text-center">1</td>
-                            <td class="text-center" style="font-weight: bold; color: #16a34a;">5</td>
-                            <td>-</td>
-                            <td style="color: #94a3b8; font-size: 8.5pt;">-</td>
-                        </tr>
-                        <tr onclick="selectRow('148210-21700', 'แหวนลูกลอกกดคลัตช์ เบอร์ 1', 0, 3)">
                             <td class="text-center">5</td>
-                            <td><strong>148210-21700</strong></td>
-                            <td>แหวนลูกลอกกดคลัตช์ เบอร์ 1</td>
-                            <td class="text-center">0</td>
-                            <td class="text-center" style="font-weight: bold; color: #16a34a;">3</td>
                             <td>-</td>
-                            <td style="color: #94a3b8; font-size: 8.5pt;">-</td>
-                        </tr>
-                        <tr onclick="selectRow('198260-22210', 'ลูกปืนกดคลัตช์', 1, 5)">
-                            <td class="text-center">6</td>
-                            <td><strong>198260-22210</strong></td>
-                            <td>ลูกปืนกดคลัตช์</td>
-                            <td class="text-center">1</td>
-                            <td class="text-center" style="font-weight: bold; color: #16a34a;">5</td>
-                            <td>-</td>
-                            <td style="color: #94a3b8; font-size: 8.5pt;">-</td>
-                        </tr>
-                        <tr onclick="selectRow('25132-003900', 'สายพานพัดลม EF39', 1, 5)">
-                            <td class="text-center">7</td>
-                            <td><strong>25132-003900</strong></td>
-                            <td>สายพานพัดลม EF39</td>
-                            <td class="text-center">1</td>
-                            <td class="text-center" style="font-weight: bold; color: #16a34a;">5</td>
-                            <td>-</td>
-                            <td style="color: #94a3b8; font-size: 8.5pt;">-</td>
-                        </tr>
-                        <tr onclick="selectRow('900-501-001-403', 'สายไฮโดรลิก สายใต้หม้อลม 06-06', 0, 6)">
-                            <td class="text-center">8</td>
-                            <td><strong>900-501-001-403</strong></td>
-                            <td>สายไฮโดรลิก สายใต้หม้อลม 06-06</td>
-                            <td class="text-center">0</td>
-                            <td class="text-center" style="font-weight: bold; color: #16a34a;">6</td>
-                            <td>-</td>
-                            <td style="color: #94a3b8; font-size: 8.5pt;">-</td>
-                        </tr>
-                        <tr onclick="selectRow('148240-05120', 'กรองอากาศตัวใน YM351', 0, 5)">
-                            <td class="text-center">9</td>
-                            <td><strong>148240-05120</strong></td>
-                            <td>กรองอากาศตัวใน YM351</td>
-                            <td class="text-center">0</td>
-                            <td class="text-center" style="font-weight: bold; color: #16a34a;">5</td>
-                            <td>-</td>
-                            <td style="color: #94a3b8; font-size: 8.5pt;">-</td>
-                        </tr>
-                        <tr onclick="selectRow('148240-05110', 'กรองอากาศตัวนอก YM351', 2, 9)">
-                            <td class="text-center">10</td>
-                            <td><strong>148240-05110</strong></td>
-                            <td>กรองอากาศตัวนอก YM351</td>
-                            <td class="text-center">2</td>
-                            <td class="text-center" style="font-weight: bold; color: #16a34a;">9</td>
-                            <td>-</td>
-                            <td style="color: #94a3b8; font-size: 8.5pt;">-</td>
-                        </tr>
-                        <tr onclick="selectRow('198189-27300', 'แหวนเปลี่ยนเกียร์ตัวใน EF451', 0, 5)">
-                            <td class="text-center">11</td>
-                            <td><strong>198189-27300</strong></td>
-                            <td>แหวนเปลี่ยนเกียร์ตัวใน EF451</td>
-                            <td class="text-center">0</td>
-                            <td class="text-center" style="font-weight: bold; color: #16a34a;">5</td>
-                            <td>-</td>
-                            <td style="color: #94a3b8; font-size: 8.5pt;">-</td>
-                        </tr>
-                        <tr onclick="selectRow('900-601-000-121', 'สลักตีนผี 45-49', 1, 5)">
-                            <td class="text-center">12</td>
-                            <td><strong>900-601-000-121</strong></td>
-                            <td>สลักตีนผี 45-49</td>
-                            <td class="text-center">1</td>
-                            <td class="text-center" style="font-weight: bold; color: #16a34a;">5</td>
-                            <td>-</td>
-                            <td style="color: #94a3b8; font-size: 8.5pt;">-</td>
                         </tr>
                         <tr onclick="selectRow('198320-45220', 'ท่อยาง EF49', 0, 4)">
-                            <td class="text-center">13</td>
+                            <td class="text-center">3</td>
                             <td><strong>198320-45220</strong></td>
                             <td>ท่อยาง EF49</td>
                             <td class="text-center">0</td>
-                            <td class="text-center" style="font-weight: bold; color: #16a34a;">4</td>
+                            <td class="text-center">4</td>
                             <td>-</td>
-                            <td style="color: #94a3b8; font-size: 8.5pt;">-</td>
                         </tr>
                     </tbody>
                 </table>
-
             </div>
-
         </div>
-
     </div>
 
     <script>
-        // 1. นำ URL เว็บแอปที่ได้จากการ Deploy ในขั้นตอนก่อนหน้ามาวางแทนที่ตรงนี้ครับ
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx58lf4ksSKjQZcd3ccvYIH8zqIv4sQRx0bF2OL5IpmL7Hox_VLxSPJ4f1HBeCFTg9IHQ/exec";
+        // ⚠️ วาง URL เว็บแอป Google Script ของคุณตรงนี้
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyz2JuuZOqBgm0_FM8KO0gzcXQEA2IiAwRT2NfBtWUCmeZabxdmp2pPyA3RW3CGUbFsbA/exec";
 
-        // ฟังก์ชันเมื่อคลิกเลือกแถวในตาราง ให้ข้อมูลวิ่งมาที่ฟอร์มด้านซ้ายอัตโนมัติ
+        // คลังข้อมูลจำลองในเว็บ (ถ้าสแกนเจอเลขตรงนี้ ระบบจะกรอกชื่อออโต้ทันที)
+        const localInventory = {
+            "24911-000200": { name: "แหวนยาง 1AP-20.0", stock: 0, qty: 10 },
+            "148210-49120": { name: "ประเก็นฝาจ้างตัวการลดกระแทก", stock: 1, qty: 5 },
+            "198320-45220": { name: "ท่อยาง EF49", stock: 0, qty: 4 }
+        };
+
+        let html5QrcodeScanner;
+
+        // ฟังก์ชันเริ่มเปิดกล้องมือถือ
+        function startScanner() {
+            if(html5QrcodeScanner) { html5QrcodeScanner.clear(); }
+            
+            html5QrcodeScanner = new Html5Qrcode("reader");
+            
+            // ตั้งค่าให้บังคับใช้กล้องหลังมือถือ (environment) เพื่อความสะดวกในการสแกนวัตถุ
+            html5QrcodeScanner.start(
+                { facingMode: "environment" }, 
+                { fps: 10, qrbox: { width: 250, height: 150 } },
+                (decodedText) => {
+                    // ยิงฟังก์ชันนี้เมื่อสแกนบาร์โค้ดสำเร็จ
+                    document.getElementById('partId').value = decodedText;
+                    
+                    // ลองเช็คว่ามีในคลังข้อมูลเดิมไหม
+                    if(localInventory[decodedText]) {
+                        document.getElementById('partName').value = localInventory[decodedText].name;
+                        document.getElementById('stock').value = localInventory[decodedText].stock;
+                        document.getElementById('quantity').value = localInventory[decodedText].qty;
+                    } else {
+                        // หากเป็นสินค้าใหม่ (บาร์โค้ดใหม่) จะเว้นช่องชื่อไว้ให้พิมพ์สดหน้างาน
+                        document.getElementById('partName').value = "";
+                        document.getElementById('partName').placeholder = "🆕 พบสินค้าใหม่! กรุณาพิมพ์ชื่อสินค้าที่นี่";
+                        document.getElementById('stock').value = "0";
+                        document.getElementById('quantity').value = "1";
+                    }
+                    
+                    // สั่นเบาๆ เพื่อเตือนว่าสแกนติดแล้ว (ทำงานบน Android บางรุ่น)
+                    if(navigator.vibrate) navigator.vibrate(100);
+                },
+                (errorMessage) => { /* ปิด log ความผิดพลาดเพื่อลดภาระเครื่อง */ }
+            ).catch(err => alert("❌ ไม่สามารถเข้าถึงกล้องได้: " + err));
+        }
+
         function selectRow(partId, partName, stock, quantity) {
             document.getElementById('partId').value = partId;
             document.getElementById('partName').value = partName;
@@ -480,9 +373,7 @@
             document.getElementById('quantity').value = quantity;
         }
 
-        // ฟังก์ชันส่งข้อมูลไปยัง Google Sheets ผ่าน Web App URL
         function sendDataToGoogleSheet() {
-            // ดึงค่าล่าสุดจากช่อง Input ต่างๆ บนหน้าจอ
             const pId = document.getElementById('partId').value;
             const pName = document.getElementById('partName').value;
             const pStock = document.getElementById('stock').value;
@@ -490,13 +381,11 @@
             const pSme = document.getElementById('sme').value;
             const pRemarks = document.getElementById('remarks').value;
 
-            // ตรวจสอบความถูกต้องเบื้องต้น
             if (!pId || !pName) {
-                alert("❌ กรุณาเลือกรายการอะไหล่หรือระบุรหัส/ชื่ออะไหล่ก่อนบันทึก");
+                alert("❌ กรุณาสแกนหรือระบุรหัสและชื่ออะไหล่ก่อนบันทึก");
                 return;
             }
 
-            // จัดกลุ่มข้อมูลเป็นรูปแบบ JSON วัตถุแมตช์กับหลังบ้านตัวสคริปต์
             const payload = {
                 partId: pId,
                 partName: pName,
@@ -506,41 +395,34 @@
                 remarks: pRemarks ? pRemarks : "-"
             };
 
-            // แสดงหน้าโหลดชั่วคราวขณะกดส่ง
             const btn = document.querySelector('.btn-success');
-            const originalText = btn.innerHTML;
             btn.innerHTML = "⏳ กำลังส่งข้อมูล...";
             btn.disabled = true;
 
-            // ยิง Request แบบ POST ข้ามโดเมนไปยัง Google Apps Script Web App
             fetch(WEB_APP_URL, {
                 method: "POST",
-                mode: "no-cors", // ใช้โหมด no-cors เพื่อข้ามปัญหา Security ของเบราว์เซอร์ปกติเมื่อยิงหา Google
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
             })
-            .then(response => {
-                // เนื่องจากโหมด no-cors จะอ่าน response ละเอียดไม่ได้ แต่ข้อมูลจะเข้าแน่ๆ ถ้ายิงสำเร็จ
-                alert("🎉 บันทึกข้อมูลลง Google Sheet สำเร็จแล้ว!");
-                
-                // เคลียร์ค่าช่องเฉพาะกิจเพื่อเตรียมสแกนรายการถัดไป
+            .then(() => {
+                alert("🎉 บันทึกข้อมูลสินค้าลง Google Sheet สำเร็จ!");
                 document.getElementById('sme').value = "";
                 document.getElementById('remarks').value = "";
-                
-                // คืนค่าปุ่ม
-                btn.innerHTML = originalText;
+                btn.innerHTML = "✓ บันทึกลง Google Sheet";
                 btn.disabled = false;
             })
             .catch(error => {
-                console.error("Error:", error);
-                alert("❌ เกิดข้อผิดพลาดทางเทคนิค ไม่สามารถเชื่อมต่อตารางได้");
-                btn.innerHTML = originalText;
+                alert("❌ ข้อผิดพลาด: ไม่สามารถเชื่อมต่อตารางได้");
+                btn.innerHTML = "✓ บันทึกลง Google Sheet";
                 btn.disabled = false;
             });
         }
+        
+        // เปิดกล้องทันทีที่โหลดหน้าจอ
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(startScanner, 1000);
+        });
     </script>
-
 </body>
 </html>
