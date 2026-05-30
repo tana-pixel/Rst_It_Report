@@ -3,391 +3,362 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบคลังจัดซื้ออะไหล่ - Auto Lookup & Smart Sync</title>
+    <title>Smart Part Scanner - Batch & Export Safety</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
-    
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        @page { size: A4 landscape; margin: 12mm 15mm; background-color: #f8fafc; }
-        * { box-sizing: border-box; font-family: 'Sarabun', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { margin: 0; padding: 0; color: #1e293b; background-color: #f8fafc; font-size: 10pt; line-height: 1.4; }
-        .app-header { background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); color: #ffffff; margin: 0 0 20px 0; padding: 20px 25px; border-bottom: 4px solid #3b82f6; }
-        .header-grid { display: flex; justify-content: space-between; align-items: center; }
-        .header-right { text-align: right; font-size: 9.5pt; color: #93c5fd; }
-        .app-title { font-size: 18pt; font-weight: bold; margin: 0; letter-spacing: 0.5px; }
-        .app-subtitle { font-size: 10.5pt; color: #cbd5e1; margin: 4px 0 0 0; }
+        * { box-sizing: border-box; font-family: 'Sarabun', sans-serif; }
+        body { margin: 0; padding: 0; background-color: #f1f5f9; color: #1e293b; font-size: 14px; }
         
-        /* Layout หน้าจอ */
-        .main-container { display: flex; flex-wrap: wrap; gap: 20px; padding: 0 20px 20px 20px; }
-        .col-sidebar { flex: 1; min-width: 320px; max-width: 400px; }
-        .col-main { flex: 2; min-width: 500px; }
-        
-        .card { background-color: #ffffff; border-radius: 8px; border: 1px solid #e2e8f0; padding: 16px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .card-title { font-size: 11pt; font-weight: bold; color: #1e3a8a; margin-top: 0; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 2px solid #edf2f7; }
-        #reader { width: 100%; background-color: #000; border-radius: 6px; border: 2px solid #3b82f6; overflow: hidden; margin-bottom: 10px; }
-        
-        /* ฟอร์มกรอกข้อมูล */
-        .form-group { margin-bottom: 10px; }
-        .form-group label { display: block; font-size: 9pt; font-weight: 600; margin-bottom: 4px; color: #475569; }
-        .form-input { width: 100%; padding: 7px 9px; border: 1px solid #cbd5e1; border-radius: 5px; font-size: 9.5pt; background-color: #f8fafc; color: #0f172a; }
-        textarea.form-input { resize: none; height: 55px; }
-        .flex-inputs { display: flex; gap: 10px; }
-        .flex-inputs > div { flex: 1; }
-        
-        /* ปุ่มต่างๆ */
-        .btn { display: block; width: 100%; padding: 10px; background-color: #2563eb; color: white; border: none; border-radius: 5px; font-weight: bold; font-size: 10pt; text-align: center; margin-top: 10px; text-decoration: none; cursor: pointer; }
-        .btn-success { background-color: #16a34a; }
-        .btn-success:hover { background-color: #15803d; }
-        .btn-scan { background-color: #0f172a; margin-bottom: 10px; }
-        .btn-excel { display: inline-block; width: auto; background-color: #0284c7; padding: 6px 14px; font-size: 9pt; margin-top: 0; border-radius: 4px; }
+        .app-header { 
+            background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%); 
+            color: white; padding: 20px 30px; 
+            border-bottom: 5px solid #3b82f6;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .app-title h1 { margin: 0; font-size: 24px; }
+        .app-title p { margin: 5px 0 0 0; color: #93c5fd; font-size: 14px; }
 
-        /* Badge สถานะ */
-        .badge { display: inline-block; padding: 2px 8px; font-size: 8.5pt; font-weight: bold; border-radius: 4px; text-align: center; }
-        .badge-sync { background-color: #dcfce7; color: #15803d; }
-        .badge-danger { background-color: #fee2e2; color: #b91c1c; }
-        .badge-primary { background-color: #dbeafe; color: #1d4ed8; }
+        .main-container { display: flex; flex-wrap: wrap; gap: 20px; padding: 20px; }
+        .sidebar { flex: 1; min-width: 350px; max-width: 420px; }
+        .content-area { flex: 2; min-width: 500px; }
+
+        .card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); border: 1px solid #e2e8f0; }
+        .card-header { font-weight: bold; font-size: 16px; color: #1e3a8a; border-bottom: 2px solid #f1f5f9; margin-bottom: 15px; padding-bottom: 10px; }
+
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: bold; margin-bottom: 5px; color: #475569; }
+        .form-control { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; background: #f8fafc; }
         
-        /* ตารางแสดงผลประวัติ */
-        .table-responsive { overflow-x: auto; }
-        .data-table { width: 100%; border-collapse: collapse; font-size: 8.5pt; text-align: left; min-width: 650px; }
-        .data-table th { background-color: #f1f5f9; color: #334155; font-weight: 700; padding: 9px 6px; border-bottom: 2px solid #cbd5e1; }
-        .data-table td { padding: 7px 6px; border-bottom: 1px solid #e2e8f0; color: #334155; vertical-align: middle; }
-        .data-table tr:nth-child(even) td { background-color: #f8fafc; }
-        .data-table tr:hover td { background-color: #f1f5f9; cursor: pointer; }
-        .text-center { text-align: center; }
+        .found-item { background-color: #fffbeb !important; border: 2px solid #f59e0b !important; font-weight: bold; }
+        .new-item { background-color: #fef2f2 !important; border: 2px solid #ef4444 !important; }
+
+        .btn { cursor: pointer; border: none; border-radius: 8px; padding: 12px 20px; font-weight: bold; width: 100%; font-size: 15px; transition: 0.2s; }
+        .btn-add { background: #2563eb; color: white; margin-top: 5px; }
+        .btn-add:hover { background: #1d4ed8; }
         
-        /* ✨ ไฮไลท์สีเหลืองตอนดึงชื่อสินค้าสำเร็จ */
-        .highlight-input { background-color: #fffbeb !important; border-color: #f59e0b !important; font-weight: bold; color: #b45309 !important; }
+        /* 🚀 ปุ่มดำเนินการหลักด้านขวา */
+        .btn-excel { background: #0284c7; color: white; font-size: 14px; padding: 10px 15px; width: auto; margin-bottom: 10px; }
+        .btn-excel:hover { background: #0369a1; }
+        .btn-submit { background: #16a34a; color: white; font-size: 16px; padding: 15px; margin-top: 10px; }
+        .btn-submit:hover { background: #15803d; }
+        .btn-clear-all { background: #ef4444; color: white; margin-top: 10px; }
+        .btn-clear-all:hover { background: #dc2626; }
+        .btn-scan { background: #0f172a; color: white; margin-bottom: 15px; }
+
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th { background: #f8fafc; text-align: left; padding: 12px; border-bottom: 2px solid #e2e8f0; color: #64748b; }
+        td { padding: 12px; border-bottom: 1px solid #f1f5f9; }
+        .btn-delete { background: #fee2e2; color: #b91c1c; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-delete:hover { background: #fca5a5; }
         
-        .table-header-wrapper { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 2px solid #edf2f7; }
+        #reader { width: 100%; border-radius: 12px; overflow: hidden; background: #000; }
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; background: #dcfce7; color: #166534; }
     </style>
 </head>
 <body>
 
-    <div class="app-header">
-        <div class="header-grid">
-            <div>
-                <div class="app-title">⚙️ Rst Smart Scanner (ระบบยิงบาร์โค้ด)</div>
-                <div class="app-subtitle">เชื่อมโยงคลังสินค้าหลักอัตโนมัติ </div>
+<div class="app-header">
+    <div class="app-title">
+        <h1>⚙️ Smart Scanner (ระบบจัดชุดใบงานพร้อมระบบสำรอง Excel)</h1>
+        <p>ยิงเก็บรายการให้ครบ สามารถเซฟเป็นไฟล์ Excel เก็บไว้ก่อนกดส่งขึ้นคลังออนไลน์ส่วนกลางได้</p>
+    </div>
+    <div><span class="badge">● ระบบออนไลน์พร้อมใช้งาน</span></div>
+</div>
+
+<div class="main-container">
+    <div class="sidebar">
+        <div class="card">
+            <div class="card-header">🎥 สแกนบาร์โค้ด</div>
+            <div id="reader"></div>
+            <button class="btn btn-scan" onclick="startScanner()">🔄 เปิดกล้อง</button>
+            <div class="form-group">
+                <label>รหัสบาร์โค้ด (Part ID)</label>
+                <input type="text" id="partId" class="form-control" placeholder="ยิงบาร์โค้ดรหัสจะขึ้นที่นี่" onkeyup="lookupPartName(this.value)">
             </div>
-            <div class="header-right">
-                <div><strong>สถานะระบบ:</strong> <span id="sync-status" class="badge badge-sync">⏳ กำลังเชื่อมต่อคลัง...</span></div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">📝 รายละเอียดอะไหล่ชิ้นนี้</div>
+            
+            <div class="form-group">
+                <label>📍 สาขาที่ตรวจนับ</label>
+                <select id="branch" class="form-control" style="font-weight: bold; color: #2563eb;">
+                    <option value="">-- กำลังโหลดสาขา... --</option>
+                </select>
             </div>
+
+            <div class="form-group">
+                <label>📦 ชื่ออะไหล่ / รายละเอียด</label>
+                <input type="text" id="partName" class="form-control" placeholder="ระบบจะดึงชื่ออัตโนมัติ">
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <div class="form-group" style="flex: 1;">
+                    <label>คลังเดิม</label>
+                    <input type="number" id="stock" class="form-control" value="0">
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label>ยอดนับจริง</label>
+                    <input type="number" id="quantity" class="form-control" value="1" style="font-weight: bold; border-color: #2563eb;">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>👤 ชื่อพนักงานผู้บันทึก</label>
+                <select id="recorder" class="form-control">
+                    <option value="">-- กำลังโหลดชื่อพนักงาน... --</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>💡 หมายเหตุ</label>
+                <textarea id="remarks" class="form-control" rows="1"></textarea>
+            </div>
+
+            <button class="btn btn-add" onclick="addItemToBasket()">➕ เพิ่มรายการนี้ลงใบงานชั่วคราว</button>
         </div>
     </div>
 
-    <div class="main-container">
-        <div class="col-sidebar">
-            <div class="card">
-                <div class="card-title">🎥 กล้องสแกนบาร์โค้ดชิ้นส่วน</div>
-                <div id="reader"></div>
-                <button type="button" class="btn btn-scan" onclick="startScanner()">🔄 เปิด/สลับกล้องหลังมือถือ</button>
-                
-                <div class="form-group">
-                    <label>รหัสบาร์โค้ดที่สแกนได้</label>
-                    <input type="text" id="partId" class="form-input" style="font-weight: bold; color: #2563eb; text-align: center;" placeholder="ยิงบาร์โค้ด รหัสจะขึ้นที่นี่" onkeyup="lookupPartName(this.value)">
+    <div class="content-area">
+        <div class="card" style="position: sticky; top: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f1f5f9; margin-bottom: 15px; padding-bottom: 10px;">
+                <span style="font-weight: bold; font-size: 16px; color: #1e3a8a;">📋 ตารางสรุปใบงานชั่วคราว</span>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span id="item-count" style="font-weight: bold; color: #2563eb; font-size: 15px;">0 รายการ</span>
+                    <button class="btn btn-excel" id="btn-export-local" onclick="exportBasketToExcel()" disabled style="background: #cbd5e1; color: #64748b; cursor: not-allowed; margin-bottom:0;">
+                        📥 เซฟสำรองไฟล์ Excel (.xlsx)
+                    </button>
                 </div>
             </div>
-
-            <div class="card">
-                <div class="card-title">➕ รายละเอียดการบันทึกขอซื้อ</div>
-                <div class="form-group">
-                    <label>ชื่ออะไหล่ / รายละเอียดสินค้า</label>
-                    <input type="text" id="partName" class="form-input" placeholder="ระบบจะดึงชื่ออัตโนมัติเมื่อเจอรหัส">
-                </div>
-                
-                <div class="form-group flex-inputs">
-                    <div>
-                        <label>Stock คงคลังเดิม</label>
-                        <input type="number" id="stock" class="form-input" value="0">
-                    </div>
-                    <div>
-                        <label>จำนวนที่ต้องการซื้อ</label>
-                        <input type="number" id="quantity" class="form-input" value="1" style="border-color: #3b82f6; font-weight: bold;">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>SME (ผู้ตรวจสอบเฉพาะทาง)</label>
-                    <input type="text" id="sme" class="form-input" placeholder="ระบุข้อมูลผู้ตรวจ (ถ้ามี)">
-                </div>
-
-                <div class="form-group">
-                    <label>หมายเหตุ (Remarks)</label>
-                    <textarea id="remarks" class="form-input" placeholder="ระบุหมายเหตุหน้างานเพิ่มเติม"></textarea>
-                </div>
-
-                <button type="button" onclick="sendDataToGoogleSheet()" class="btn btn-success">✓ บันทึกลง Google Sheet</button>
+            
+            <div style="overflow-x: auto; margin-bottom: 20px; max-height: 400px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>สาขา</th>
+                            <th>รหัสอะไหล่</th>
+                            <th>ชื่ออะไหล่</th>
+                            <th style="text-align: center;">ยอดนับ</th>
+                            <th>หมายเหตุ</th>
+                            <th>จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="basket-table">
+                        <tr><td colspan="6" style="text-align:center; padding: 30px; color: #94a3b8;">🛒 ยังไม่มีรายการในใบงาน ยิงรหัสแล้วกดปุ่มเพิ่มรายการด้านซ้ายได้เลยครับ</td></tr>
+                    </tbody>
+                </table>
             </div>
-        </div>
 
-        <div class="col-main">
-            <div class="card">
-                <div class="table-header-wrapper">
-                    <div style="font-size: 11pt; font-weight: bold; color: #1e3a8a;">📊 ประวัติการบันทึกจัดซื้อล่าสุด</div>
-                    <div>
-                        <button class="btn btn-excel" onclick="exportToExcel()">📥 Export เป็นไฟล์ Excel (.xlsx)</button>
-                        <span id="total-count" class="badge badge-primary" style="margin-left: 5px;">0 รายการ</span>
-                    </div>
-                </div>
-                
-                <div class="table-responsive">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th class="text-center" style="width: 6%;">ลำดับ</th>
-                                <th style="width: 14%;">วันเวลาบันทึก</th>
-                                <th style="width: 15%;">รหัสอะไหล่</th>
-                                <th style="width: 25%;">ชื่ออะไหล่/รายละเอียด</th>
-                                <th class="text-center" style="width: 7%;">Stock</th>
-                                <th class="text-center" style="width: 7%;">จำนวน</th>
-                                <th style="width: 11%;">SME</th>
-                                <th style="width: 15%;">หมายเหตุ</th>
-                            </tr>
-                        </thead>
-                        <tbody id="sheet-data-table">
-                            <tr>
-                                <td colspan="8" class="text-center" style="padding: 30px; color: #64748b;">🔄 กำลังดึงข้อมูลสดจากกูเกิลชีต...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <button class="btn btn-submit" id="btn-submit-all" onclick="submitAllBasketToSheet()" disabled style="background: #cbd5e1; color: #64748b; cursor: not-allowed;">
+                🚀 บันทึกข้อมูลใบงานทั้งหมดเข้า Google Sheets ส่วนกลาง
+            </button>
+            <button class="btn btn-clear-all" onclick="clearWholeForm()">🧹 เคลียร์/ล้างใบงานทั้งหมดทิ้ง</button>
         </div>
     </div>
+</div>
 
-    <script>
-        // ====================================================================
-        // ⚠️ ขั้นตอนสำคัญ: นำ URL เว็บแอป Google Script ตัวล่าสุดของคุณมาวางในเครื่องหมายคำพูดด้านล่างนี้ครับ
-        // ====================================================================
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxKMLTEeH2v0LPUiVtE66qYamc4JyOrtBproiZQpH1d1mA6q5MoN-2clA0CI26LiMj4bg/exec";
+<script>
+    // ⚠️ นำ URL จากการ Deploy Apps Script มาวางตรงนี้ครับ
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyndFM8ghw2ZoOZf0rzehSLGOp3jod4zQ3RyZbJ7Wbrtr9qCubfOdFitwXJ5xTYf57cIA/exec";
 
-        let html5QrcodeScanner;
-        let masterPartsInventory = {}; // ตัวเก็บฐานข้อมูลสินค้าดิบจากชีต
-        let liveSheetData = [];
+    let masterParts = {};
+    let basketItems = []; // ตะกร้าเก็บของภายในเครื่อง
+    let html5QrScanner;
 
-        // ฟังก์ชันแปลงรูปแบบวันที่และเวลาให้อ่านง่ายบนตารางหน้าเว็บ
-        function formatDateTime(timestamp) {
-            if (!timestamp) return "-";
-            const d = new Date(timestamp);
-            if (isNaN(d.getTime())) return timestamp;
-            const dateStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-            const timeStr = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
-            return `${dateStr} ${timeStr}`;
-        }
+    // โหลดฐานข้อมูลจากคลัง Google Sheets
+    async function loadConfigData() {
+        try {
+            const resp = await fetch(WEB_APP_URL);
+            const data = await resp.json();
+            masterParts = data.masterParts;
 
-        // 🧠 ฟังก์ชันอัจฉริยะ: ค้นหาชื่อสินค้าโดยการตัดขีดกลางออกอัตโนมัติ ป้องกันปัญหาพิมพ์ไม่ตรงกัน
-        function lookupPartName(barcodeValue) {
-            const partNameInput = document.getElementById('partName');
-            
-            // ✂️ ปัดเป่าปัญหา: ลบขีดกลาง (-) และช่องว่างทั้งหมดที่กล้องยิงได้ออกให้หมดก่อนนำไปตรวจสอบ
-            const cleanBarcode = barcodeValue.replace(/[- ]/g, "").trim();
-            
-            if (!cleanBarcode) {
-                partNameInput.value = "";
-                partNameInput.className = "form-input";
-                return;
-            }
-            
-            // นำฐานข้อมูล Master_Parts มาลบขีดกลางออกชั่วคราวเพื่อทำตัวเทียบชน
-            let cleanInventory = {};
-            for (let originalKey in masterPartsInventory) {
-                let cleanKey = originalKey.replace(/[- ]/g, "");
-                cleanInventory[cleanKey] = masterPartsInventory[originalKey];
-            }
-            
-            if (cleanInventory[cleanBarcode]) {
-                // 🎉 ค้นเจอคู่แมตช์! ดึงชื่อมาใส่ฟอร์มและไฮไลท์แถบเหลืองทันที
-                partNameInput.value = cleanInventory[cleanBarcode];
-                partNameInput.className = "form-input highlight-input"; 
-            } else {
-                // กรณีสินค้าชิ้นนี้ไม่มีข้อมูลใน Master_Parts
-                partNameInput.className = "form-input";
-                if (cleanBarcode.length > 2) {
-                    partNameInput.placeholder = "🆕 รหัสนี้ไม่มีในคลังหลัก! พนักงานสามารถพิมพ์ชื่อใหม่ได้สดๆ";
-                } else {
-                    partNameInput.placeholder = "ระบบจะดึงชื่ออัตโนมัติเมื่อยิงบาร์โค้ด";
-                }
-            }
-        }
+            // เติมรายชื่อพนักงาน
+            const recSel = document.getElementById('recorder');
+            recSel.innerHTML = '<option value="">-- เลือกชื่อพนักงาน --</option>';
+            data.smeList.forEach(n => { let o = document.createElement('option'); o.value = o.text = n; recSel.add(o); });
 
-        // ดึงข้อมูล Real-time ดึงประวัติสั่งซื้อและคลังสินค้าเข้ามาพร้อมกันในชุดเดียว
-        function loadAllData() {
-            const tableBody = document.getElementById('sheet-data-table');
-            const totalCountBadge = document.getElementById('total-count');
-            const syncStatus = document.getElementById('sync-status');
-            
-            fetch(WEB_APP_URL)
-            .then(response => response.json())
-            .then(data => {
-                // 1. บันทึกข้อมูลคลังหลักเข้าเมมโมรี่หน้าเว็บ
-                if (data.masterParts) {
-                    masterPartsInventory = data.masterParts;
-                }
+            // เติมรายชื่อสาขา
+            const brSel = document.getElementById('branch');
+            brSel.innerHTML = '<option value="">-- เลือกสาขา --</option>';
+            data.branchList.forEach(b => { let o = document.createElement('option'); o.value = o.text = b; brSel.add(o); });
+        } catch (e) { alert("❌ โหลดฐานข้อมูลหลังบ้านล้มเหลว กรุณาตรวจสอบลิงก์เว็บแอปคราบ"); }
+    }
 
-                // 2. อัปเดตตารางประวัติคำสั่งซื้อล่าสุด (Sheet1)
-                liveSheetData = data.liveData || [];
-                syncStatus.className = "badge badge-sync";
-                syncStatus.innerHTML = "● ออนไลน์เชื่อมต่อชีตแล้ว";
-                totalCountBadge.innerHTML = `รวมทั้งหมด ${liveSheetData.length} รายการ`;
-                
-                tableBody.innerHTML = "";
-                if (liveSheetData.length === 0) {
-                    tableBody.innerHTML = `<tr><td colspan="8" class="text-center" style="padding: 20px; color: #94a3b8;">📭 ยินดีต้อนรับ! ปัจจุบันยังไม่มีรายการบันทึกใน Google Sheets</td></tr>`;
-                    return;
-                }
-
-                // วนลูปนำประวัติมาแสดงเรียงตามลำดับคอลัมน์ A ถึง H ของจริง
-                liveSheetData.forEach((row) => {
-                    let tr = document.createElement('tr');
-                    tr.onclick = () => selectRow(row.partId, row.partName, row.stock, row.quantity, row.sme, row.remarks);
-                    tr.innerHTML = `
-                        <td class="text-center" style="font-weight: bold; color: #475569;">${row.num}</td>
-                        <td style="color: #64748b; font-size: 8pt;">${formatDateTime(row.timestamp)}</td>
-                        <td><strong>${row.partId}</strong></td>
-                        <td>${row.partName}</td>
-                        <td class="text-center">${row.stock}</td>
-                        <td class="text-center" style="font-weight: bold; color: #16a34a; font-size: 10pt;">${row.quantity}</td>
-                        <td>${row.sme || '-'}</td>
-                        <td style="color: #475569; font-size: 8pt;">${row.remarks || '-'}</td>
-                    `;
-                    tableBody.appendChild(tr);
-                });
-                
-                // ตรวจเช็คค่าซ้ำหลังจากข้อมูลคลังโหลดเสร็จ (เผื่อมีรหัสค้างอยู่ในช่อง)
-                const currentBarcode = document.getElementById('partId').value;
-                if (currentBarcode) lookupPartName(currentBarcode);
-            })
-            .catch(err => {
-                syncStatus.className = "badge badge-danger";
-                syncStatus.innerHTML = "● ดึงข้อมูลล้มเหลว";
-                console.error(err);
-                tableBody.innerHTML = `<tr><td colspan="8" class="text-center" style="padding: 30px; color: #b91c1c; font-weight: bold;">⚠️ ดึงข้อมูลจากกูเกิลชีตไม่สำเร็จ<br><span style="font-size: 9pt; font-weight: normal; color: #64748b;">โปรดเช็คว่านำลิงก์ Web App ตัวล่าสุดมาวางในโค้ดบรรทัดที่ 113 แล้วหรือยัง</span></td></tr>`;
-            });
-        }
-
-        // ระบบควบคุมกล้องสแกนวัตถุหน้างาน
-        function startScanner() {
-            if(html5QrcodeScanner) { html5QrcodeScanner.clear(); }
-            html5QrcodeScanner = new Html5Qrcode("reader");
-            html5QrcodeScanner.start(
-                { facingMode: "environment" }, 
-                { fps: 10, qrbox: { width: 260, height: 160 } },
-                (decodedText) => {
-                    const cleanCode = decodedText.trim();
-                    document.getElementById('partId').value = cleanCode;
-                    
-                    // เรียกฟังก์ชันค้นหาชื่อทันทีเมื่อกล้องจับภาพติดรหัสได้
-                    lookupPartName(cleanCode);
-                    
-                    if(navigator.vibrate) navigator.vibrate(100); // สั่นเตือนเบาๆ เมื่อยิงติด
-                },
-                (errorMessage) => {}
-            ).catch(err => console.log(err));
-        }
-
-        // ฟังก์ชันช่วยอำนวยความสะดวก: คลิกที่แถวในตารางฝั่งขวาเพื่อดึงข้อมูลกลับมาแก้ไขฝั่งซ้ายได้
-        function selectRow(partId, partName, stock, quantity, sme, remarks) {
-            document.getElementById('partId').value = partId;
-            document.getElementById('partName').value = partName;
-            document.getElementById('stock').value = stock;
-            document.getElementById('quantity').value = quantity;
-            document.getElementById('sme').value = sme === "-" ? "" : sme;
-            document.getElementById('remarks').value = remarks === "-" ? "" : remarks;
-            document.getElementById('partName').className = "form-input highlight-input";
-        }
-
-        // ฟังก์ชันส่งข้อมูลเข้า Google Sheets ผ่านกลไก POST 
-        function sendDataToGoogleSheet() {
-            const pId = document.getElementById('partId').value.trim();
-            const pName = document.getElementById('partName').value.trim();
-            const pStock = document.getElementById('stock').value;
-            const pQty = document.getElementById('quantity').value;
-            const pSme = document.getElementById('sme').value.trim();
-            const pRemarks = document.getElementById('remarks').value.trim();
-
-            if (!pId || !pName) {
-                alert("❌ ปฏิเสธการบันทึก: กรุณาสแกนรหัสอะไหล่ หรือระบุชื่อสินค้าก่อนกดบันทึกครับ");
-                return;
-            }
-
-            const payload = {
-                partId: pId, 
-                partName: pName,
-                stock: parseInt(pStock) || 0, 
-                quantity: parseInt(pQty) || 0,
-                sme: pSme ? pSme : "-", 
-                remarks: pRemarks ? pRemarks : "-"
-            };
-
-            const btn = document.querySelector('.btn-success');
-            btn.innerHTML = "⏳ กำลังส่งข้อมูลลงชีต...";
-            btn.disabled = true;
-
-            fetch(WEB_APP_URL, {
-                method: "POST", 
-                mode: "no-cors",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            })
-            .then(() => {
-                alert("🎉 สำเร็จ: บันทึกข้อมูลและประทับเวลาลง Google Sheets คอลัมน์ A-H เรียบร้อย!");
-                // ล้างค่าฟอร์มฝั่งซ้ายเพื่อเตรียมยิงชิ้นต่อไป
-                document.getElementById('partId').value = "";
-                document.getElementById('partName').value = "";
-                document.getElementById('partName').className = "form-input";
-                document.getElementById('sme').value = "";
-                document.getElementById('remarks').value = "";
-                document.getElementById('stock').value = "0";
-                document.getElementById('quantity').value = "1";
-                
-                btn.innerHTML = "✓ บันทึกลง Google Sheet";
-                btn.disabled = false;
-                
-                // หน่วงเวลา 1.5 วินาทีเพื่อให้กูเกิลจัดการแถวเสร็จ แล้วทำการรีดึงข้อมูลใหม่มาแสดงผลทางขวา
-                setTimeout(loadAllData, 1500); 
-            })
-            .catch(error => {
-                alert("❌ ล้มเหลว: ไม่สามารถติดต่ออินเทอร์เน็ตเพื่อส่งข้อมูลได้");
-                btn.innerHTML = "✓ บันทึกลง Google Sheet";
-                btn.disabled = false;
-            });
-        }
-
-        // ระบบแปลงข้อมูลตารางส่งออกรายงานเป็นไฟล์ Excel (.xlsx) อย่างเป็นระเบียบ
-        function exportToExcel() {
-            if (liveSheetData.length === 0) {
-                alert("❌ ปฏิเสธการทำงาน: ไม่มีข้อมูลประวัติคำสั่งซื้อให้ส่งออกในขณะนี้");
-                return;
-            }
-            const formattedData = liveSheetData.map((item) => {
-                return {
-                    "ลำดับที่": item.num,
-                    "วันเวลาบันทึกจัดซื้อ": formatDateTime(item.timestamp),
-                    "รหัสสินค้า (Part ID)": item.partId,
-                    "ชื่อชิ้นส่วนชิ้นงาน/รายละเอียด": item.partName,
-                    "ยอดคงเหลือเดิม (Stock)": item.stock,
-                    "จำนวนขอจัดซื้อจริง (Qty)": item.quantity,
-                    "ผู้ตรวจสอบลงนาม (SME)": item.sme || "-",
-                    "หมายเหตุเพิ่มเติม (Remarks)": item.remarks || "-"
-                };
-            });
-            const worksheet = XLSX.utils.json_to_sheet(formattedData);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "PR_Purchase_Report");
-            
-            // ตั้งค่าความกว้างของแต่ละคอลัมน์ใน Excel ให้อ่านง่ายพอดีคำ
-            worksheet['!cols'] = [{wch:7}, {wch:18}, {wch:20}, {wch:35}, {wch:12}, {wch:12}, {wch:15}, {wch:25}];
-
-            const today = new Date().toISOString().slice(0, 10);
-            XLSX.writeFile(workbook, `PR_Purchase_Report_${today}.xlsx`);
-        }
+    // ค้นหารหัสบาร์โค้ด
+    function lookupPartName(val) {
+        const input = document.getElementById('partName');
+        const cleanVal = val.replace(/[- ]/g, "").trim();
+        let foundName = "";
         
-        // เมื่อระบบหน้าเว็บ HTML โหลดโครงสร้างเสร็จ ให้เปิดการทำงานทันที
-        window.addEventListener('DOMContentLoaded', () => {
-            loadAllData();
-            setTimeout(startScanner, 1200); // หน่วงเวลาเปิดกล้องนิดนึงเพื่อความเสถียรบนมือถือ
+        for (let code in masterParts) {
+            if (code.replace(/[- ]/g, "") === cleanVal) { foundName = masterParts[code]; break; }
+        }
+
+        if (foundName) {
+            input.value = foundName;
+            input.className = "form-control found-item";
+        } else if (cleanVal.length > 3) {
+            input.value = "";
+            input.className = "form-control new-item";
+            input.placeholder = "⚠️ สินค้าใหม่! กรุณาพิมพ์ชื่อแจ้งตรงนี้";
+        } else {
+            input.className = "form-control";
+        }
+    }
+
+    // ➕ พักของลงตะกร้าตารางชั่วคราว
+    function addItemToBasket() {
+        const branch = document.getElementById('branch').value;
+        const partId = document.getElementById('partId').value.trim();
+        const partName = document.getElementById('partName').value.trim();
+        const stock = document.getElementById('stock').value;
+        const quantity = document.getElementById('quantity').value;
+        const recorder = document.getElementById('recorder').value;
+        const remarks = document.getElementById('remarks').value.trim();
+
+        if (!branch || !partId || !partName || !recorder) {
+            alert("❌ กรุณากรอกข้อมูลให้ครบถ้วนก่อนเพิ่มรายการลงใบงานคราบ");
+            return;
+        }
+
+        basketItems.push({ branch, partId, partName, stock, quantity, recorder, remarks });
+        renderBasketTable();
+
+        // ล้างข้อมูลฟอร์มอะไหล่เพื่อพร้อมยิงชิ้นต่อไปทันที
+        document.getElementById('partId').value = "";
+        document.getElementById('partName').value = "";
+        document.getElementById('partName').className = "form-control";
+        document.getElementById('partName').placeholder = "ระบบจะดึงชื่ออัตโนมัติ";
+        document.getElementById('stock').value = "0";
+        document.getElementById('quantity').value = "1";
+        document.getElementById('remarks').value = "";
+    }
+
+    // เรนเดอร์ตารางฝั่งขวา
+    function renderBasketTable() {
+        const tbody = document.getElementById('basket-table');
+        const countBadge = document.getElementById('item-count');
+        const submitBtn = document.getElementById('btn-submit-all');
+        const excelBtn = document.getElementById('btn-export-local');
+        
+        tbody.innerHTML = "";
+        countBadge.innerHTML = `${basketItems.length} รายการ`;
+
+        if(basketItems.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 30px; color: #94a3b8;">🛒 ยังไม่มีรายการในใบงาน ยิงรหัสแล้วกดปุ่มเพิ่มรายการด้านซ้ายได้เลยครับ</td></tr>`;
+            
+            // ปิดการใช้งานปุ่มเมื่อไม่มีข้อมูล
+            submitBtn.disabled = excelBtn.disabled = true;
+            submitBtn.style.background = excelBtn.style.background = "#cbd5e1";
+            submitBtn.style.color = excelBtn.style.color = "#64748b";
+            submitBtn.style.cursor = excelBtn.style.cursor = "not-allowed";
+            return;
+        }
+
+        // เปิดใช้งานปุ่มทั้งหมดเมื่อมีข้อมูลพร้อม
+        submitBtn.disabled = excelBtn.disabled = false;
+        submitBtn.style.background = "#16a34a"; submitBtn.style.color = "white"; submitBtn.style.cursor = "pointer";
+        excelBtn.style.background = "#0284c7"; excelBtn.style.color = "white"; excelBtn.style.cursor = "pointer";
+
+        basketItems.forEach((item, index) => {
+            let tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><span style="color:#0369a1; font-weight:bold;">${item.branch}</span></td>
+                <td><strong>${item.partId}</strong></td>
+                <td>${item.partName}</td>
+                <td style="text-align:center; font-weight:bold; color:#2563eb; font-size:15px;">${item.quantity}</td>
+                <td style="color:#64748b; font-size:12px;">${item.remarks || '-'}</td>
+                <td><button class="btn-delete" onclick="removeItemFromBasket(${index})">ลบ</button></td>
+            `;
+            tbody.appendChild(tr);
         });
-    </script>
+    }
+
+    function removeItemFromBasket(index) {
+        basketItems.splice(index, 1);
+        renderBasketTable();
+    }
+
+    // 📥 1. ฟังก์ชันดึงเฉพาะข้อมูลชุดที่ยิงตอนนี้ออกเป็น Excel เก็บไว้ที่เครื่องก่อน
+    function exportBasketToExcel() {
+        if(basketItems.length === 0) return;
+        
+        // จัดรูปแบบหัวตารางภาษาไทยให้สวยงามในไฟล์ Excel
+        const formattedData = basketItems.map((item, idx) => ({
+            "ลำดับที่": idx + 1,
+            "สาขา": item.branch,
+            "รหัสอะไหล่": item.partId,
+            "ชื่ออะไหล่/รายละเอียด": item.partName,
+            "Stock เดิม": item.stock,
+            "ยอดนับจริง": item.quantity,
+            "ผู้คีย์ข้อมูล": item.recorder,
+            "หมายเหตุ": item.remarks || "-"
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(formattedData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Draft_Count_Report");
+        
+        // ตั้งชื่อไฟล์ตามวันที่และเวลาปัจจุบันเพื่อป้องกันการสับสน
+        const timeStamp = new Date().toISOString().slice(0,10) + "_" + new Date().toTimeString().slice(0,5).replace(":", "h");
+        XLSX.writeFile(wb, `ใบงานสแกนสต็อก_สำรอง_${timeStamp}.xlsx`);
+    }
+
+    // 🚀 2. ฟังก์ชันยิงข้อมูลชุดนี้ทั้งหมดเข้าระบบออนไลน์ Google Sheets ส่วนกลาง
+    async function submitAllBasketToSheet() {
+        if(basketItems.length === 0) return;
+
+        const submitBtn = document.getElementById('btn-submit-all');
+        submitBtn.innerHTML = `⏳ กำลังทยอยบันทึกข้อมูลเข้า Google Sheets... (ห้ามปิดหน้าจอ)`;
+        submitBtn.disabled = true;
+
+        let successCount = 0;
+
+        for(let i=0; i < basketItems.length; i++) {
+            try {
+                await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify(basketItems[i])
+                });
+                successCount++;
+            } catch(e) {
+                console.error("รายการแถวที่ " + (i+1) + " ส่งไม่สำเร็จ", e);
+            }
+        }
+
+        alert(`🎉 บันทึกใบงานออนไลน์สำเร็จเรียบร้อย รวมทั้งหมด ${successCount} รายการคราบ!`);
+        clearWholeForm(); // บันทึกออนไลน์สำเร็จแล้ว ล้างฟอร์มเคลียร์หน้าจอทันที
+    }
+
+    // เคลียร์ข้อมูลทั้งหมดออกจากระบบเพื่อตั้งต้นใบงานใหม่
+    function clearWholeForm() {
+        basketItems = [];
+        renderBasketTable();
+        document.getElementById('partId').value = "";
+        document.getElementById('partName').value = "";
+        document.getElementById('partName').className = "form-control";
+        document.getElementById('stock').value = "0";
+        document.getElementById('quantity').value = "1";
+        document.getElementById('remarks').value = "";
+        document.getElementById('branch').value = "";
+        document.getElementById('recorder').value = "";
+    }
+
+    // เปิดกล้องสแกนเนอร์
+    function startScanner() {
+        if (html5QrScanner) html5QrScanner.clear();
+        html5QrScanner = new Html5Qrcode("reader");
+        html5QrScanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (txt) => {
+            document.getElementById('partId').value = txt;
+            lookupPartName(txt);
+            if (navigator.vibrate) navigator.vibrate(100);
+        });
+    }
+
+    window.onload = loadConfigData;
+</script>
 </body>
 </html>
