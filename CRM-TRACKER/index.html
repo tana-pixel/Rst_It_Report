@@ -72,7 +72,7 @@
 <body>
 
     <div class="header">
-        <h1>CRM-TRACKER ระบบจัดการข้อมูลลูกค้า </h1>
+        <h1>CRM-TRACKER ระบบจัดการข้อมูลลูกค้า</h1>
         <div class="stats-container">
             <div class="stat-item">ฐานข้อมูลทั้งหมด: <span id="stat-total">452,890</span> รายชื่อ</div>
             <div class="stat-item">ดึงผลลัพธ์มาได้: <span id="stat-display">0</span> รายชื่อ</div>
@@ -100,7 +100,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label style="color: var(--accent-color); font-weight: 500;">วันจองนัดหมาย</label>
+                        <label style="color: var(--accent-color); font-weight: 500;">วันจองนัดหมาย (Booking )</label>
                         <input type="date" id="filter-appdate" class="form-control" onchange="localFilterData()">
                     </div>
                     <div class="form-group">
@@ -246,7 +246,7 @@
     </div>
 
     <script>
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyNrwBW0vijr_WHOGn1dPNIGz1-LXPYB6c4pjUTJlyMpMnWQ5U6u-wFGr1LQACB7a9t/exec';
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby6zc8g1gBoMXCGlharMQWrvEDp_sbWd2E27sW_fxNrACEt2Z2vT7rKz9A9OG_dMAS5/exec';
         let masterDataList = [];
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -314,7 +314,7 @@
             try {
                 const kw = document.getElementById('filter-keyword').value.trim();
                 const tbody = document.querySelector('#main-table tbody');
-                if(tbody) tbody.innerHTML = '<tr><td colspan="16" style="text-align: center; padding: 20px;">⚡ กำลังค้นหาข้อมูลจาก 5,000 รายการล่าสุด</td></tr>';
+                if(tbody) tbody.innerHTML = '<tr><td colspan="16" style="text-align: center; padding: 20px;">⚡ กำลังค้นหาข้อมูลจาก 1,000 รายการล่าสุด</td></tr>';
 
                 fetch(WEB_APP_URL, {
                     method: 'POST',
