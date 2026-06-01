@@ -13,6 +13,8 @@
 * 📦[เปิดแอป CRM-Tracker เครื่องมือที่ใช้ติดตามและบริหารจัดการความสัมพันธ์กับลูกค้า](https://tana-pixel.github.io/Rst_It_Report/CRM-TRACKER/)
 * 📋 [เปิดแอป Daily Report (บันทึกรายงานประจำวัน)](https://tana-pixel.github.io/Rst_It_Report/Daily_Report/DailyReport_Pro_v3.html)
 * 📦 [เปิดแอป IT Asset Management (ระบบจัดการอุปกรณ์)](https://tana-pixel.github.io/Rst_It_Report/asset-app/index.html)
+*📋 [เปิดแอป  Rst-Smart-Stock-IT (ระบบตรวจstockprinter)](https://tana-pixel.github.io/Rst_It_Report/Rst-Smart-Stock-IT/index.html)
+
 ---
 
 ## 🎯 วัตถุประสงค์
