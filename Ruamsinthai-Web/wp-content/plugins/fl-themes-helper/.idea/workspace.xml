@@ -1,0 +1,412 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="e1777f4d-2c7b-4f59-a85c-ea36ab1b1ae3" name="Default Changelist" comment="" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/vc_custom/vc_templates/vc_fl_woo_shop_slider.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1789">
+              <caret line="149" column="34" lean-forward="true" selection-start-line="149" selection-start-column="34" selection-end-line="149" selection-end-column="34" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/vc_custom/vc_templates/vc_fl_offer_slider.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="517">
+              <caret line="129" column="18" lean-forward="true" selection-start-line="129" selection-start-column="18" selection-end-line="156" selection-end-column="29" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/vc_custom/vc_templates/vc_fl_services_slider.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="457">
+              <caret line="118" column="20" lean-forward="true" selection-start-line="118" selection-start-column="20" selection-end-line="149" selection-end-column="29" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/vc_custom/vc_templates/vc_fl_team_slider.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="478">
+              <caret line="151" column="14" lean-forward="true" selection-start-line="151" selection-start-column="14" selection-end-line="176" selection-end-column="29" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/function/public_function.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="359">
+              <caret line="58" selection-start-line="58" selection-end-line="58" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/vc_custom/vc_templates/vc_fl_testimonial_slider.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="427">
+              <caret line="93" selection-start-line="93" selection-end-line="93" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/vc_custom/vc_templates/vc_fl_car_deals_of_the_week.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="427">
+              <caret line="67" selection-start-line="67" selection-end-line="67" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="JavaScript File" />
+      </list>
+    </option>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>laterna.foras-lab.website</find>
+      <find>autlines_breadcrumbs_delimiter()</find>
+      <find>autlines_breadcrumbs_delimiter</find>
+      <find>autlines_breadcrumbs_current</find>
+      <find>autlines_wp_kses</find>
+      <find>vc-cars-wrapper</find>
+      <find>posts</find>
+      <find>btn</find>
+      <find>endwhile</find>
+      <find>ecent_works</find>
+      <find>recent_works</find>
+      <find>post</find>
+      <find>rest</find>
+      <find>works</find>
+      <find>work</find>
+      <find>autlines</find>
+      <find>auto_translate</find>
+      <find>custom_function</find>
+      <find>autlines-load-more-car-nonce</find>
+      <find>google-maps-api</find>
+      <find>autlinesloadmorecarvc</find>
+      <find>slick</find>
+      <find>.slick</find>
+    </findStrings>
+    <replaceStrings>
+      <replace>laterna.templines.org/html</replace>
+      <replace>$delimiter</replace>
+      <replace>fl_wp_kses</replace>
+      <replace>autlones</replace>
+      <replace>autlines</replace>
+      <replace>posts</replace>
+      <replace>car</replace>
+    </replaceStrings>
+    <dirStrings>
+      <dir>$PROJECT_DIR$/afc_custom_fields</dir>
+      <dir>$PROJECT_DIR$</dir>
+      <dir>$PROJECT_DIR$/vc_custom/vc_templates</dir>
+    </dirStrings>
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/vc_custom/vc_templates/vc_fl_header_custom_container.php" />
+        <option value="$USER_HOME$/Desktop/HTML Theme Files/laterna/html/prewiew/index.html" />
+        <option value="$PROJECT_DIR$/function/custom_function.php" />
+        <option value="$PROJECT_DIR$/assets/js/load-more/load-more-car.php" />
+        <option value="$PROJECT_DIR$/fl-themes-helper.php" />
+        <option value="$USER_HOME$/Downloads/Norie v1.0/Plugin/fl-themes-helper/vc_templates/shortcode/vc_fl_works.php" />
+        <option value="$PROJECT_DIR$/function/load-more-car.php" />
+        <option value="$PROJECT_DIR$/assets/js/load-more/cars-load-more.js" />
+        <option value="$PROJECT_DIR$/vc_custom/vc_templates/vc_fl_recent_cars.php" />
+        <option value="$PROJECT_DIR$/vc_custom/vc_templates/vc_fl_google_map.php" />
+        <option value="$PROJECT_DIR$/vc_custom/vc_templates/vc_fl_testimonial_slider.php" />
+        <option value="$PROJECT_DIR$/vc_custom/vc_templates/vc_fl_car_deals_of_the_week.php" />
+        <option value="$PROJECT_DIR$/vc_custom/vc_templates/vc_fl_team_slider.php" />
+        <option value="$PROJECT_DIR$/vc_custom/vc_templates/vc_fl_services_slider.php" />
+        <option value="$PROJECT_DIR$/vc_custom/vc_templates/vc_fl_offer_slider.php" />
+        <option value="$PROJECT_DIR$/vc_custom/vc_templates/vc_fl_woo_shop_slider.php" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectFrameBounds">
+    <option name="y" value="23" />
+    <option name="width" value="1440" />
+    <option name="height" value="820" />
+  </component>
+  <component name="ProjectView">
+    <navigator proportions="" version="1">
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="Scope" />
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="fl-themes-helper" type="b2602c69:ProjectViewProjectNode" />
+              <item name="fl-themes-helper" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="fl-themes-helper" type="b2602c69:ProjectViewProjectNode" />
+              <item name="fl-themes-helper" type="462c0819:PsiDirectoryNode" />
+              <item name="vc_custom" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
+    <property name="nodejs_npm_path_reset_for_default_project" value="true" />
+    <property name="settings.editor.selected.configurable" value="watcher.settings" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/function" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/assets/js/load-more" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="e1777f4d-2c7b-4f59-a85c-ea36ab1b1ae3" name="Default Changelist" comment="" />
+      <created>1572378420362</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1572378420362</updated>
+      <workItem from="1572378421526" duration="1344000" />
+      <workItem from="1572560706350" duration="2553000" />
+      <workItem from="1573149223956" duration="1622000" />
+      <workItem from="1573334579366" duration="1077000" />
+      <workItem from="1573336913902" duration="7003000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TimeTrackingManager">
+    <option name="totallyTimeSpent" value="13599000" />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="0" y="23" width="1440" height="820" extended-state="0" />
+    <editor active="true" />
+    <layout>
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2639485" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Run" order="2" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Database Changes" order="8" />
+      <window_info anchor="bottom" id="Version Control" order="9" />
+      <window_info anchor="bottom" id="Terminal" order="10" />
+      <window_info anchor="bottom" id="Event Log" order="11" side_tool="true" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="Database" order="3" />
+    </layout>
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$USER_HOME$/Desktop/HTML Theme Files/laterna/html/prewiew/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="360">
+          <caret line="24" column="23" selection-start-line="24" selection-start-column="23" selection-end-line="24" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/vc_custom/vc_templates/vc_fl_header_custom_container.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="15">
+          <caret line="4" column="45" selection-start-line="4" selection-start-column="45" selection-end-line="4" selection-end-column="45" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/Downloads/Norie v1.0/Plugin/fl-themes-helper/assets/js/work_load_more/work-load-more.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="315">
+          <caret line="21" column="17" selection-start-line="21" selection-start-column="17" selection-end-line="21" selection-end-column="70" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/Downloads/Norie v1.0/Plugin/fl-themes-helper/vc_templates/shortcode/vc_fl_works.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="203">
+          <caret line="65" selection-start-line="65" selection-end-line="69" selection-end-column="88" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/Downloads/Norie v1.0/Plugin/fl-themes-helper/function/load-more-function/load-more-work.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-981">
+          <caret line="1" lean-forward="true" selection-start-line="1" selection-end-line="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/function/load-more-car.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="8" column="107" lean-forward="true" selection-start-line="8" selection-start-column="107" selection-end-line="8" selection-end-column="107" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/fl-themes-helper.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="243">
+          <caret line="80" column="83" lean-forward="true" selection-start-line="80" selection-start-column="83" selection-end-line="80" selection-end-column="83" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/assets/js/load-more/cars-load-more.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="299">
+          <caret line="26" column="48" lean-forward="true" selection-start-line="26" selection-start-column="48" selection-end-line="26" selection-end-column="48" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/assets/js/customizer.js">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/vc_custom/vc_templates/vc_fl_gallery.php">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/vc_custom/vc_templates/vc_fl_recent_cars.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="597">
+          <caret line="126" column="54" lean-forward="true" selection-start-line="126" selection-start-column="54" selection-end-line="126" selection-end-column="54" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/function/custom_function.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="412">
+          <caret line="526" column="58" selection-start-line="526" selection-start-column="58" selection-end-line="526" selection-end-column="58" />
+          <folding>
+            <element signature="n#fl_theme_helper_instagram_api_curl_connect#0;n#!!top" />
+            <element signature="n#fl_limit_excerpt#0;n#!!top" />
+            <element signature="n#fl_custom_pagination#0;n#!!top" />
+            <element signature="e#3510#3809#0#PHP" />
+            <element signature="e#3859#5702#0#PHP" />
+            <element signature="n#fl_post_taxonomy#0;n#!!top" />
+            <element signature="n#fl_wp_kses#0;n#!!top" />
+            <element signature="n#fl_install_demo_data#0;n#!!top" />
+            <element signature="n#fl_fixed_validator_error#0;n#!!top" />
+            <element signature="e#9097#11268#0#PHP" />
+            <element signature="n#fl_share_buttons#0;n#!!top" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/vc_custom/vc_templates/vc_fl_google_map.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="150">
+          <caret line="10" lean-forward="true" selection-start-line="10" selection-end-line="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/vc_custom/vc_templates/vc_fl_testimonial_slider.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="427">
+          <caret line="93" selection-start-line="93" selection-end-line="93" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/vc_custom/vc_templates/vc_fl_car_deals_of_the_week.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="427">
+          <caret line="67" selection-start-line="67" selection-end-line="67" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/vc_custom/vc_templates/old/vc_fl_image_slider.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="229">
+          <caret line="139" column="37" selection-start-line="139" selection-start-column="37" selection-end-line="139" selection-end-column="37" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../../wp-config.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-504" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/vc_custom/vc_templates/vc_fl_team_slider.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="478">
+          <caret line="151" column="14" lean-forward="true" selection-start-line="151" selection-start-column="14" selection-end-line="176" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/vc_custom/vc_templates/vc_fl_services_slider.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="457">
+          <caret line="118" column="20" lean-forward="true" selection-start-line="118" selection-start-column="20" selection-end-line="149" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/function/public_function.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="359">
+          <caret line="58" selection-start-line="58" selection-end-line="58" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/vc_custom/vc_templates/vc_fl_offer_slider.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="517">
+          <caret line="129" column="18" lean-forward="true" selection-start-line="129" selection-start-column="18" selection-end-line="156" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/vc_custom/vc_templates/vc_fl_woo_shop_slider.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1789">
+          <caret line="149" column="34" lean-forward="true" selection-start-line="149" selection-start-column="34" selection-end-line="149" selection-end-column="34" />
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>

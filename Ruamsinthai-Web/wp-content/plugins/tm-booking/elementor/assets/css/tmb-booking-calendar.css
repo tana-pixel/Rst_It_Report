@@ -1,0 +1,110 @@
+/**
+ * TM Booking Calendar CSS
+ * 
+ * Стили для виджета календаря бронирования
+ */
+
+.tmb-booking-calendar-wrapper {
+    margin-bottom: 20px;
+}
+
+.tmb-booking-calendar-fields {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.tmb-booking-field {
+    flex: 1;
+    min-width: 200px;
+}
+
+.tmb-booking-field label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.tmb-date-input {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fff;
+    cursor: pointer;
+}
+
+.tmb-date-input:focus {
+    outline: none;
+    border-color: #aaa;
+}
+
+/* Стили для xdsoft datetimepicker */
+.xdsoft_datetimepicker {
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    border: none;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.xdsoft_datetimepicker .xdsoft_datepicker {
+    width: 300px;
+}
+
+.xdsoft_datetimepicker .xdsoft_calendar td,
+.xdsoft_datetimepicker .xdsoft_calendar th {
+    border-radius: 4px;
+    text-align: center;
+}
+
+.xdsoft_datetimepicker .xdsoft_calendar td.xdsoft_today {
+    color: #0073aa;
+    font-weight: bold;
+}
+
+.xdsoft_datetimepicker .xdsoft_calendar td.xdsoft_current,
+.xdsoft_datetimepicker .xdsoft_timepicker .xdsoft_time_box > div > div.xdsoft_current {
+    background: #0073aa;
+    box-shadow: none;
+}
+
+.xdsoft_datetimepicker .xdsoft_calendar td:hover,
+.xdsoft_datetimepicker .xdsoft_timepicker .xdsoft_time_box > div > div:hover {
+    background: #e9f5fc !important;
+    color: #0073aa !important;
+}
+
+.xdsoft_datetimepicker .xdsoft_calendar td.xdsoft_disabled,
+.xdsoft_datetimepicker .xdsoft_time_box > div > div.xdsoft_disabled {
+    opacity: 0.4;
+}
+
+.xdsoft_datetimepicker .xdsoft_label > .xdsoft_select {
+    border: 1px solid #ddd;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+.xdsoft_datetimepicker .xdsoft_label > .xdsoft_select > div > .xdsoft_option:hover {
+    background: #e9f5fc;
+    color: #0073aa;
+}
+
+.xdsoft_datetimepicker .xdsoft_label {
+    font-weight: 500;
+}
+
+/* Адаптивность */
+@media (max-width: 767px) {
+    .tmb-booking-calendar-fields {
+        flex-direction: column;
+    }
+    
+    .tmb-booking-field {
+        width: 100%;
+    }
+    
+    .xdsoft_datetimepicker .xdsoft_datepicker {
+        width: 260px;
+    }
+}

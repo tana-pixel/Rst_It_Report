@@ -1,0 +1,1576 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"Project-Id-Version: PixAutoDeal\n"
+"POT-Creation-Date: 2021-07-23 02:58+0300\n"
+"PO-Revision-Date: 2021-07-23 02:58+0300\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.7\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-WPHeader: pixad-autos.php\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
+"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;_n_noop:1,2;"
+"_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: *.js\n"
+
+#: classes/class.pixad-autos.php:205 classes/class.pixad-autos.php:230
+#: includes/widgets/widget_sidebar.php:66
+#: includes/widgets/widget_sidebar.php:123
+#: includes/widgets/widget_sidebar.php:126
+msgid "All Models"
+msgstr ""
+
+#: classes/class.pixad-autos.php:289 includes/functions_global.php:1166
+msgid "<i class=\"fa fa-angle-left\"></i>"
+msgstr ""
+
+#: classes/class.pixad-autos.php:290 includes/functions_global.php:1167
+msgid "<i class=\"fa fa-angle-right\"></i>"
+msgstr ""
+
+#: classes/class.pixad-autos.php:291 includes/functions_global.php:1168
+msgid "NEXT"
+msgstr ""
+
+#: classes/class.pixad-autos.php:292 includes/functions_global.php:1169
+msgid "PREV"
+msgstr ""
+
+#: classes/class.pixad-autos.php:293 classes/class.pixad-autos.php:294
+#: includes/functions_global.php:1170 includes/functions_global.php:1171
+#: includes/functions_global.php:1309 includes/functions_global.php:1310
+msgid "..."
+msgstr ""
+
+#: classes/class.pixad-autos.php:345 includes/functions_global.php:1221
+msgid "Page %CURRENT_PAGE% of %TOTAL_PAGES%"
+msgstr ""
+
+#: classes/class.pixad-settings.php:109
+msgid "Auto Make"
+msgstr ""
+
+#: classes/class.pixad-settings.php:110
+msgid "Auto Model"
+msgstr ""
+
+#: classes/class.pixad-settings.php:111 includes/backend/meta_boxes.php:466
+msgid "Auto Version"
+msgstr ""
+
+#: classes/class.pixad-settings.php:112
+msgid "Year"
+msgstr ""
+
+#: classes/class.pixad-settings.php:113 includes/backend/meta_boxes.php:727
+msgid "Mileage"
+msgstr ""
+
+#: classes/class.pixad-settings.php:114
+msgid "Fuel"
+msgstr ""
+
+#: classes/class.pixad-settings.php:115
+msgid "Engine"
+msgstr ""
+
+#: classes/class.pixad-settings.php:116
+msgid "Horsepower"
+msgstr ""
+
+#: classes/class.pixad-settings.php:117 includes/backend/meta_boxes.php:488
+msgid "Transmission"
+msgstr ""
+
+#: classes/class.pixad-settings.php:118
+msgid "Drive"
+msgstr ""
+
+#: classes/class.pixad-settings.php:119 includes/backend/meta_boxes.php:504
+msgid "Doors"
+msgstr ""
+
+#: classes/class.pixad-settings.php:120
+msgid "Seats"
+msgstr ""
+
+#: classes/class.pixad-settings.php:121 includes/backend/meta_boxes.php:589
+msgid "Color"
+msgstr ""
+
+#: classes/class.pixad-settings.php:122 includes/backend/meta_boxes.php:613
+msgid "Interior Color"
+msgstr ""
+
+#: classes/class.pixad-settings.php:123 includes/widgets/widget_sidebar.php:672
+msgid "Condition"
+msgstr ""
+
+#: classes/class.pixad-settings.php:124 includes/widgets/widget_sidebar.php:675
+msgid "Purpose"
+msgstr ""
+
+#: classes/class.pixad-settings.php:125 includes/backend/meta_boxes.php:739
+msgid "VIN"
+msgstr ""
+
+#: classes/class.pixad-settings.php:126 includes/backend/meta_boxes.php:634
+msgid "Price"
+msgstr ""
+
+#: classes/class.pixad-settings.php:127 includes/backend/meta_boxes.php:651
+msgid "Sale Price"
+msgstr ""
+
+#: classes/class.pixad-settings.php:128
+msgid "Stock Status"
+msgstr ""
+
+#: classes/class.pixad-settings.php:129 includes/backend/meta_boxes.php:678
+msgid "Price Type"
+msgstr ""
+
+#: classes/class.pixad-settings.php:130 includes/backend/meta_boxes.php:692
+msgid "Warranty"
+msgstr ""
+
+#: classes/class.pixad-settings.php:131 includes/backend/currencies.php:101
+msgid "Currency"
+msgstr ""
+
+#: classes/class.pixad-settings.php:132
+msgid "Seller First Name"
+msgstr ""
+
+#: classes/class.pixad-settings.php:133
+msgid "Seller Last Name"
+msgstr ""
+
+#: classes/class.pixad-settings.php:134
+msgid "Seller Company"
+msgstr ""
+
+#: classes/class.pixad-settings.php:135
+msgid "Seller Email"
+msgstr ""
+
+#: classes/class.pixad-settings.php:136
+msgid "Seller Phone"
+msgstr ""
+
+#: classes/class.pixad-settings.php:137
+msgid "Seller Country"
+msgstr ""
+
+#: classes/class.pixad-settings.php:138
+msgid "Seller State"
+msgstr ""
+
+#: classes/class.pixad-settings.php:139
+msgid "Seller Town"
+msgstr ""
+
+#: classes/class.pixad-settings.php:140
+msgid "Seller Location"
+msgstr ""
+
+#: classes/class.pixad-settings.php:141
+msgid "Seller Location Latitude"
+msgstr ""
+
+#: classes/class.pixad-settings.php:142
+msgid "Seller Location Longitude"
+msgstr ""
+
+#: classes/class.pixad-settings.php:143
+msgid "Updated Date"
+msgstr ""
+
+#: classes/class.pixad-settings.php:175
+msgid "Operation failed."
+msgstr ""
+
+#: includes/backend/currencies.php:77 includes/backend/currencies.php:132
+msgid "Edit Currency"
+msgstr ""
+
+#: includes/backend/currencies.php:79
+msgid "New Currency"
+msgstr ""
+
+#: includes/backend/currencies.php:117
+msgid "Currency Position"
+msgstr ""
+
+#: includes/backend/currencies.php:121 includes/backend/currencies.php:176
+#: includes/backend/meta_boxes.php:139
+msgid "Left"
+msgstr ""
+
+#: includes/backend/currencies.php:122 includes/backend/currencies.php:180
+#: includes/backend/meta_boxes.php:138
+msgid "Right"
+msgstr ""
+
+#: includes/backend/currencies.php:123 includes/backend/currencies.php:184
+msgid "Left with space"
+msgstr ""
+
+#: includes/backend/currencies.php:124 includes/backend/currencies.php:188
+msgid "Right with space"
+msgstr ""
+
+#: includes/backend/currencies.php:132
+msgid "Add Currency"
+msgstr ""
+
+#: includes/backend/currencies.php:146 includes/functions_backend.php:160
+msgid "Currencies"
+msgstr ""
+
+#: includes/backend/currencies.php:148
+msgid "Add New"
+msgstr ""
+
+#: includes/backend/currencies.php:155
+msgid "Name"
+msgstr ""
+
+#: includes/backend/currencies.php:156
+msgid "ISO"
+msgstr ""
+
+#: includes/backend/currencies.php:157
+msgid "Symbol"
+msgstr ""
+
+#: includes/backend/currencies.php:158
+msgid "Symbol Position"
+msgstr ""
+
+#: includes/backend/currencies.php:159
+msgid "Actions"
+msgstr ""
+
+#: includes/backend/currencies.php:195 includes/widgets/widget_sidebar.php:936
+msgid "Edit"
+msgstr ""
+
+#: includes/backend/currencies.php:196 includes/backend/meta_boxes.php:286
+msgid "Delete"
+msgstr ""
+
+#: includes/backend/currencies.php:202
+msgid "Please add currency."
+msgstr ""
+
+#: includes/backend/meta_boxes.php:14
+msgid "No contact forms found install Contact Form Plugin and Create your form"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:34
+msgid "Auto Details"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:37
+msgid "YouTube Video URL"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:39
+msgid "Auto Layout"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:41
+msgid "Contact Info"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:42
+msgid "Custom Tab 1"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:43
+msgid "Custom Tab 2"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:44
+msgid "Custom Tab 3"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:136
+msgid "Sidebar Position"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:140
+msgid "None"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:146
+msgid "Dealer Info"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:148 includes/backend/meta_boxes.php:158
+#: includes/backend/meta_boxes.php:183 includes/backend/meta_boxes.php:193
+#: includes/backend/meta_boxes.php:205 includes/backend/meta_boxes.php:214
+#: includes/backend/validation.php:70 includes/backend/validation.php:139
+msgid "Show"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:149 includes/backend/meta_boxes.php:159
+#: includes/backend/meta_boxes.php:182 includes/backend/meta_boxes.php:194
+#: includes/backend/meta_boxes.php:206 includes/backend/meta_boxes.php:215
+msgid "Hide"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:156
+msgid "Contacts Form"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:180
+msgid "Financing Calculator"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:191
+msgid "Vehicle Description Tab"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:203
+msgid "Features Tab"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:212
+msgid "Contacts Tab"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:262
+msgid "Add Images to Product Gallery"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:264
+msgid "Add to gallery"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:286
+msgid "Delete video"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:367 includes/backend/meta_boxes.php:392
+#: includes/backend/meta_boxes.php:417
+msgid "Tab Title"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:477
+msgid "Made Year"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:492 includes/backend/meta_boxes.php:508
+#: includes/backend/meta_boxes.php:522 includes/backend/meta_boxes.php:542
+#: includes/backend/meta_boxes.php:561 includes/backend/meta_boxes.php:577
+#: includes/backend/meta_boxes.php:845
+msgid "-- Please Select --"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:493 includes/widgets/widget_sidebar.php:508
+#: install.php:43
+msgid "Automatic"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:494 includes/widgets/widget_sidebar.php:509
+#: install.php:44
+msgid "Manual"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:495 includes/widgets/widget_sidebar.php:510
+msgid "Semi-Auto"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:518 includes/widgets/widget_sidebar.php:662
+msgid "Fuel Type"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:523 includes/backend/meta_boxes.php:526
+#: includes/widgets/widget_sidebar.php:480 install.php:48
+msgid "Petrol"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:524 includes/widgets/widget_sidebar.php:481
+#: install.php:46
+msgid "Diesel"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:525 includes/widgets/widget_sidebar.php:483
+#: install.php:47
+msgid "Electric"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:527 includes/widgets/widget_sidebar.php:482
+#: install.php:49
+msgid "Hybrid"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:528 includes/widgets/widget_sidebar.php:484
+#: install.php:50
+msgid "Petrol+CNG"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:529 includes/widgets/widget_sidebar.php:485
+#: install.php:51
+msgid "LPG"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:538
+msgid "Auto Condition"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:543 includes/widgets/widget_sidebar.php:585
+#: install.php:52 shortcodes/class.pixad-autos.php:292
+msgid "New"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:544 includes/widgets/widget_sidebar.php:586
+#: install.php:53 shortcodes/class.pixad-autos.php:290
+msgid "Used"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:545 includes/widgets/widget_sidebar.php:587
+#: install.php:54
+msgid "Driver"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:546 includes/widgets/widget_sidebar.php:588
+#: install.php:55
+msgid "Non driver"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:547 includes/widgets/widget_sidebar.php:589
+#: install.php:57
+msgid "Projectcar"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:548 includes/widgets/widget_sidebar.php:590
+#: install.php:56
+msgid "Barnfind"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:557
+msgid "Auto Purpose"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:562 includes/widgets/widget_sidebar.php:614
+#: install.php:69
+msgid "Rent"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:563 includes/widgets/widget_sidebar.php:615
+#: install.php:70
+msgid "Experience"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:564 includes/widgets/widget_sidebar.php:616
+msgid "Sell"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:573
+msgid "Auto Drive"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:578 install.php:61
+msgid "Front"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:579 install.php:62
+msgid "Rear"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:580
+msgid "4x4"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:594 includes/backend/meta_boxes.php:618
+#: install.php:74
+msgid "white"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:595 includes/backend/meta_boxes.php:619
+#: install.php:75
+msgid "silver"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:596 includes/backend/meta_boxes.php:620
+#: install.php:76
+msgid "black"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:597 includes/backend/meta_boxes.php:621
+#: install.php:77
+msgid "grey"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:598 includes/backend/meta_boxes.php:622
+#: install.php:78
+msgid "blue"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:599 includes/backend/meta_boxes.php:623
+#: install.php:79
+msgid "red"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:600 includes/backend/meta_boxes.php:624
+#: install.php:80
+msgid "brown"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:601 install.php:82
+msgid "green"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:602 install.php:83
+msgid "yellow"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:603 install.php:84
+msgid "orange"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:604 install.php:85
+msgid "purple"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:625 install.php:81
+msgid "beige"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:639 install.php:71
+msgid "Request"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:640 install.php:72
+msgid "Reserved"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:641 install.php:73
+msgid "POA"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:663
+msgid "Stock status"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:667 install.php:58
+msgid "In stock"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:668 install.php:59
+msgid "Expected"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:669 install.php:60
+msgid "Out of stock"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:682 install.php:63
+msgid "Fixed"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:683 install.php:64
+msgid "Negotiable"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:696 includes/backend/settings.php:268
+#: install.php:65
+msgid "No"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:697 includes/backend/settings.php:269
+#: install.php:66
+msgid "Yes"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:750
+msgid "Engine, cm3"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:762
+msgid "Horsepower, hp"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:774
+msgid "Seating Capacity"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:786
+msgid "Seller first name"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:797
+msgid "Seller last name"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:808
+msgid "Seller email"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:819
+msgid "Seller phone"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:830
+msgid "Seller company"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:841
+msgid "Seller country"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:855
+msgid "Seller state"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:866
+msgid "Seller town"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:877
+msgid "Seller location label"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:888
+msgid "Seller location latitude"
+msgstr ""
+
+#: includes/backend/meta_boxes.php:899
+msgid "Seller location longitude"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1280
+#: includes/backend/post_taxonomy_type.php:1281
+#: includes/backend/post_taxonomy_type.php:1282
+#: includes/backend/post_taxonomy_type.php:1283
+msgid "Autos"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1284
+#: includes/backend/post_taxonomy_type.php:1285
+#: includes/backend/post_taxonomy_type.php:1286
+msgid "New Auto"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1287
+msgid "Edit Auto"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1288
+msgid "View Auto"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1289
+msgid "All Autos"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1290
+msgid "Search Autos"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1291
+msgid "Parent Autos:"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1292
+msgid "No autos found."
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1293
+msgid "No autos found in Trash."
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1365
+msgid "Model"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1366
+#: includes/backend/post_taxonomy_type.php:1375
+msgid "Models"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1367
+msgid "Search Auto Models"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1368
+msgid "All Auto Models"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1369
+msgid "Parent Auto Model"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1370
+msgid "Parent Auto Model:"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1371
+msgid "Edit Auto Model"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1372
+msgid "Update Auto Model"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1373
+msgid "Add Auto Model"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1374
+msgid "New Auto Model Name"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1392
+msgid "Body Style"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1393
+#: includes/backend/post_taxonomy_type.php:1402
+msgid "Body Styles"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1394
+msgid "Search Body Style"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1395
+msgid "All Body Styles"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1396
+msgid "Parent Body Style"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1397
+msgid "Parent Body Style:"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1398
+msgid "Edit Body Style"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1399
+msgid "Update Body Style"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1400
+msgid "Add Car Body Style"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1401
+msgid "New Body Style Name"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1419
+msgid "Equipment"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1420
+#: includes/backend/post_taxonomy_type.php:1429
+msgid "Equipments"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1421
+msgid "Search Equipment"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1422
+msgid "All Equipments"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1423
+msgid "Parent Equipment"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1424
+msgid "Parent Eqipment:"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1425
+msgid "Edit Equipment"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1426
+msgid "Update Equipment"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1427
+msgid "Add Car Equipment"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1428
+msgid "New Equipment Name"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1452
+#: includes/backend/post_taxonomy_type.php:1481
+#: includes/backend/post_taxonomy_type.php:1560
+#: includes/backend/post_taxonomy_type.php:1565
+#: includes/backend/post_taxonomy_type.php:1646
+#: includes/backend/post_taxonomy_type.php:1651
+msgid "Thumbnail"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1510
+#: includes/backend/post_taxonomy_type.php:1556
+#: includes/backend/post_taxonomy_type.php:1594
+#: includes/backend/post_taxonomy_type.php:1642
+#: includes/backend/post_taxonomy_type.php:1669
+#: includes/backend/post_taxonomy_type.php:1714
+#: includes/backend/post_taxonomy_type.php:1726
+msgid "Icon class"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1552
+#: includes/backend/post_taxonomy_type.php:1591
+#: includes/backend/post_taxonomy_type.php:1638
+#: includes/backend/post_taxonomy_type.php:1666
+#: includes/backend/post_taxonomy_type.php:1710
+#: includes/backend/post_taxonomy_type.php:1723
+#: includes/backend/validation.php:74 includes/backend/validation.php:143
+msgid "Icon"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1571
+#: includes/backend/post_taxonomy_type.php:1576
+msgid "Thumbnail for filter"
+msgstr ""
+
+#: includes/backend/post_taxonomy_type.php:1597
+#: includes/backend/post_taxonomy_type.php:1672
+msgid "Image"
+msgstr ""
+
+#: includes/backend/settings.php:74 includes/backend/settings.php:82
+#: includes/functions_backend.php:155
+msgid "General Settings"
+msgstr ""
+
+#: includes/backend/settings.php:87
+msgid "Site currency"
+msgstr ""
+
+#: includes/backend/settings.php:88
+msgid "Set site currency."
+msgstr ""
+
+#: includes/backend/settings.php:109
+msgid "List style"
+msgstr ""
+
+#: includes/backend/settings.php:110
+msgid "Set list style  for car listing page"
+msgstr ""
+
+#: includes/backend/settings.php:123
+msgid "Thousand Separator"
+msgstr ""
+
+#: includes/backend/settings.php:124
+msgid "This sets the thousand separator of displayed prices and mileage."
+msgstr ""
+
+#: includes/backend/settings.php:133
+msgid "Decimal Separator"
+msgstr ""
+
+#: includes/backend/settings.php:134
+msgid "This sets the decimal separator of displayed prices."
+msgstr ""
+
+#: includes/backend/settings.php:143
+msgid "Number of Decimals"
+msgstr ""
+
+#: includes/backend/settings.php:144
+msgid "This sets the number of decimal points shown in displayed prices."
+msgstr ""
+
+#: includes/backend/settings.php:152
+msgid "My cars page"
+msgstr ""
+
+#: includes/backend/settings.php:153
+msgid "Set page for users cars"
+msgstr ""
+
+#: includes/backend/settings.php:157 includes/backend/settings.php:171
+#: includes/backend/settings.php:185 includes/backend/settings.php:199
+msgid "Select page"
+msgstr ""
+
+#: includes/backend/settings.php:166
+msgid "Car listing page"
+msgstr ""
+
+#: includes/backend/settings.php:167
+msgid "Set page for car listing"
+msgstr ""
+
+#: includes/backend/settings.php:180
+msgid "Sell your car page"
+msgstr ""
+
+#: includes/backend/settings.php:181
+msgid "Set page for selling cars"
+msgstr ""
+
+#: includes/backend/settings.php:194
+msgid "Update car page"
+msgstr ""
+
+#: includes/backend/settings.php:195
+msgid "Set page for update car"
+msgstr ""
+
+#: includes/backend/settings.php:209
+msgid "Autos order"
+msgstr ""
+
+#: includes/backend/settings.php:210
+msgid "Default order."
+msgstr ""
+
+#: includes/backend/settings.php:215
+msgid "Last Added"
+msgstr ""
+
+#: includes/backend/settings.php:216
+msgid "First Added"
+msgstr ""
+
+#: includes/backend/settings.php:217
+msgid "Cheap First"
+msgstr ""
+
+#: includes/backend/settings.php:218
+msgid "Expensive First"
+msgstr ""
+
+#: includes/backend/settings.php:219
+msgid "Make A-Z"
+msgstr ""
+
+#: includes/backend/settings.php:220
+msgid "Make Z-A"
+msgstr ""
+
+#: includes/backend/settings.php:221
+msgid "Old First"
+msgstr ""
+
+#: includes/backend/settings.php:222
+msgid "New First"
+msgstr ""
+
+#: includes/backend/settings.php:229
+msgid "Text After Price"
+msgstr ""
+
+#: includes/backend/settings.php:230
+msgid "Set the text after all prices."
+msgstr ""
+
+#: includes/backend/settings.php:239
+msgid "Slider max price"
+msgstr ""
+
+#: includes/backend/settings.php:240
+msgid ""
+"Set max price for price slider. If max price in slider set to this position, "
+"will be shown all autos more expensive than min price."
+msgstr ""
+
+#: includes/backend/settings.php:249
+msgid "Autos per page"
+msgstr ""
+
+#: includes/backend/settings.php:250
+msgid "Set how many posts will be shown per page."
+msgstr ""
+
+#: includes/backend/settings.php:255 includes/widgets/widget_sidebar.php:395
+msgid "All"
+msgstr ""
+
+#: includes/backend/settings.php:262
+msgid "Show disabled equipment"
+msgstr ""
+
+#: includes/backend/settings.php:263
+msgid ""
+"If Yes, enabled and disabled equipment will be displayed on single auto page."
+msgstr ""
+
+#: includes/backend/settings.php:276
+msgid "Status after publication by auto user"
+msgstr ""
+
+#: includes/backend/settings.php:277
+msgid ""
+"Select the status of publication that will receive auto posts created by "
+"users."
+msgstr ""
+
+#: includes/backend/settings.php:282
+msgid "Selected"
+msgstr ""
+
+#: includes/backend/settings.php:292
+msgid "No found text in search result (HTML)"
+msgstr ""
+
+#: includes/backend/settings.php:293
+msgid "........"
+msgstr ""
+
+#: includes/backend/styling.php:27
+msgid "Styling"
+msgstr ""
+
+#: includes/backend/styling.php:40
+msgid "Primary Color"
+msgstr ""
+
+#: includes/backend/styling.php:41
+msgid "Set  Autos primary color. All main elements will use this color."
+msgstr ""
+
+#: includes/backend/styling.php:51
+msgid "Headings Color"
+msgstr ""
+
+#: includes/backend/styling.php:52
+msgid "Set color for headings (h1, h2, h3, h4, h5, h6) tags on  Autos pages."
+msgstr ""
+
+#: includes/backend/styling.php:62
+msgid "Headings Hover Color"
+msgstr ""
+
+#: includes/backend/styling.php:63
+msgid ""
+"Set color for headings hover (h1, h2, h3, h4, h5, h6) tags on  Autos pages."
+msgstr ""
+
+#: includes/backend/styling.php:73
+msgid "Links Colors"
+msgstr ""
+
+#: includes/backend/styling.php:74
+msgid "Set color for links (<a href>) tags on  Autos pages."
+msgstr ""
+
+#: includes/backend/styling.php:84
+msgid "Links Hover Color"
+msgstr ""
+
+#: includes/backend/styling.php:85
+msgid "Set color for links hover (<a href>) tags on  Autos pages."
+msgstr ""
+
+#: includes/backend/validation.php:60
+msgid "Validation Settings"
+msgstr ""
+
+#: includes/backend/validation.php:68 includes/backend/validation.php:137
+msgid "Input Field"
+msgstr ""
+
+#: includes/backend/validation.php:69 includes/backend/validation.php:138
+msgid "Required"
+msgstr ""
+
+#: includes/backend/validation.php:72 includes/backend/validation.php:141
+msgid "Display in Grid"
+msgstr ""
+
+#: includes/backend/validation.php:73 includes/backend/validation.php:142
+msgid "Display in List"
+msgstr ""
+
+#: includes/backend/validation.php:76
+msgid "Default value"
+msgstr ""
+
+#: includes/backend/validation.php:122
+msgid "Add in technical tab"
+msgstr ""
+
+#: includes/backend/validation.php:174
+msgid "Save"
+msgstr ""
+
+#: includes/functions_backend.php:71 includes/functions_backend.php:72
+msgid "Settings"
+msgstr ""
+
+#: includes/functions_backend.php:150
+msgid "Autos Settings"
+msgstr ""
+
+#: includes/functions_backend.php:164
+msgid "Auto Fields"
+msgstr ""
+
+#: includes/functions_global.php:1307
+msgid "1"
+msgstr ""
+
+#: includes/functions_global.php:1308
+msgid "<span class=\"icon-chevron-left\"></span>"
+msgstr ""
+
+#: includes/global/media_uploader.php:42
+msgid "Allowed Files"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:15
+msgid "Auto: By Make"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:15
+msgid "Filter autos by make."
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:65
+#: includes/widgets/widget_sidebar.php:85
+msgid "All Makes"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:198
+msgid "By Make"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:203
+#: includes/widgets/widget_sidebar.php:1020
+msgid "Title:"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:207
+msgid "Filter Type:"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:209
+msgid "List of makes"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:210
+msgid "Makes and models selects"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:240
+msgid "Auto: Filter"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:240
+msgid "Filter autos by price, body type, fuel, transmission."
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:477
+#: includes/widgets/widget_sidebar.php:479
+msgid "All Fuel Types"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:505
+#: includes/widgets/widget_sidebar.php:507
+msgid "All Transmissions"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:582
+#: includes/widgets/widget_sidebar.php:584
+msgid "All Conditions"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:611
+#: includes/widgets/widget_sidebar.php:613
+msgid "All purposes"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:658
+msgid "Price Range"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:660
+msgid "Vehicle Body Type"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:664
+msgid "Mileage Range"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:666
+msgid "Year Range"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:668
+msgid "Transmission Range"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:670
+msgid "Engine Volume"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:678
+msgid "Booking Time"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:679
+msgid "Filter Vehicles"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:696
+msgid "Show Booking Time Type:"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:699
+msgid "Booking Time Title:"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:705
+msgid "Show Price Range:"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:708
+msgid "Price Block Title:"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:713
+msgid "Show Vehicle Body Type:"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:716
+msgid "Vehicle Body Type Title:"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:721
+msgid "Show Fuel Type:"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:724
+msgid "Fuel Type Title:"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:729
+msgid "Show Mileage Range:"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:732
+msgid "Mileage Block Title:"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:737
+msgid "Show Year Range:"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:740
+msgid "Year Range Title:"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:745
+msgid "Show Transmission Type:"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:748
+msgid "Transmission Type Title:"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:755
+msgid "Show Engine Volume:"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:758
+msgid "Engine Volume Title:"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:763
+msgid "Show Condition:"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:766
+msgid "Condition Title:"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:773
+msgid "Show purpose:"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:776
+msgid "Purpose Title:"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:841
+msgid "Button Title:"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:899
+msgid "Auto: Account"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:899
+msgid "Show users links."
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:928
+msgid "You don't have any cars"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:944
+msgid "Add your car"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:954
+msgid "My Acount"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:957
+msgid "Widget Title:"
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:977
+msgid "A search car form for your site."
+msgstr ""
+
+#: includes/widgets/widget_sidebar.php:980
+msgctxt "Search car widget"
+msgid "Auto: Search"
+msgstr ""
+
+#: install.php:45
+msgid "Semi-Automatic"
+msgstr ""
+
+#: install.php:67
+msgid "Featured"
+msgstr ""
+
+#: install.php:68
+msgid "Sold"
+msgstr ""
+
+#: shortcodes/class.pixad-autos.php:64
+msgid "Car deleted successfuly!"
+msgstr ""
+
+#: shortcodes/class.pixad-autos.php:75
+msgid "Found Cars"
+msgstr ""
+
+#: shortcodes/class.pixad-autos.php:158
+msgid "Date:"
+msgstr ""
+
+#: shortcodes/class.pixad-autos.php:179
+msgid "Edit Car"
+msgstr ""
+
+#: shortcodes/class.pixad-autos.php:180
+msgid "Delete Car"
+msgstr ""
+
+#: shortcodes/class.pixad-autos.php:238 templates/single-pixad-autos.php:170
+msgid "Fuel:"
+msgstr ""
+
+#: shortcodes/class.pixad-autos.php:248 templates/single-pixad-autos.php:146
+msgid "Mileage:"
+msgstr ""
+
+#: shortcodes/class.pixad-autos.php:258
+msgid "Year:"
+msgstr ""
+
+#: shortcodes/class.pixad-autos.php:268
+msgid "Location:"
+msgstr ""
+
+#: shortcodes/class.pixad-autos.php:300
+msgid "Left drive"
+msgstr ""
+
+#: shortcodes/class.pixad-autos.php:302
+msgid "Right drive"
+msgstr ""
+
+#: shortcodes/class.pixad-autos.php:308 templates/autos_listing.php:134
+msgid "cm3"
+msgstr ""
+
+#: shortcodes/class.pixad-autos.php:312 templates/autos_listing.php:132
+msgid "hp"
+msgstr ""
+
+#: shortcodes/class.pixad-autos.php:316 templates/autos_listing.php:136
+msgid "doors"
+msgstr ""
+
+#: shortcodes/class.pixad-carousel.php:134
+msgid "warranty"
+msgstr ""
+
+#: templates/autos_grid.php:48 templates/autos_listing.php:182
+msgid "Add To Compare"
+msgstr ""
+
+#: templates/autos_grid.php:52 templates/autos_listing.php:185
+msgid "Remove From Compare"
+msgstr ""
+
+#: templates/autos_listing.php:66
+msgid "PRICE:"
+msgstr ""
+
+#: templates/autos_listing.php:146
+msgid "Updated :"
+msgstr ""
+
+#: templates/single-pixad-autos.php:97
+msgid "Car Details"
+msgstr ""
+
+#: templates/single-pixad-autos.php:101
+msgid "Car Equipment"
+msgstr ""
+
+#: templates/single-pixad-autos.php:105
+msgid "Car Description"
+msgstr ""
+
+#: templates/single-pixad-autos.php:109
+msgid "Contact Seller"
+msgstr ""
+
+#: templates/single-pixad-autos.php:122
+msgid "Make:"
+msgstr ""
+
+#: templates/single-pixad-autos.php:130
+msgid "Model:"
+msgstr ""
+
+#: templates/single-pixad-autos.php:138
+msgid "Made Year:"
+msgstr ""
+
+#: templates/single-pixad-autos.php:154
+msgid "VIN:"
+msgstr ""
+
+#: templates/single-pixad-autos.php:162
+msgid "Version:"
+msgstr ""
+
+#: templates/single-pixad-autos.php:178
+msgid "Engine (cm3):"
+msgstr ""
+
+#: templates/single-pixad-autos.php:186
+msgid "Horsepower (hp):"
+msgstr ""
+
+#: templates/single-pixad-autos.php:194
+msgid "Transmission:"
+msgstr ""
+
+#: templates/single-pixad-autos.php:202
+msgid "Doors:"
+msgstr ""
+
+#: templates/single-pixad-autos.php:210
+msgid "Condition:"
+msgstr ""
+
+#: templates/single-pixad-autos.php:218
+msgid "Drive:"
+msgstr ""
+
+#: templates/single-pixad-autos.php:219
+msgid " drive"
+msgstr ""
+
+#: templates/single-pixad-autos.php:226
+msgid "Seats:"
+msgstr ""
+
+#: templates/single-pixad-autos.php:234
+msgid "Color:"
+msgstr ""
+
+#: templates/single-pixad-autos.php:242
+msgid "Price:"
+msgstr ""
+
+#: templates/single-pixad-autos.php:250
+msgid "Price Type:"
+msgstr ""
+
+#: templates/single-pixad-autos.php:258
+msgid "Warranty:"
+msgstr ""
+
+#: templates/single-pixad-autos.php:293
+msgid "First Name"
+msgstr ""
+
+#: templates/single-pixad-autos.php:300
+msgid "Last Name"
+msgstr ""
+
+#: templates/single-pixad-autos.php:307
+msgid "E-mail"
+msgstr ""
+
+#: templates/single-pixad-autos.php:309
+msgid "show email"
+msgstr ""
+
+#: templates/single-pixad-autos.php:317
+msgid "Phone"
+msgstr ""
+
+#: templates/single-pixad-autos.php:319
+msgid "show phone"
+msgstr ""
+
+#: templates/single-pixad-autos.php:327
+msgid "Company"
+msgstr ""
+
+#: templates/single-pixad-autos.php:334
+msgid "Country"
+msgstr ""
+
+#: templates/single-pixad-autos.php:341
+msgid "State"
+msgstr ""
+
+#: templates/single-pixad-autos.php:348
+msgid "Town"
+msgstr ""
+
+#. Plugin Name of the plugin/theme
+msgid "PixAutoDeal"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid "Auto Deal Options for Autlines Theme"
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "Templines"
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "templines.com"
+msgstr ""

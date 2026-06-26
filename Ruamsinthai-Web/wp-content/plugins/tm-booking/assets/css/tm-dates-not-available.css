@@ -1,0 +1,25 @@
+/* Стили для сообщения о недоступных датах */
+.details-aside-content__btn span:nth-child(2) {
+    background-color: #fff5f5;
+    border-left: 4px solid #e53e3e;
+    color: #e53e3e;
+    padding: 12px 15px;
+    margin: 10px 0;
+    font-weight: 500;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    font-size: 16px;
+    line-height: 1.5;
+    display: block;
+    width: 100%;
+    position: relative;
+    padding-left: 35px;
+}
+
+.details-aside-content__btn span:nth-child(2):before {
+    content: '\26A0';  /* Unicode для символа предупреждения */
+    position: absolute;
+    left: 12px;
+    font-size: 20px;
+}

@@ -1,0 +1,97 @@
+.fl-resent-cars-vc{
+  .vc-cars-wrapper{
+    margin-top: -30px;
+    display: flex;
+    flex-wrap: wrap;
+    .slider-grid__inner{
+      margin-top: 25px;
+      .card__img{
+        margin-bottom: 20px;
+        position: relative;
+        overflow: hidden;
+        &:before{
+          position: absolute;
+          display: block;
+          right: -12px;
+          bottom: -47px;
+          content: '';
+          height: 61px;
+          width: 108%;
+          transform: rotate(-5deg);
+          opacity: 0;
+          transition: all .3s;
+        }
+        &:after{
+          position: absolute;
+          right: 0;
+          bottom: 0;
+          left: 0;
+          height: 34px;
+          opacity: 0;
+          content: '';
+          transition: all .3s;
+          clip-path: polygon(100% 0, 0% 100%, 100% 100%);
+        }
+        &:hover{
+            &:before,&:after{
+              opacity: 1;
+              transition: .3s ease;
+            }
+        }
+      }
+      .tmpl-gray-footer{
+        .top-info-content{
+          display: flex;
+          margin-bottom: 20px;
+          padding-bottom: 15px;
+          border-bottom: 1px solid #dddddd;
+          .tmpl-slider-grid__name{
+            flex-grow: 1;
+            font-size: 16px;
+            color: #222222;
+            margin-right: 5px;
+            a{
+              color: inherit;
+              transition: .3s ease;
+              &:hover{
+                transition: .3s ease;
+              }
+            }
+          }
+
+          .slider-grid__price_wrap{
+            flex-grow: 0;
+            font-size: 14px;
+          }
+        }
+        .tmpl-slider-grid__info{
+          display: flex;
+          justify-content: space-between;
+          padding: 0 4px;
+          li{
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            flex-basis: 0;
+            i{
+              font-size: 17px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              width: 100%;
+              color: #cccccc;
+              margin-bottom: 3px;
+            }
+            font-size: 11px;
+            color: #555;
+          }
+        }
+      }
+    }
+  }
+  .button-vc-car-wrapper{
+    margin-top: 63px;
+  }
+}

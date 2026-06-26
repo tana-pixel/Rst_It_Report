@@ -1,0 +1,28 @@
+.fl-icon-box{
+	.fl-icon-box-wrapper{
+		display: flex;
+		flex-wrap: wrap;
+		.icon-box-icon-wrapper{
+			flex-grow: 1;
+			display: inline-block;
+			width: 80px;
+			padding-top: 40px;
+			i{
+				font-size: 60px;
+			}
+		}
+		.icon-box-right-content{
+			padding-top: 40px;
+			padding-left: 10px;
+			flex-grow: 0;
+			width: calc(100% - 80px);
+			background: url(./sass/vc_page_builder_components/img/icon-box-bg.png) no-repeat;
+			display: inline-block;
+			.icon-box-title{
+				font-size: 18px;
+				margin-bottom: 10px;
+				line-height: 1.2;
+			}
+		}
+	}
+}

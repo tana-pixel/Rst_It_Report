@@ -1,0 +1,165 @@
+.fl-shop-slider{
+	position: relative;
+	overflow: hidden;
+	padding-left: 12px;
+	padding-right: 12px;
+	margin: 0 -30px;
+	padding-bottom: 150px;
+	.shop-archive-item{
+		float: left;
+		.onsale{
+			position: absolute;
+			text-align: center;
+			color: #ffffff;
+			right: 30px;
+			left: auto;
+			top: 30px;
+			line-height: 1;
+			min-width: auto;
+			min-height: auto;
+			border-radius: 0;
+			padding: 5px;
+			font-weight: 400;
+			font-size: 10px;
+			text-transform: uppercase;
+			letter-spacing: 0.1em;
+			z-index: 5;
+			background: #1c1f23;
+		}
+		&:hover{
+			.fl-woo-item-inner-content{
+				box-shadow: 0 5px 20px 5px rgba(0, 0, 0, 0.12)!important;
+				transform: translateY(0)!important;
+			}
+		}
+	}
+
+	//Arrow
+	.slick-arrow{
+		position: absolute;
+		top: auto;
+		bottom: 0;
+		transform: translate(0, -50%);
+		transition: all .3s;
+		cursor: pointer;
+		z-index: 1;
+		color: transparent;
+		height: 40px;
+		background: transparent;
+		border: none;
+		font-size: 0;
+		line-height: 0;
+		display: block;
+		padding: 0;
+		&:before{
+			content: '';
+			color: #cccccc;
+			width: 24px;
+			height: 24px;
+			display: block;
+			border-left: 2px solid #cccccc;
+			border-top: 2px solid #cccccc;
+			transition: .3s ease;
+		}
+		&:after{
+			content: '';
+			width: 33px;
+			height: 2px;
+			display: inline-block;
+			position: absolute;
+			top: calc(50% - 1px);
+			transition: .3s ease;
+			background: #cccccc;
+		}
+		&:hover{
+			&:before{
+				transition: .3s ease;
+			}
+		}
+	}
+	.slick-prev{
+		left: calc(50% - 159px);
+		&:before{
+			transform: rotate(-45deg);
+			margin-left: 20px;
+		}
+		&:after{
+			left: calc(100% - 12px);
+		}
+	}
+	.slick-next{
+		right: calc(50% - 149px);
+		&:before{
+			transform: rotate(135deg);
+			margin-right: 20px;
+		}
+		&:after{
+			right: calc(100% - 12px);
+		}
+
+	}
+	.slick-next,.slick-prev{
+		&:hover{
+			&:before{
+				transition: .3s ease;
+			}
+			&:after{
+				transition: .3s ease;
+			}
+		}
+	}
+
+	// Dots
+	.slick-dots{
+		position: absolute;
+		bottom: 33px;
+		display: block;
+		width: 100%;
+		padding: 0;
+		margin: 0 -15px;
+		list-style: none;
+		text-align: center;
+		li{
+			position: relative;
+			display: inline-block;
+			margin-right: 4px;
+			padding: 0;
+			cursor: pointer;
+			button{
+				min-height: auto;
+				font-size: 0;
+				line-height: 0;
+				display: flex;
+				width: 10px;
+				height: 10px;
+				border-radius: 50%;
+				cursor: pointer;
+				color: transparent;
+				outline: none;
+				position: relative;
+				padding: 0;
+				transition: .3s ease;
+				margin: 0 10px;
+				background-color: #eee;
+				&:hover{
+					transition: .3s ease;
+				}
+			}
+			&.slick-active{
+				button{
+					transition: .3s ease;
+				}
+			}
+			&:first-child{
+				button{
+					margin-left: 0;
+				}
+			}
+			&:last-child{
+				button{
+					margin-right: 0;
+				}
+			}
+		}
+	}
+}

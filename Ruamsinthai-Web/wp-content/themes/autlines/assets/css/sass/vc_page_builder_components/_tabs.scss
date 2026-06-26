@@ -1,0 +1,85 @@
+.fl-tabs{
+  display: flex;
+  flex-wrap: wrap;
+  .nav-tabs{
+    display: flex;
+    flex-wrap: wrap;
+    border-bottom: none;
+    align-items: flex-start;
+    li{
+      display: inline-flex;
+      margin-bottom: 24px;
+      cursor: pointer;
+      padding: 0;
+      color: #555;
+      text-align: center;
+      .tab-link-content{
+        background-size: cover;
+        margin-left: 20px;
+        display: block;
+        width: 100%;
+        position: relative;
+        overflow: hidden;
+        &:after{
+          position: absolute;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          left: 0;
+          opacity: .85;
+          background-color: #f2f6f7;
+          content: '';
+          -webkit-transition: all .3s;
+          transition: all .3s;
+        }
+
+        .inner-content{
+          text-align: center;
+          .tabs-icon{
+            z-index: 2;
+            font-size: 90px;
+            position: relative;
+            line-height: 175px;
+            color: #222;
+            transition: all .3s;
+            top: 8px;
+          }
+          .tab-title-content{
+            display: block;
+            position: relative;
+            z-index: 2;
+            padding: 50px 30px 22px;
+            color: #fff;
+            width: 100.5%;
+            transition: all .3s;
+            clip-path: polygon(0% 10%, 0 100%, 100% 100%, 100% 0, 28% 24%);
+          }
+        }
+      }
+
+      &:hover{
+        cursor: pointer;
+        .tabs-icon{
+          color: #fff!important;
+        }
+        .tab-title-content{
+          color: #222222!important;
+          background: #fff!important;
+        }
+      }
+    }
+  }
+}
+
+
+/*-------------------------------------------------------------------
+
+==  max-width 991px
+
+-------------------------------------------------------------------*/
+
+@media screen and (max-width: 991px) {
+  .fl-tabs{
+    flex-wrap: wrap-reverse;
+  }
+}

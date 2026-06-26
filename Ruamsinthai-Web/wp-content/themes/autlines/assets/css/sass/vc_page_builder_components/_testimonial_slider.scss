@@ -1,0 +1,29 @@
+.testimonial-slider{
+  overflow: hidden;
+  .fl-testimonial-slide{
+      float: left;
+      text-align: center;
+    .testimonial-slide-content{
+      font-size: 18px;
+      line-height: 1.89;
+       color: #ffffff;
+    }
+    .bottom-content{
+      margin-top: 35px;
+      i{
+        font-size: 25px;
+        line-height: 1;
+      }
+      .testimonial-name{
+        font-size: 16px;
+        margin-top: 10px;
+        color: #ffffff;
+      }
+      .testimonial-profession{
+        text-transform: uppercase;
+        font-size: 12px;
+        color: #ffffff;
+      }
+    }
+  }
+}
