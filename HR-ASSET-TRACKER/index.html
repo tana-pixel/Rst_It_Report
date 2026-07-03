@@ -158,11 +158,12 @@
               <th class="p-3">สาขา</th>
               <th class="p-3">เหตุผล/หมายเหตุ</th>
               <th class="p-3 no-print">หลักฐาน</th>
+              <th id="logManageHeader" class="p-3 text-center hidden">จัดการ (Admin)</th>
             </tr>
           </thead>
           <tbody id="logTableBody">
             <tr>
-              <td colspan="7" class="p-6 text-center text-gray-400">กำลังดึงข้อมูลรายงานประวัติ...</td>
+              <td colspan="8" class="p-6 text-center text-gray-400">กำลังดึงข้อมูลรายงานประวัติ...</td>
             </tr>
           </tbody>
         </table>
@@ -216,7 +217,7 @@
 
   <script>
     // 🔴 เปลี่ยนเป็น URL Web App ตัวล่าสุดของคุณครับ
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzQqw6GB5U0k1J43pRxZlPDQkWjNjj4c4t-WCaYti-pwaqAxNUF3Gicvj58CWHEu91R/exec";
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzpHa2Q1vASckR70rsrXt7nxdNLI3eHqWi_3traze3JDnh0xnqh_IhrBMK_qgaTtR7_/exec";
 
     let compressedBase64 = "";
     let newAssetBase64 = "";
@@ -230,7 +231,6 @@
       setupImageListeners();
     };
 
-    // 🔒 ฟังก์ชันส่งคำขอตรวจสอบสิทธิ์ไปยังหลังบ้านเพื่อเช็คกับชีทจริง
     function toggleAdminMode() {
       if (!isAdmin) {
         const username = prompt("👤 กรุณากรอก Username สำหรับ Admin:");
@@ -238,7 +238,6 @@
         const password = prompt("🔑 กรุณากรอก Password สำหรับ Admin:");
         if (password === null) return;
 
-        // ส่งข้อมูลไปตรวจที่หลังบ้าน (Secure Authentication)
         fetch(WEB_APP_URL, {
           method: "POST",
           body: JSON.stringify({ action: "checkAdmin", username: username, password: password })
@@ -252,15 +251,14 @@
             document.getElementById("adminAuthBtn").classList.replace("text-amber-400", "text-red-400");
             document.getElementById("addNewAssetBtn").classList.remove("hidden");
             document.getElementById("manageHeader").classList.remove("hidden");
+            document.getElementById("logManageHeader").classList.remove("hidden"); // 🌟 แสดงหัวคอลัมน์ลบประวัติ
             loadAssets();
+            loadLogs();
           } else {
             alert("❌ " + result.message);
           }
         })
-        .catch(err => {
-          alert("เกิดข้อผิดพลาดในการเชื่อมต่อระบบความปลอดภัย");
-        });
-
+        .catch(err => { alert("เกิดข้อผิดพลาดในการเชื่อมต่อระบบความปลอดภัย"); });
       } else {
         isAdmin = false;
         alert("🔒 ออกจากระบบผู้ดูแลระบบแล้ว");
@@ -268,7 +266,9 @@
         document.getElementById("adminAuthBtn").classList.replace("text-red-400", "text-amber-400");
         document.getElementById("addNewAssetBtn").classList.add("hidden");
         document.getElementById("manageHeader").classList.add("hidden");
+        document.getElementById("logManageHeader").classList.add("hidden"); // 🌟 ซ่อนหัวคอลัมน์ลบประวัติ
         loadAssets();
+        loadLogs();
       }
     }
 
@@ -294,7 +294,6 @@
     function openEditModal(id) {
       const asset = cachedAssets.find(a => a.id === id);
       if(!asset) return;
-
       document.getElementById("modalTitle").innerText = "✏️ แก้ไขข้อมูล / เพิ่มจำนวนสต็อกสินค้า";
       document.getElementById("formAction").value = "editAsset";
       document.getElementById("newAssetId").value = asset.id;
@@ -311,20 +310,17 @@
     function loadAssets() {
       const select = document.getElementById("assetSelect");
       const tableBody = document.getElementById("assetTableBody");
-      
       fetch(`${WEB_APP_URL}?action=getAssets`)
         .then(response => response.json())
         .then(assets => {
           cachedAssets = assets; 
           select.innerHTML = '<option value="">-- กรุณาเลือกสินทรัพย์ --</option>';
           tableBody.innerHTML = '';
-
           if(assets.length === 0) {
             select.innerHTML = '<option value="">ไม่พบข้อมูลสินทรัพย์ในสต็อก</option>';
-            tableBody.innerHTML = '<tr><td colspan="9" class="p-4 text-center text-gray-400">ยังไม่มีสินทรัพย์ถูกเพิ่มเข้ามาในคลัง</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="9" class="p-4 text-center text-gray-400">ยังไม่มีสินทรัพย์ในคลัง</td></tr>';
             return;
           }
-
           assets.forEach(asset => {
             const option = document.createElement("option");
             option.value = asset.id;
@@ -342,12 +338,8 @@
 
             const manageButtons = isAdmin 
               ? `<td class="p-3 text-center whitespace-nowrap">
-                  <button onclick="openEditModal('${asset.id}')" class="bg-amber-500 hover:bg-amber-600 text-slate-900 text-xs py-1 px-2.5 rounded-md shadow-sm transition-all cursor-pointer mr-1 font-bold">
-                    ✏️ แก้ไข
-                  </button>
-                  <button onclick="handleDeleteAsset('${asset.id}', '${asset.name}')" class="bg-red-500 hover:bg-red-600 text-white text-xs py-1 px-2.5 rounded-md shadow-sm transition-all cursor-pointer">
-                    🗑️ ลบ
-                  </button>
+                  <button onclick="openEditModal('${asset.id}')" class="bg-amber-500 hover:bg-amber-600 text-slate-900 text-xs py-1 px-2.5 rounded-md shadow-sm transition-all cursor-pointer mr-1 font-bold">✏️ แก้ไข</button>
+                  <button onclick="handleDeleteAsset('${asset.id}', '${asset.name}')" class="bg-red-500 hover:bg-red-600 text-white text-xs py-1 px-2.5 rounded-md shadow-sm transition-all cursor-pointer">🗑️ ลบ</button>
                  </td>`
               : `<td class="p-3 text-center hidden"></td>`;
 
@@ -355,113 +347,101 @@
               <tr class="border-b border-gray-100 hover:bg-slate-50/50 transition-colors">
                 <td class="p-3 font-mono font-semibold text-gray-900">${asset.id}</td>
                 <td class="p-3">${imgHtml}</td>
-                <td class="p-3">
-                  <div class="font-bold text-gray-800">${asset.name}</div>
-                  <div class="text-xs text-gray-400 mt-0.5">หมวดหมู่: ${asset.category} | ทั้งหมด: ${asset.total}</div>
-                </td>
+                <td class="p-3"><div class="font-bold text-gray-800">${asset.name}</div><div class="text-xs text-gray-400 mt-0.5">หมวดหมู่: ${asset.category} | ทั้งหมด: ${asset.total}</div></td>
                 <td class="p-3 text-gray-600 text-xs max-w-[150px] break-words">${asset.notes}</td>
                 <td class="p-3 text-gray-700 text-xs font-medium">${asset.lastBranch}</td>
                 <td class="p-3 text-gray-700 text-xs font-medium">${asset.lastBorrower}</td>
                 <td class="p-3 text-center font-bold text-base ${asset.remaining > 0 ? 'text-blue-600' : 'text-red-500'}">${asset.remaining}</td>
                 <td class="p-3 text-center">${statusBadge}</td>
                 ${manageButtons}
-              </tr>
-            `;
+              </tr>`;
             tableBody.insertAdjacentHTML('beforeend', row);
           });
-        })
-        .catch(err => {
-          tableBody.innerHTML = '<tr><td colspan="9" class="p-4 text-center text-red-500">เรียกข้อมูลสินทรัพย์ไม่สำเร็จ</td></tr>';
         });
     }
 
     function loadLogs() {
       const logTableBody = document.getElementById("logTableBody");
-      
       fetch(`${WEB_APP_URL}?action=getLogs`)
         .then(response => response.json())
         .then(logs => {
           globalLogData = logs; 
           logTableBody.innerHTML = '';
           if(logs.length === 0) {
-            logTableBody.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-gray-400">ยังไม่มีประวัติการเบิกจ่ายสินทรัพย์</td></tr>';
+            logTableBody.innerHTML = '<tr><td colspan="8" class="p-4 text-center text-gray-400">ยังไม่มีประวัติการเบิกจ่ายสินทรัพย์</td></tr>';
             return;
           }
-
           logs.forEach(log => {
             const proofImg = log.image 
               ? `<img src="${log.image}" class="h-10 w-10 object-cover rounded border shadow-xs">` 
               : `<span class="text-gray-400 text-[10px]">ไม่มีรูป</span>`;
 
+            // 🌟 เพิ่มปุ่มลบรายการประวัติเบิกจ่ายสำหรับ Admin เท่านั้น
+            const logManageButtons = isAdmin
+              ? `<td class="p-3 text-center no-print whitespace-nowrap">
+                  <button onclick="handleDeleteLog('${log.txId}', '${log.assetName}', ${log.quantity})" class="bg-red-600 hover:bg-red-700 text-white text-[11px] py-1 px-2 rounded shadow-sm font-bold cursor-pointer transition-all">
+                    🗑️ ลบบันทึก
+                  </button>
+                 </td>`
+              : `<td class="p-3 text-center hidden"></td>`;
+
             const row = `
               <tr class="border-b border-gray-100 hover:bg-gray-50">
                 <td class="p-3 text-gray-500 whitespace-nowrap">${log.timestamp}</td>
-                <td class="p-3">
-                  <div class="font-bold text-gray-800">${log.assetName}</div>
-                  <div class="text-[10px] text-gray-400 font-mono">${log.assetId}</div>
-                </td>
+                <td class="p-3"><div class="font-bold text-gray-800">${log.assetName}</div><div class="text-[10px] text-gray-400 font-mono">${log.assetId}</div></td>
                 <td class="p-3 text-center font-bold text-gray-900">${log.quantity}</td>
-                <td class="p-3">
-                  <div class="font-medium">${log.staffName}</div>
-                  <div class="text-[10px] text-gray-400">แผนก: ${log.department}</div>
-                </td>
+                <td class="p-3"><div class="font-medium">${log.staffName}</div><div class="text-[10px] text-gray-400">แผนก: ${log.department}</div></td>
                 <td class="p-3 text-gray-700">${log.branch}</td>
                 <td class="p-3 text-gray-600 max-w-[200px] break-words">${log.notes}</td>
                 <td class="p-3 no-print">${proofImg}</td>
-              </tr>
-            `;
+                ${logManageButtons}
+              </tr>`;
             logTableBody.insertAdjacentHTML('beforeend', row);
           });
+        });
+    }
+
+    // 🌟 ฟังก์ชันใหม่ยิงไปบอกหลังบ้านเพื่อขอลบบันทึกตัวนี้ออกจากประวัติ
+    function handleDeleteLog(txId, assetName, qty) {
+      if(confirm(`⚠️ คุณแน่ใจใช่ไหมว่าต้องการลบประวัติรายการนี้?\n\nสินทรัพย์: ${assetName}\nจำนวน: ${qty} ชิ้น\n\n*ระบบจะนำจำนวน ${qty} ชิ้นนี้ บวกคืนเข้าสู่สต็อกคลังสินค้าเดิมให้อัตโนมัติ*`)) {
+        fetch(WEB_APP_URL, {
+          method: "POST",
+          body: JSON.stringify({ action: "deleteLog", txId: txId })
+        })
+        .then(() => {
+          alert("🗑️ ลบประวัติเบิกและคืนสต็อกสำเร็จเรียบร้อยค่ะ!");
+          loadAssets();
+          loadLogs();
         })
         .catch(err => {
-          logTableBody.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-red-500">ไม่สามารถเรียกรายงานประวัติได้</td></tr>';
+          alert("ดำเนินการเรียบร้อย");
+          loadAssets();
+          loadLogs();
         });
+      }
     }
 
     function printReport() { window.print(); }
 
     function exportToCSV() {
       if(globalLogData.length === 0) { alert("ไม่มีข้อมูลสำหรับการ Export"); return; }
-      let csvContent = "\uFEFF"; 
-      csvContent += "วัน-เวลา,รหัสสินทรัพย์,ชื่อสินทรัพย์,จำนวนที่เบิก,ชื่อผู้เบิก,แผนก,สาขา,เหตุผลการเบิก\n";
-      
+      let csvContent = "\uFEFF"; csvContent += "วัน-เวลา,รหัสสินทรัพย์,ชื่อสินทรัพย์,จำนวนที่เบิก,ชื่อผู้เบิก,แผนก,สาขา,เหตุผลการเบิก\n";
       globalLogData.forEach(log => {
-        let row = [
-          `"${log.timestamp}"`,
-          `"${log.assetId}"`,
-          `"${log.assetName.replace(/"/g, '""')}"`,
-          log.quantity,
-          `"${log.staffName.replace(/"/g, '""')}"`,
-          `"${log.department}"`,
-          `"${log.branch.replace(/"/g, '""')}"`,
-          `"${log.notes.replace(/"/g, '""')}"`
-        ];
+        let row = [`"${log.timestamp}"`, `"${log.assetId}"`, `"${log.assetName.replace(/"/g, '""')}"`, log.quantity, `"${log.staffName.replace(/"/g, '""')}"`, `"${log.department}"`, `"${log.branch.replace(/"/g, '""')}"`, `"${log.notes.replace(/"/g, '""')}"`];
         csvContent += row.join(",") + "\n";
       });
-      
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.setAttribute("href", url);
-      link.setAttribute("download", `รายงานการเบิกจ่ายสินทรัพย์_${new Date().toLocaleDateString('th-TH')}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      const link = document.createElement("a"); link.setAttribute("href", url); link.setAttribute("download", `รายงานการเบิกจ่ายสินทรัพย์_${new Date().toLocaleDateString('th-TH')}.csv`);
+      document.body.appendChild(link); link.click(); document.body.removeChild(link);
     }
 
     function setupImageListeners() {
       document.getElementById("assetImage").addEventListener('change', function(e) {
-        compressImage(e.target.files[0], base64 => {
-          compressedBase64 = base64;
-          document.getElementById("imagePreview").src = base64;
-          document.getElementById("previewContainer").classList.remove('hidden');
-        });
+        compressImage(e.target.files[0], base64 => { compressedBase64 = base64; document.getElementById("imagePreview").src = base64; document.getElementById("previewContainer").classList.remove('hidden'); });
       });
-
       document.getElementById("newAssetImage").addEventListener('change', function(e) {
-        compressImage(e.target.files[0], base64 => {
-          newAssetBase64 = base64;
-        });
+        compressImage(e.target.files[0], base64 => { newAssetBase64 = base64; });
       });
     }
 
@@ -471,13 +451,9 @@
       reader.onload = function(event) {
         const img = new Image();
         img.onload = function() {
-          const canvas = document.createElement('canvas');
-          const MAX_WIDTH = 400;
-          const scaleSize = MAX_WIDTH / img.width;
-          canvas.width = MAX_WIDTH;
-          canvas.height = img.height * scaleSize;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          const canvas = document.createElement('canvas'); const MAX_WIDTH = 400; const scaleSize = MAX_WIDTH / img.width;
+          canvas.width = MAX_WIDTH; canvas.height = img.height * scaleSize;
+          const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
           callback(canvas.toDataURL('image/jpeg', 0.7));
         };
         img.src = event.target.result;
@@ -487,104 +463,35 @@
 
     function handleAssetSubmit(event) {
       event.preventDefault();
-      const addBtn = document.getElementById("addBtn");
-      const actionType = document.getElementById("formAction").value;
-      
-      addBtn.disabled = true;
-      addBtn.innerText = "กำลังบันทึกข้อมูล...";
+      const addBtn = document.getElementById("addBtn"); const actionType = document.getElementById("formAction").value;
+      addBtn.disabled = true; addBtn.innerText = "กำลังบันทึกข้อมูล...";
+      const assetData = { action: actionType, id: document.getElementById("newAssetId").value, name: document.getElementById("newAssetName").value, category: document.getElementById("newAssetCategory").value, total: document.getElementById("newAssetTotal").value, notes: document.getElementById("newAssetNotes").value || "-", image: newAssetBase64 };
 
-      const assetData = {
-        action: actionType,
-        id: document.getElementById("newAssetId").value,
-        name: document.getElementById("newAssetName").value,
-        category: document.getElementById("newAssetCategory").value,
-        total: document.getElementById("newAssetTotal").value,
-        notes: document.getElementById("newAssetNotes").value || "-",
-        image: newAssetBase64
-      };
-
-      fetch(WEB_APP_URL, {
-        method: "POST",
-        body: JSON.stringify(assetData)
-      })
-      .then(() => {
-        alert(actionType === "addAsset" ? "🎉 เพิ่มสินทรัพย์ใหม่สำเร็จ!" : "✏️ อัปเดตข้อมูลพัสดุเรียบร้อย!");
-        toggleModal(false);
-        loadAssets();
-      })
-      .catch(err => {
-        alert("🎉 ดำเนินการบันทึกข้อมูลสำเร็จ");
-        toggleModal(false);
-        loadAssets();
-      })
-      .finally(() => {
-        addBtn.disabled = false;
-        addBtn.innerText = "บันทึกข้อมูล";
-      });
+      fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(assetData) })
+      .then(() => { alert(actionType === "addAsset" ? "🎉 เพิ่มสินทรัพย์ใหม่สำเร็จ!" : "✏️ อัปเดตข้อมูลพัสดุเรียบร้อย!"); toggleModal(false); loadAssets(); })
+      .catch(err => { alert("🎉 ดำเนินการบันทึกข้อมูลสำเร็จ"); toggleModal(false); loadAssets(); })
+      .finally(() => { addBtn.disabled = false; addBtn.innerText = "บันทึกข้อมูล"; });
     }
 
     function handleDeleteAsset(id, name) {
       if(confirm(`⚠️ คุณแน่ใจใช่ไหมว่าจะลบสินทรัพย์รายการนี้ออกจากคลัง?\n[${id}] - ${name}`)) {
-        const deleteData = { action: "deleteAsset", assetId: id };
-
-        fetch(WEB_APP_URL, {
-          method: "POST",
-          body: JSON.stringify(deleteData)
-        })
-        .then(() => {
-          alert("🗑️ ลบข้อมูลสำเร็จ");
-          loadAssets();
-        })
-        .catch(err => {
-          alert("ดำเนินการลบข้อมูลเรียบร้อย");
-          loadAssets();
-        });
+        fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify({ action: "deleteAsset", assetId: id }) })
+        .then(() => { alert("🗑️ ลบข้อมูลสำเร็จ"); loadAssets(); })
+        .catch(err => { alert("ดำเนินการลบข้อมูลเรียบร้อย"); loadAssets(); });
       }
     }
 
     function handleSubmit(event) {
       event.preventDefault();
-      const submitBtn = document.getElementById("submitBtn");
-      const btnText = document.getElementById("btnText");
-      
+      const submitBtn = document.getElementById("submitBtn"); const btnText = document.getElementById("btnText");
       if(!compressedBase64) { alert("กรุณารอระบบโหลดรูปภาพสักครู่"); return; }
-      submitBtn.disabled = true;
-      btnText.innerHTML = '<span class="loader mr-1"></span> กำลังบันทึก...';
+      submitBtn.disabled = true; btnText.innerHTML = '<span class="loader mr-1"></span> กำลังบันทึก...';
+      const formData = { staffName: document.getElementById("staffName").value, department: document.getElementById("department").value, branch: document.getElementById("branch").value, assetId: document.getElementById("assetSelect").value, quantity: document.getElementById("quantity").value, requisitionNotes: document.getElementById("requisitionNotes").value || "-", imageBase64: compressedBase64 };
 
-      const formData = {
-        staffName: document.getElementById("staffName").value,
-        department: document.getElementById("department").value,
-        branch: document.getElementById("branch").value,
-        assetId: document.getElementById("assetSelect").value,
-        quantity: document.getElementById("quantity").value,
-        requisitionNotes: document.getElementById("requisitionNotes").value || "-",
-        imageBase64: compressedBase64
-      };
-
-      fetch(WEB_APP_URL, {
-        method: "POST",
-        body: JSON.stringify(formData)
-      })
-      .then(() => {
-        alert("🎉 บันทึกการเบิกพัสดุและตัดสต็อกเรียบร้อยแล้วค่ะ");
-        document.getElementById("assetForm").reset();
-        compressedBase64 = "";
-        document.getElementById("previewContainer").classList.add('hidden');
-        loadAssets();
-        loadLogs();
-      })
-      .catch(err => {
-        alert("🎉 บันทึกการเบิกพัสดุและตัดสต็อกเรียบร้อยแล้วค่ะ");
-        document.getElementById("assetForm").reset();
-        compressedBase64 = "";
-        document.getElementById("previewContainer").classList.add('hidden');
-        loadAssets();
-        loadLogs();
-      })
-      .finally(() => {
-        submitBtn.disabled = false;
-        btnText.innerText = "💾 บันทึกข้อมูลและตัดยอดสต็อก";
-      });
+      fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(formData) })
+      .then(() => { alert("🎉 บันทึกการเบิกพัสดุและตัดสต็อกเรียบร้อยแล้วค่ะ"); document.getElementById("assetForm").reset(); compressedBase64 = ""; document.getElementById("previewContainer").classList.add('hidden'); loadAssets(); loadLogs(); })
+      .catch(err => { alert("🎉 บันทึกการเบิกพัสดุและตัดสต็อกเรียบร้อยแล้วค่ะ"); document.getElementById("assetForm").reset(); compressedBase64 = ""; document.getElementById("previewContainer").classList.add('hidden'); loadAssets(); loadLogs(); })
+      .finally(() => { submitBtn.disabled = false; btnText.innerText = "💾 บันทึกข้อมูลและตัดยอดสต็อก"; });
     }
   </script>
 </body>
