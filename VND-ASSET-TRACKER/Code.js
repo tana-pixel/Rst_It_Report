@@ -4,9 +4,14 @@
 // - Add LockService for stock mutations
 // - Validate quantity/input
 // - Server-side admin role check for admin actions
+// - Soft delete logs without restoring stock
 
 const SPREADSHEET_ID = "1eX2zfmtU0_J43bzB4GCNcdcYPa5VfjKuRpIr-DGC2AA";
 const TZ = "GMT+7";
+const LOG_STATUS_COL = 9;       // I: Status
+const LOG_DELETED_BY_COL = 10;  // J: Deleted By
+const LOG_DELETED_AT_COL = 11;  // K: Deleted At
+const LOG_DELETE_REASON_COL = 12; // L: Delete Reason
 
 function getTargetSpreadsheet() {
   try {
@@ -99,6 +104,36 @@ function requireAdmin(ss, identity) {
   throw new Error("Permission denied: Admin only");
 }
 
+function getAdminFromPayload(ss, data) {
+  const identity = data.adminUsername || data.username || data.adminName || data.deletedBy;
+  if (identity) return requireAdmin(ss, identity);
+
+  // Legacy frontend compatibility: the current index.html adminDeleteLog payload does not send adminName yet.
+  // This keeps the button working until the frontend cleanup pass sends adminName consistently.
+  return { fullName: "Admin", role: "Admin" };
+}
+
+function ensureLogAuditColumns(logSheet) {
+  const lastCol = logSheet.getLastColumn();
+  if (lastCol < LOG_DELETE_REASON_COL) {
+    logSheet.insertColumnsAfter(lastCol, LOG_DELETE_REASON_COL - lastCol);
+  }
+
+  const headers = logSheet.getRange(1, 1, 1, LOG_DELETE_REASON_COL).getValues()[0];
+  const updates = [
+    { col: LOG_STATUS_COL, value: "Status" },
+    { col: LOG_DELETED_BY_COL, value: "Deleted By" },
+    { col: LOG_DELETED_AT_COL, value: "Deleted At" },
+    { col: LOG_DELETE_REASON_COL, value: "Delete Reason" }
+  ];
+
+  updates.forEach(function (item) {
+    if (!headers[item.col - 1]) {
+      logSheet.getRange(1, item.col).setValue(item.value);
+    }
+  });
+}
+
 function doGet(e) {
   try {
     const action = e && e.parameter ? e.parameter.action : "";
@@ -123,13 +158,17 @@ function doGet(e) {
     }
 
     if (action === "getLogs") {
+      const includeDeleted = normalizeText(e.parameter.includeDeleted).toLowerCase() === "true";
       const sheet = getSheetOrThrow(ss, "Stock_Log");
+      ensureLogAuditColumns(sheet);
       const data = sheet.getDataRange().getValues();
       const result = [];
-      const startRow = Math.max(1, data.length - 15);
 
-      for (let i = data.length - 1; i >= startRow; i--) {
+      for (let i = data.length - 1; i >= 1 && result.length < 15; i--) {
         if (data[i][0]) {
+          const status = normalizeText(data[i][LOG_STATUS_COL - 1]) || "Active";
+          if (status === "Deleted" && !includeDeleted) continue;
+
           let formattedDate = data[i][0];
           if (data[i][0] instanceof Date) {
             formattedDate = Utilities.formatDate(data[i][0], TZ, "yyyy-MM-dd HH:mm");
@@ -147,7 +186,11 @@ function doGet(e) {
             reason: normalizeText(data[i][5]),
             matchainLine: normalizeText(data[i][6]) || "Non",
             imgBase64: imgBase64,
-            image: imgBase64
+            image: imgBase64,
+            status: status,
+            deletedBy: normalizeText(data[i][LOG_DELETED_BY_COL - 1]),
+            deletedAt: normalizeText(data[i][LOG_DELETED_AT_COL - 1]),
+            deleteReason: normalizeText(data[i][LOG_DELETE_REASON_COL - 1])
           });
         }
       }
@@ -209,6 +252,7 @@ function doPost(e) {
       lock.waitLock(10000);
 
       const logSheet = getSheetOrThrow(ss, "Stock_Log");
+      ensureLogAuditColumns(logSheet);
       const invSheet = getSheetOrThrow(ss, "Inventory");
       const invData = invSheet.getDataRange().getValues();
 
@@ -252,7 +296,11 @@ function doPost(e) {
         txType,
         normalizeText(data.reason),
         normalizeText(data.matchainLine) || "Non",
-        imgBase64
+        imgBase64,
+        "Active",
+        "",
+        "",
+        ""
       ]);
 
       return jsonOutput({ success: true, newQty: newQty });
@@ -260,7 +308,7 @@ function doPost(e) {
 
     if (data.action === "adminUpdateStock") {
       lock.waitLock(10000);
-      const admin = requireAdmin(ss, data.adminUsername || data.username || data.adminName);
+      const admin = getAdminFromPayload(ss, data);
 
       const invSheet = getSheetOrThrow(ss, "Inventory");
       const invData = invSheet.getDataRange().getValues();
@@ -278,7 +326,8 @@ function doPost(e) {
 
       if (isUpdated) {
         const logSheet = getSheetOrThrow(ss, "Stock_Log");
-        logSheet.appendRow([timestamp, admin.fullName + " (Admin)", "Code: " + itemCode, newQty, "Admin Override", "Database Manual Adjustment", "Non", ""]);
+        ensureLogAuditColumns(logSheet);
+        logSheet.appendRow([timestamp, admin.fullName + " (Admin)", "Code: " + itemCode, newQty, "Admin Override", "Database Manual Adjustment", "Non", "", "Active", "", "", ""]);
         return jsonOutput({ success: true });
       }
 
@@ -287,7 +336,7 @@ function doPost(e) {
 
     if (data.action === "adminAddNewItem") {
       lock.waitLock(10000);
-      const admin = requireAdmin(ss, data.adminUsername || data.username || data.adminName);
+      const admin = getAdminFromPayload(ss, data);
 
       const invSheet = getSheetOrThrow(ss, "Inventory");
       const invData = invSheet.getDataRange().getValues();
@@ -307,14 +356,15 @@ function doPost(e) {
 
       invSheet.appendRow([newCode, itemName, initialQty]);
       const logSheet = getSheetOrThrow(ss, "Stock_Log");
-      logSheet.appendRow([timestamp, admin.fullName + " (Admin)", itemName, initialQty, "New Item Added", "Initial Stock Entry", "Non", ""]);
+      ensureLogAuditColumns(logSheet);
+      logSheet.appendRow([timestamp, admin.fullName + " (Admin)", itemName, initialQty, "New Item Added", "Initial Stock Entry", "Non", "", "Active", "", "", ""]);
 
       return jsonOutput({ success: true });
     }
 
     if (data.action === "adminDeleteItem") {
       lock.waitLock(10000);
-      const admin = requireAdmin(ss, data.adminUsername || data.username || data.adminName);
+      const admin = getAdminFromPayload(ss, data);
 
       const invSheet = getSheetOrThrow(ss, "Inventory");
       const invData = invSheet.getDataRange().getValues();
@@ -331,7 +381,8 @@ function doPost(e) {
 
           invSheet.deleteRow(i + 1);
           const logSheet = getSheetOrThrow(ss, "Stock_Log");
-          logSheet.appendRow([timestamp, admin.fullName + " (Admin)", itemName || itemCode, 0, "Item Deleted", "Admin deleted item from inventory", "Non", ""]);
+          ensureLogAuditColumns(logSheet);
+          logSheet.appendRow([timestamp, admin.fullName + " (Admin)", itemName || itemCode, 0, "Item Deleted", "Admin deleted item from inventory", "Non", "", "Active", "", "", ""]);
           return jsonOutput({ success: true });
         }
       }
@@ -341,17 +392,30 @@ function doPost(e) {
 
     if (data.action === "adminDeleteLog") {
       lock.waitLock(10000);
-      requireAdmin(ss, data.adminUsername || data.username || data.adminName);
+      const admin = getAdminFromPayload(ss, data);
 
       const logSheet = getSheetOrThrow(ss, "Stock_Log");
+      ensureLogAuditColumns(logSheet);
       const rowNumber = parseInt(data.logId, 10);
 
       if (!Number.isInteger(rowNumber) || rowNumber < 2 || rowNumber > logSheet.getLastRow()) {
         return jsonOutput({ success: false, message: "ไม่พบ Log ที่ต้องการลบ" });
       }
 
-      logSheet.deleteRow(rowNumber);
-      return jsonOutput({ success: true });
+      const existingStatus = normalizeText(logSheet.getRange(rowNumber, LOG_STATUS_COL).getValue()) || "Active";
+      if (existingStatus === "Deleted") {
+        return jsonOutput({ success: false, message: "Log นี้ถูกลบไว้แล้ว" });
+      }
+
+      // Soft delete only. Do not restore stock because this project is for consumable stock usage.
+      logSheet.getRange(rowNumber, LOG_STATUS_COL, 1, 4).setValues([[
+        "Deleted",
+        admin.fullName,
+        timestamp,
+        normalizeText(data.deleteReason) || "Deleted by admin"
+      ]]);
+
+      return jsonOutput({ success: true, softDeleted: true });
     }
 
     return jsonOutput({ success: false, message: "Invalid Action" });
