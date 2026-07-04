@@ -23,6 +23,11 @@
             --color-sourcing: #3182ce;
             --color-interview: #dd6b20;
             --color-onboard: #38a169;
+
+            /* SLA KPI Colors */
+            --sla-normal: #38a169;
+            --sla-warning: #ecc94b;
+            --sla-overdue: #e53e3e;
         }
 
         * {
@@ -95,6 +100,103 @@
             border-color: #2c7a7b;
             color: #2c7a7b;
         }
+
+        /* Dashboard Styles */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .dash-card {
+            background: #fff;
+            padding: 20px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.01);
+            transition: transform 0.2s;
+        }
+
+        .dash-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .dash-info h4 {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .dash-info .dash-num {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .dash-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dash-card.total { border-top: 4px solid var(--color-all); }
+        .dash-card.total .dash-icon { background: #edf2f7; color: var(--color-all); }
+        
+        .dash-card.sourcing { border-top: 4px solid var(--color-sourcing); }
+        .dash-card.sourcing .dash-icon { background: #ebf8ff; color: var(--color-sourcing); }
+        
+        .dash-card.interview { border-top: 4px solid var(--color-interview); }
+        .dash-card.interview .dash-icon { background: #fffaf0; color: var(--color-interview); }
+        
+        .dash-card.onboard { border-top: 4px solid var(--color-onboard); }
+        .dash-card.onboard .dash-icon { background: #f0fff4; color: var(--color-onboard); }
+
+        /* SLA Metrics Sub-bar */
+        .sla-summary-bar {
+            display: flex;
+            gap: 16px;
+            background: #fff;
+            padding: 12px 20px;
+            border-radius: var(--radius-md);
+            margin-bottom: 28px;
+            border: 1px solid var(--border-color);
+            font-size: 13px;
+            font-weight: 600;
+            align-items: center;
+        }
+
+        .sla-summary-title {
+            color: var(--text-muted);
+            border-right: 2px solid var(--border-color);
+            padding-right: 16px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sla-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .dot.normal { background-color: var(--sla-normal); }
+        .dot.warning { background-color: var(--sla-warning); }
+        .dot.overdue { background-color: var(--sla-overdue); }
 
         /* Main Grid Layout */
         .main-layout {
@@ -172,6 +274,27 @@
         .form-control:focus {
             border-color: var(--input-focus);
             box-shadow: 0 0 0 3px rgba(49, 151, 149, 0.1);
+        }
+
+        /* ✨ SLA Preset Buttons */
+        .sla-preset-container {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .btn-preset {
+            padding: 4px 8px;
+            font-size: 11px;
+            border: 1px dashed var(--border-color);
+            background: #f7fafc;
+            border-radius: 4px;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+        .btn-preset:hover {
+            background: #edf2f7;
+            color: var(--text-main);
         }
 
         .btn-submit {
@@ -309,10 +432,25 @@
         .job-meta-top {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
             font-size: 13px;
             color: var(--text-muted);
         }
+
+        /* SLA Badge in Cards */
+        .sla-card-badge {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .sla-card-badge.status-normal { background: #f0fff4; color: #2f855a; }
+        .sla-card-badge.status-warning { background: #fffaf0; color: #b7791f; }
+        .sla-card-badge.status-overdue { background: #fff5f5; color: #c53030; }
+        .sla-card-badge.status-completed { background: #edf2f7; color: #4a5568; }
 
         .status-badge {
             padding: 4px 12px;
@@ -425,6 +563,9 @@
         @media (max-width: 900px) {
             .main-layout { flex-direction: column; }
             .form-panel { position: static; width: 100%; }
+            .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
+            .sla-summary-bar { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .sla-summary-title { border-right: none; padding-right: 0; padding-bottom: 4px; }
         }
     </style>
 </head>
@@ -435,6 +576,53 @@
         <h1>ระบบติดตามการรับสมัครพนักงาน</h1>
         <p>บันทึกประวัติและตรวจสอบความคืบหน้าแบบเรียลไทม์</p>
     </header>
+
+    <div class="dashboard-grid">
+        <div class="dash-card total">
+            <div class="dash-info">
+                <h4>ตำแหน่งทั้งหมด</h4>
+                <div class="dash-num" id="countAll">0</div>
+            </div>
+            <div class="dash-icon"><i data-lucide="layers"></i></div>
+        </div>
+        <div class="dash-card sourcing">
+            <div class="dash-info">
+                <h4>กำลังจัดหา</h4>
+                <div class="dash-num" id="countSourcing">0</div>
+            </div>
+            <div class="dash-icon"><i data-lucide="search"></i></div>
+        </div>
+        <div class="dash-card interview">
+            <div class="dash-info">
+                <h4>สัมภาษณ์</h4>
+                <div class="dash-num" id="countInterview">0</div>
+            </div>
+            <div class="dash-icon"><i data-lucide="user-check"></i></div>
+        </div>
+        <div class="dash-card onboard">
+            <div class="dash-info">
+                <h4>เริ่มงานแล้ว</h4>
+                <div class="dash-num" id="countOnboard">0</div>
+            </div>
+            <div class="dash-icon"><i data-lucide="check-circle"></i></div>
+        </div>
+    </div>
+
+    <div class="sla-summary-bar">
+        <div class="sla-summary-title">
+            <i data-lucide="shield-alert" style="width:16px; height:16px; color:#718096;"></i>
+            ตัวชี้วัดความเร็วตาม SLA (HR KPI):
+        </div>
+        <div class="sla-indicator">
+            <span class="dot normal"></span> ปกติ: <span id="slaCountNormal" style="color:var(--sla-normal)">0</span> ตำแหน่ง
+        </div>
+        <div class="sla-indicator">
+            <span class="dot warning"></span> ใกล้ครบกำหนด (≤7 วัน): <span id="slaCountWarning" style="color:#b7791f">0</span> ตำแหน่ง
+        </div>
+        <div class="sla-indicator">
+            <span class="dot overdue"></span> เกินกำหนด SLA Overdue: <span id="slaCountOverdue" style="color:var(--sla-overdue)">0</span> ตำแหน่ง
+        </div>
+    </div>
 
     <div class="action-bar">
         <button class="btn-action active" id="btnPanelCreate">
@@ -491,6 +679,12 @@
                         <i data-lucide="calendar"></i>
                         <input type="date" id="targetDate" class="form-control" required>
                     </div>
+                    <div class="sla-preset-container">
+                        <span style="font-size:11px; color:var(--text-muted); align-self:center; margin-right:4px;">ทางเลือกด่วน:</span>
+                        <button type="button" class="btn-preset" onclick="setSLAPresetDays(15)">เร่งด่วนมาก (15 วัน)</button>
+                        <button type="button" class="btn-preset" onclick="setSLAPresetDays(30)">ทั่วไป/มาตรฐาน (30 วัน)</button>
+                        <button type="button" class="btn-preset" onclick="setSLAPresetDays(45)">เฉพาะทาง/ผู้บริหาร (45 วัน)</button>
+                    </div>
                 </div>
 
                 <div id="extendedStatusFields" style="display: none;">
@@ -546,27 +740,27 @@
 </div>
 
 <script>
-    // ข้อมูลจำลองสำหรับแสดงผลเมื่อเซิร์ฟเวอร์ยังไม่พร้อม
+    // ข้อมูลตัวอย่างจำลองสำหรับใช้งานจริง (ปีปัจจุบันอิงจากระบบ)
     let allJobsCachedData = [
         {
-            id: "REQ-1782536164569",
+            id: "REQ-01",
             jobTitle: "หัวหน้าการตลาด",
             department: "Sales",
             createdBy: "ผู้จัดการสาขา (Branch Manager)",
-            targetDate: "2026-06-30",
+            targetDate: "2026-07-30", 
             status: "interview",
             candidateName: "นางสาวสมฤทัย มีสุขเลิศล้ำ",
-            hrNotes: "3. นัดสัมภาษณ์ ครั้งที่ 1"
+            hrNotes: "นัดสัมภาษณ์ ครั้งที่ 1"
         },
         {
-            id: "REQ-1782536466165",
+            id: "REQ-02",
             jobTitle: "พนักงานหน้าร้าน",
             department: "Operations",
             createdBy: "ผู้จัดการสาขา (Branch Manager)",
-            targetDate: "2026-06-27",
+            targetDate: "2026-07-06", 
             status: "sourcing",
             candidateName: "",
-            hrNotes: "2. HR กำลังจัดหาตำแหน่งงานในเน็ต (HR โพสต์ลง Facebook)"
+            hrNotes: "HR กำลังโพสต์จัดหาในช่องทางต่างๆ"
         }
     ];
 
@@ -582,6 +776,69 @@
     const searchBar = document.getElementById('searchBar');
     const btnPanelCreate = document.getElementById('btnPanelCreate');
     const btnPanelStatus = document.getElementById('btnPanelStatus');
+    const targetDateInput = document.getElementById('targetDate');
+
+    // ✨ ฟังก์ชันคำนวณวัน SLA ล่วงหน้าอัตโนมัติ (ใส่ค่าเริ่มต้นให้ 30 วันตามเกณฑ์)
+    function setSLAPresetDays(days) {
+        const date = new Date();
+        date.setDate(date.getDate() + days);
+        const yyyy = date.getFullYear();
+        const mm = String(date.getMonth() + 1).padStart(2, '0');
+        const dd = String(date.getDate()).padStart(2, '0');
+        targetDateInput.value = `${yyyy}-${mm}-${dd}`;
+    }
+
+    // ฟังก์ชันคำนวณสถานะ SLA เชิงวิเคราะห์
+    function calculateSLADetails(targetDateStr, currentStatus) {
+        if (currentStatus === "onboard") {
+            return { text: "สำเร็จตาม KPI (Onboarded)", class: "status-completed", category: "completed" };
+        }
+        if (!targetDateStr) return { text: "ไม่ได้กำหนด", class: "status-normal", category: "normal" };
+
+        const target = new Date(targetDateStr);
+        const today = new Date();
+        
+        target.setHours(0,0,0,0);
+        today.setHours(0,0,0,0);
+
+        const diffTime = target.getTime() - today.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays < 0) {
+            return { text: `เกินกำหนด SLA ${Math.abs(diffDays)} วัน`, class: "status-overdue", category: "overdue" };
+        } else if (diffDays <= 7) {
+            return { text: `วิกฤต! เหลืออีก ${diffDays} วัน`, class: "status-warning", category: "warning" };
+        } else {
+            return { text: `ปกติ (เหลืออีก ${diffDays} วัน)`, class: "status-normal", category: "normal" };
+        }
+    }
+
+    function updateDashboardCounters() {
+        const total = allJobsCachedData.length;
+        const sourcing = allJobsCachedData.filter(j => j.status === 'sourcing').length;
+        const interview = allJobsCachedData.filter(j => j.status === 'interview').length;
+        const onboard = allJobsCachedData.filter(j => j.status === 'onboard').length;
+
+        document.getElementById('countAll').textContent = total;
+        document.getElementById('countSourcing').textContent = sourcing;
+        document.getElementById('countInterview').textContent = interview;
+        document.getElementById('countOnboard').textContent = onboard;
+
+        let normalCount = 0;
+        let warningCount = 0;
+        let overdueCount = 0;
+
+        allJobsCachedData.forEach(job => {
+            const sla = calculateSLADetails(job.targetDate, job.status);
+            if (sla.category === "normal") normalCount++;
+            if (sla.category === "warning") warningCount++;
+            if (sla.category === "overdue") overdueCount++;
+        });
+
+        document.getElementById('slaCountNormal').textContent = normalCount;
+        document.getElementById('slaCountWarning').textContent = warningCount;
+        document.getElementById('slaCountOverdue').textContent = overdueCount;
+    }
 
     btnPanelCreate.addEventListener('click', () => {
         setWorkflowMode("create");
@@ -604,6 +861,7 @@
             if (!data) {
                 jobForm.reset();
                 editJobIdInput.value = "";
+                setSLAPresetDays(30); // ตั้งค่าเริ่มต้นกลับเป็น 30 วันเมื่อเริ่มสร้างตั๋วงานใหม่
             }
         } else {
             formPanelTitle.textContent = "แก้ไขและอัปเดตสถานะงาน";
@@ -623,6 +881,8 @@
     }
 
     function filterJobCards() {
+        updateDashboardCounters();
+
         const searchText = searchBar.value.trim().toLowerCase();
         const filtered = allJobsCachedData.filter(job => {
             const matchesStatus = (currentFilterStatus === "all" || job.status === currentFilterStatus);
@@ -654,6 +914,7 @@
                 badgeClass = "badge-onboard";
             }
 
+            const slaInfo = calculateSLADetails(job.targetDate, job.status);
             const candidateDisplay = job.candidateName ? job.candidateName : "(ยังไม่มีผู้สมัคร)";
             let notesHtml = job.hrNotes ? `
                 <div class="hr-note-box">
@@ -666,7 +927,12 @@
                 <div class="job-card status-${job.status}">
                     <div class="card-header">
                         <div class="job-title-area">
-                            <h3>${job.jobTitle} (${job.department})</h3>
+                            <h3 style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                                ${job.jobTitle} (${job.department})
+                                <span class="sla-card-badge ${slaInfo.class}">
+                                    <i data-lucide="clock" style="width:12px; height:12px;"></i> ${slaInfo.text}
+                                </span>
+                            </h3>
                             <div class="job-meta-top">
                                 <span>ผู้สมัคร: ${candidateDisplay}</span>
                             </div>
@@ -702,7 +968,6 @@
             jobListContainer.insertAdjacentHTML('beforeend', cardHtml);
         });
 
-        // ✨ แก้ไขบั๊กจุดที่ 1: บังคับวาดไอคอน Lucide ใหม่ทุกครั้งที่เปลี่ยนหน้าการ์ดข้อมูล
         if (window.lucide) {
             window.lucide.createIcons();
         }
@@ -728,7 +993,6 @@
 
     window.editJobTrigger = function(id) { window.triggerSyncData(id); };
 
-    // 🛠️ แก้ไขบั๊กจุดที่ 2: เปลี่ยนมาลบผ่าน Local Cache ทันที ไม่ส่ง Request ค้างไปหาเซิร์ฟเวอร์ที่ปิดอยู่
     window.deleteJobTrigger = function(id) {
         if (confirm("คุณต้องการลบคำขอเปิดรับสมัครตำแหน่งนี้ใช่หรือไม่?")) {
             allJobsCachedData = allJobsCachedData.filter(j => j.id !== id);
@@ -787,6 +1051,7 @@
     searchBar.addEventListener('input', filterJobCards);
 
     document.addEventListener("DOMContentLoaded", () => {
+        setSLAPresetDays(30); // รันคำนวณวัน SLA เริ่มต้น 30 วันทันทีเมื่อโหลดหน้าเว็บครั้งแรก
         filterJobCards();
         if (window.lucide) {
             window.lucide.createIcons();
