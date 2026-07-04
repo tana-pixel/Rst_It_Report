@@ -241,7 +241,7 @@
 
     function selectAssetToRequisition(assetId, remaining) {
       if (remaining <= 0) {
-        alert("⚠️ สินทรัพย์รายการนี้หมดคลังชั่วคราว ไม่สามารถเลือกเบิกได้ค่ะ");
+        alert("⚠️ สินทรัพย์รายการนี้หมดคลังชั่วคราว ไม่สามารถเลือกเบิกได้");
         return;
       }
       
@@ -274,7 +274,7 @@
         .then(result => {
           if (result.authorized) {
             isAdmin = true;
-            alert("🔓 ยินดีต้อนรับผู้ดูแลระบบ สิทธิ์การแก้ไข/ลบเปิดใช้งานแล้วค่ะ");
+            alert("🔓 ยินดีต้อนรับผู้ดูแลระบบ สิทธิ์การแก้ไข/ลบเปิดใช้งาน");
             document.getElementById("adminAuthBtn").innerHTML = "🔓 ออกจากระบบ Admin";
             document.getElementById("adminAuthBtn").classList.replace("text-amber-400", "text-red-400");
             document.getElementById("addNewAssetBtn").classList.remove("hidden");
@@ -434,7 +434,7 @@
           body: JSON.stringify({ action: "deleteLog", txId: txId })
         })
         .then(() => {
-          alert("🗑️ ลบประวัติเบิกและคืนสต็อกสำเร็จเรียบร้อยค่ะ!");
+          alert("🗑️ ลบประวัติเบิกและคืนสต็อกสำเร็จเรียบร้อย!");
           refreshData();
         })
         .catch(err => {
@@ -516,7 +516,7 @@
       const formData = { staffName: document.getElementById("staffName").value, department: document.getElementById("department").value, branch: document.getElementById("branch").value, assetId: document.getElementById("assetSelect").value, quantity: document.getElementById("quantity").value, requisitionNotes: document.getElementById("requisitionNotes").value || "-", imageBase64: compressedBase64 };
 
       fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(formData) })
-      .then(() => { alert("🎉 บันทึกการเบิกพัสดุและตัดสต็อกเรียบร้อยแล้วค่ะ"); document.getElementById("assetForm").reset(); compressedBase64 = ""; document.getElementById("previewContainer").classList.add('hidden'); refreshData(); })
+      .then(() => { alert("🎉 บันทึกการเบิกพัสดุและตัดสต็อกเรียบร้อยแล้ว"); document.getElementById("assetForm").reset(); compressedBase64 = ""; document.getElementById("previewContainer").classList.add('hidden'); refreshData(); })
       .catch(err => { document.getElementById("assetForm").reset(); compressedBase64 = ""; document.getElementById("previewContainer").classList.add('hidden'); refreshData(); })
       .finally(() => { submitBtn.disabled = false; btnText.innerText = "💾 บันทึกข้อมูลและตัดยอดสต็อก"; });
     }
