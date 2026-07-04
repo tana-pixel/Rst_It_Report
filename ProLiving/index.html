@@ -39,17 +39,14 @@
 </head>
 <body class="text-slate-800 min-h-screen antialiased p-4">
 
-  <!-- สำหรับพิมพ์ใบเสร็จ -->
   <div id="printContainerReal" class="hidden"></div>
 
-  <!-- หน้าล็อกอินล็อกโครงสร้างสิทธิ์การใช้งาน -->
   <div id="login-page" class="fixed inset-0 flex items-center justify-center p-4 z-50 bg-slate-200/60 backdrop-blur-md">
     <div class="light-glass p-6 rounded-2xl w-full max-w-sm text-center shadow-xl border border-white max-h-[95vh] overflow-y-auto">
       <h2 class="text-2xl font-black text-slate-800 mb-1 tracking-wide">🏢 ระบบหอพัก ProLiving</h2>
       <p class="text-slate-500 text-xs mb-4">กรุณาเลือกรูปแบบสิทธิ์การเข้าใช้งานระบบ</p>
       
       <div class="space-y-3">
-        <!-- 🌐 สำหรับบุคคลทั่วไป -->
         <div class="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 p-3 rounded-xl border border-indigo-200">
           <p class="text-indigo-700 text-[11px] font-bold mb-2 text-left">🌐 สำหรับบุคคลทั่วไป / ผู้สนใจเช่า</p>
           <button onclick="loginAsPublic()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded-xl text-xs transition shadow-md flex items-center justify-center gap-1.5">
@@ -57,7 +54,6 @@
           </button>
         </div>
 
-        <!-- 🔑 สำหรับผู้เช่าปัจจุบัน (กำหนดให้กรอกทั้งรหัสผ่านคู่กับเลขห้อง) -->
         <div class="bg-white/50 p-3 rounded-xl border border-slate-300/40">
           <p class="text-slate-600 text-[11px] font-bold mb-1 text-left">🔑 สำหรับผู้เช่าห้องพักปัจจุบัน</p>
           <div class="space-y-1.5 mb-2">
@@ -69,7 +65,6 @@
           </button>
         </div>
 
-        <!-- สำหรับแอดมิน -->
         <div class="border-t border-slate-300/60 pt-2">
           <p class="text-slate-400 text-[10px] mb-2 font-bold uppercase tracking-wider">สำหรับแอดมิน / เจ้าของหอพัก</p>
           <div class="space-y-1.5">
@@ -84,9 +79,7 @@
     </div>
   </div>
 
-  <!-- แดชบอร์ดหลัก -->
   <div id="main-dashboard" class="hidden container mx-auto max-w-6xl">
-    <!-- แจ้งเตือนหนี้ค้างชำระ (ผู้เช่า) -->
     <div id="tenant-alert-box" class="hidden mb-4 bg-rose-500 text-white p-4 rounded-xl shadow-lg border border-rose-600 animate-pulse flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
       <div>
         <h4 class="font-black text-base">⚠️ แจ้งเตือนยอดค้างชำระประจำเดือน!</h4>
@@ -110,7 +103,6 @@
       <button onclick="switchTab('electricity')" id="btn-electricity" class="py-2.5 rounded-lg font-bold text-xs text-slate-500">🧾 ระบบคำนวณและออกบิลประจำเดือน</button>
     </div>
 
-    <!-- TAB ROOMS -->
     <div id="tab-rooms" class="tab-content block">
       <div class="light-glass p-4 rounded-xl mb-6 flex flex-col md:flex-row gap-4 justify-between items-center">
         <div class="flex flex-wrap gap-1.5" id="floor-container">
@@ -125,9 +117,8 @@
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4" id="rooms-grid"></div>
     </div>
 
-    <!-- TAB ELECTRICITY / คำนวณบิล -->
     <div id="tab-electricity" class="tab-content hidden max-w-xl mx-auto light-glass p-6 rounded-2xl border">
-      <h2 class="text-xl font-bold text-slate-800 mb-1">🧾 ระบบคำนวณและออกบิล</h2>
+      <h2 class="text-xl font-bold text-slate-800 mb-1">🧾 ระบบคำนวณและออกบิลอัจฉริยะ</h2>
       <p class="text-xs text-slate-400 mb-4">กรอกข้อมูลเพื่อคำนวณยอดและออกใบแจ้งหนี้ไปยังประวัติตารางเงินหลังบ้าน</p>
       
       <form id="elecForm" onsubmit="handleCreateBill(event)">
@@ -142,7 +133,7 @@
           </div>
           <div>
             <label class="block text-slate-500 text-xs font-semibold mb-1">ค่าเช่าห้อง (บาท)</label>
-            <input type="number" id="elecRent" placeholder="3500" required class="light-glass-input w-full rounded-lg p-2.5 font-bold text-sm text-indigo-600">
+            <input type="number" id="elecRent" placeholder="4500" required class="light-glass-input w-full rounded-lg p-2.5 font-bold text-sm text-indigo-600">
           </div>
         </div>
 
@@ -175,23 +166,19 @@
     </div>
   </div>
 
-  <!-- MODAL จัดการและตรวจสอบข้อมูลห้องพักรายสิทธิ์ -->
   <div id="roomDetailsModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-slate-50/95 max-w-3xl w-full rounded-3xl shadow-2xl border border-white flex flex-col max-h-[92vh] overflow-hidden">
       
-      <!-- Header -->
       <div class="p-4 border-b flex justify-between items-center bg-white/50">
         <div>
-          <h3 class="text-xl font-bold text-slate-800">รายละเอียดข้อมูลห้องพัก <span id="modalRoomTitle" class="text-indigo-600 font-extrabold text-2xl">---</span></h3>
+          <h3 class="text-xl font-bold text-slate-800">จัดการห้องพัก <span id="modalRoomTitle" class="text-indigo-600 font-extrabold text-2xl">---</span></h3>
         </div>
         <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-2xl font-bold">✕</button>
       </div>
 
-      <!-- Body -->
       <div class="p-5 overflow-y-auto space-y-5 flex-1">
         <div class="grid grid-cols-1 md:grid-cols-12 gap-5">
           
-          <!-- Left Content -->
           <div class="md:col-span-7 space-y-3">
             <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-4">
               <div class="grid grid-cols-3 gap-2.5 text-xs">
@@ -212,7 +199,7 @@
                 </div>
               </div>
               <div>
-                <label class="block text-[11px] font-bold text-indigo-600 mb-1">🛋️ Furniture / รายการทรัพย์สินภายในห้องพัก</label>
+                <label class="block text-[11px] font-bold text-indigo-600 mb-1">🛋️ Furniture / รายการทรัพย์สินในห้อง</label>
                 <textarea id="modalFurniture" rows="4" class="w-full bg-slate-50 border rounded-lg p-3 text-xs font-semibold focus:outline-none leading-relaxed"></textarea>
               </div>
               <button onclick="saveRoomDetails()" id="btnSaveDetails" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-xl py-3 text-sm transition shadow-md">
@@ -221,7 +208,6 @@
             </div>
           </div>
 
-          <!-- Comments Note (ซ่อนสำหรับบุคคลทั่วไป และผู้เช่าดูได้เพียงอย่างเดียว) -->
           <div id="admin-comment-section" class="md:col-span-5 flex flex-col bg-white p-4 rounded-2xl border border-slate-200 shadow-sm h-[290px]">
             <h4 class="text-xs font-bold text-slate-400 mb-1.5">💬 บันทึกโน้ตภายในห้อง (แอดมิน)</h4>
             <div id="chatBox" class="flex-1 overflow-y-auto space-y-2 p-2 bg-slate-50 rounded-xl flex flex-col"></div>
@@ -232,7 +218,6 @@
           </div>
         </div>
 
-        <!-- โซนประวัติการเงินประจำห้อง (จะถูกซ่อนทั้งหมดหากบุคคลทั่วไปเปิดเข้ามาดูห้องที่ว่าง) -->
         <div id="billing-history-section" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
           <h4 class="text-xs font-bold text-indigo-600 mb-2">💵 ประวัติรอบบิลค่าน้ำ-ค่าไฟ และสถานะการชำระเงิน</h4>
           <div class="overflow-x-auto border rounded-xl">
@@ -255,7 +240,6 @@
     </div>
   </div>
 
-  <!-- POPUP พิมพ์ใบเสร็จ -->
   <div id="printModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white max-w-md w-full p-6 rounded-2xl shadow-2xl flex flex-col">
       <div class="p-6 border-2 border-dashed border-slate-200 rounded-xl bg-slate-50/50 text-slate-800">
@@ -285,7 +269,7 @@
   </div>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbwZa5AoCD-_li-tHVjiPi2yN-sAlJv15fbp4O1_fA7uGLmBsKTQg5gSx0sQHxZZFSku/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbzPUv7ggVqoaKxdznWPCgljfOEq80xFD8ytvplPC8dpMt2KLo8NP2egDqDN40ASbqhD/exec";
     
     let currentFloor = '1';
     let userRole = 'public'; 
@@ -293,19 +277,17 @@
     let selectedReceiptData = null;
     let tenantInputRoom = ""; 
 
-    // 🌐 ฟังก์ชันล็อกอินสิทธิ์บุคคลทั่วไป (ดูได้เฉพาะห้องว่างและสินทรัพย์)
     function loginAsPublic() {
       userRole = 'public';
       tenantInputRoom = "";
       document.getElementById('admin-tabs').classList.add('hidden'); 
-      setRoleBadge("บุคคลทั่วไป (ดูห้องว่าง)", "bg-emerald-100 text-emerald-700");
+      setRoleBadge("บุคคลทั่วไป", "bg-emerald-100 text-emerald-700");
       document.getElementById('floor-container').classList.remove('hidden');
       document.getElementById('searchRoom').classList.remove('hidden');
       document.getElementById('tenant-alert-box').classList.add('hidden');
       enterDashboard();
     }
 
-    // 🔑 ฟังก์ชันล็อกอินสิทธิ์ผู้เช่า (เช็กรหัสผ่านคู่กับ Google Sheets)
     async function loginAsTenant() {
       const roomInput = document.getElementById('tenantRoomNo').value.trim();
       const passInput = document.getElementById('tenantPassword').value.trim();
@@ -326,7 +308,6 @@
           document.getElementById('admin-tabs').classList.add('hidden'); 
           setRoleBadge(`ห้อง ${roomInput} (ผู้เช่า)`, 'bg-slate-200 text-slate-700');
           
-          // เพื่อความเป็นส่วนตัวสูงสุด ผู้เช่าจะเห็นเฉพาะห้องของตัวเองเท่านั้น
           document.getElementById('floor-container').classList.add('hidden');
           document.getElementById('searchRoom').classList.add('hidden');
           
@@ -336,13 +317,12 @@
           alert("❌ " + result.message);
         }
       } catch (e) {
-        alert("การเชื่อมต่อสิทธิ์ความปลอดภัยขัดข้อง กรุณาลองใหม่อีกครั้ง");
+        alert("การเชื่อมต่อล้มเหลว กรุณาลองใหม่อีกครั้ง");
       } finally {
         loginBtn.innerText = "👤 ตรวจสอบห้องและบิลของฉัน"; loginBtn.disabled = false;
       }
     }
 
-    // 🔐 ล็อกอินสิทธิ์แอดมิน
     async function loginWithBackend() {
       const user = document.getElementById('adminUsername').value.trim();
       const pass = document.getElementById('adminPassword').value.trim();
@@ -413,7 +393,6 @@
       try {
         let url = `${API_URL}?action=getRoomsByFloor&floor=${currentFloor}`;
         
-        // ถ้าเป็นผู้เช่า ให้ดึงชั้นของเลขห้องที่ล็อกอินมาแสดงโดยเฉพาะ
         if(userRole === 'tenant' && tenantInputRoom) {
           const detectedFloor = tenantInputRoom.substring(0,1);
           url = `${API_URL}?action=getRoomsByFloor&floor=${detectedFloor}`;
@@ -426,7 +405,6 @@
           const roomNo = room[0]; const status = room[1]; const currentUnit = room[2] || '0.0'; const furniture = room[3] || ''; const contract = room[4] || ''; const rentPrice = room[5] || 0;
           const isAvailable = status === 'ว่าง';
           
-          // สิทธิ์ผู้เช่า ห้ามเห็นกล่องห้องของห้องเพื่อนบ้าน
           if (userRole === 'tenant' && roomNo !== tenantInputRoom) {
             return; 
           }
@@ -448,20 +426,14 @@
       } catch (e) { grid.innerHTML = '<div class="col-span-full text-center py-8 text-rose-500 text-xs">❌ โหลดข้อมูลล้มเหลว</div>'; }
     }
 
-    // 🛡️ ดักตรวจสิทธิ์เมื่อคลิกเปิดหน้าต่างห้องย่อย (Modal)
     function openRoomModal(roomNo, status, furniture, contractType, rentPrice) {
-      
-      // ดักบุคคลทั่วไป
-      if (userRole === 'public') {
-        if (status === 'ไม่ว่าง') {
-          alert("🔒 จำกัดสิทธิ์การเข้าใช้งาน: ห้องนี้มีผู้เช่าแล้ว บุคคลทั่วไปไม่สามารถกดดูข้อมูลบิลการเงินด้านในได้ครับ");
-          return;
-        }
+      if (userRole === 'public' && status === 'ไม่ว่าง') {
+        alert("🔒 จำกัดสิทธิ์: ห้องนี้มีผู้เช่าแล้ว ระบบไม่อนุญาตให้บุคคลทั่วไปดูรายละเอียดบิลการเงินครับ");
+        return;
       }
 
-      // ดักผู้เช่าคนอื่น
       if (userRole === 'tenant' && roomNo !== tenantInputRoom) {
-        alert(`🔒 จำกัดสิทธิ์: คุณสามารถเปิดเช็กข้อมูลประวัติบิลได้เฉพาะของห้อง ${tenantInputRoom} ของคุณเท่านั้นครับ`);
+        alert(`🔒 จำกัดสิทธิ์: สามารถเข้าชมประวัติของห้องตัวเอง (${tenantInputRoom}) ได้เท่านั้นครับ`);
         return; 
       }
 
@@ -472,14 +444,12 @@
       document.getElementById('modalContractType').value = (contractType === 'undefined' || !contractType) ? '' : contractType;
       document.getElementById('modalRentPrice').value = rentPrice || '';
 
-      // ปรับแต่ง UI ย่อยตามสิทธิ์ความปลอดภัย
       if(userRole === 'admin') {
         document.getElementById('admin-comment-section').classList.remove('hidden');
         document.getElementById('modalStatus').disabled = false; document.getElementById('modalFurniture').disabled = false; document.getElementById('modalContractType').disabled = false; document.getElementById('modalRentPrice').disabled = false;
         document.getElementById('btnSaveDetails').classList.remove('hidden');
         document.getElementById('billing-history-section').classList.remove('hidden'); 
       } else if (userRole === 'public') {
-        // ซ่อนตารางการเงินของบุคคลทั่วไปทั้งหมดเมื่อเข้ามาดูห้องว่างเพื่อความสะอาดเนียนตา
         document.getElementById('admin-comment-section').classList.add('hidden');
         document.getElementById('modalStatus').disabled = true; document.getElementById('modalFurniture').disabled = true; document.getElementById('modalContractType').disabled = true; document.getElementById('modalRentPrice').disabled = true;
         document.getElementById('btnSaveDetails').classList.add('hidden');
@@ -492,12 +462,8 @@
       }
 
       document.getElementById('roomDetailsModal').classList.remove('hidden');
-      if (userRole !== 'public') {
-        loadRoomBillHistory(roomNo); 
-      }
-      if (userRole === 'admin') {
-        loadChatMessages(roomNo);
-      }
+      if (userRole !== 'public') { loadRoomBillHistory(roomNo); }
+      if (userRole === 'admin') { loadChatMessages(roomNo); }
     }
 
     function closeModal() { document.getElementById('roomDetailsModal').classList.add('hidden'); }
@@ -510,7 +476,7 @@
       try {
         const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "updateRoomDetails", roomNo: currentActiveRoom, status: status, furniture: furniture, contractType: contractType, rentPrice: rentPrice }) });
         const r = await res.json();
-        if(r.success) { alert("🎉 บันทึกข้อมูลห้องพักและค่าเช่าสำเร็จ!"); closeModal(); loadRooms(); }
+        if(r.success) { alert("🎉 บันทึกข้อมูลสำเร็จ!"); closeModal(); loadRooms(); }
       } catch(e) { alert("ฐานข้อมูลขัดข้อง"); }
     }
 
@@ -522,7 +488,7 @@
         const bills = await res.json(); tbody.innerHTML = '';
         
         if(bills.length === 0) { 
-          tbody.innerHTML = `<tr><td colspan="6" class="text-center p-3 text-slate-400 text-xs font-semibold">➖ ห้องพักนี้ยังไม่มีประวัติรอบบิลเรียกเก็บเงิน</td></tr>`; 
+          tbody.innerHTML = `<tr><td colspan="6" class="text-center p-3 text-slate-400 text-xs font-semibold">➖ ห้องพักนี้ยังไม่มีประวัติบิล</td></tr>`; 
           return; 
         }
 
@@ -532,14 +498,26 @@
             ? `<span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-bold text-[10px]">ชำระแล้ว</span>`
             : `<span class="bg-rose-100 text-rose-700 px-2 py-0.5 rounded font-bold text-[10px]">ค้างชำระ</span>`;
           
-          let actionButtons = `<button onclick="prepareReceipt('${roomNo}', '${b.month}', ${b.rent}, ${b.water}, ${b.elec}, ${b.total})" class="text-[11px] font-bold text-indigo-600 hover:underline mr-2">🔍 เปิดดู</button>`;
-          if(userRole === 'admin' && !isPaid) {
-            actionButtons += `<button onclick="markBillAsPaid(${b.rowIndex})" class="text-[11px] font-bold text-emerald-600 hover:text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">✔️ รับเงิน</button>`;
+          let actionButtons = `<div class="flex items-center justify-center gap-1.5">`;
+          actionButtons += `<button onclick="prepareReceipt('${roomNo}', '${b.month}', ${b.rent}, ${b.water}, ${b.elec}, ${b.total})" class="text-[11px] font-bold text-indigo-600 hover:underline">🔍 เปิดดู</button>`;
+          
+          if(userRole === 'admin') {
+            if(!isPaid) {
+              actionButtons += `<button onclick="markBillAsPaid(${b.rowIndex})" class="text-[11px] font-bold text-emerald-600 hover:text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">✔️ รับเงิน</button>`;
+            }
+            // 🗑️ ปุ่มลบประวัติบิลเวอร์ชันสมบูรณ์แบบ
+            actionButtons += `<button onclick="deleteBillRecord(${b.rowIndex})" class="text-[11px] font-bold text-rose-600 hover:bg-rose-50 p-1 rounded border border-transparent hover:border-rose-200 transition">🗑️ ลบ</button>`;
+          }
+          actionButtons += `</div>`;
+
+          let displayMonth = b.month;
+          if(b.month && b.month.includes('T')) {
+            displayMonth = b.month.split('T')[0];
           }
 
           tbody.insertAdjacentHTML('beforeend', `
-            <tr>
-              <td class="p-2.5 font-bold">${b.month}</td>
+            <tr class="hover:bg-slate-50/80 transition">
+              <td class="p-2.5 font-bold text-slate-700">${displayMonth}</td>
               <td class="p-2.5">${b.rent.toLocaleString()} ฿</td>
               <td class="p-2.5">${(b.water + b.elec).toLocaleString()} ฿</td>
               <td class="p-2.5 font-black text-indigo-600">${b.total.toLocaleString()} ฿</td>
@@ -550,21 +528,35 @@
       } catch(e) { tbody.innerHTML = `<tr><td colspan="6" class="text-center text-rose-500 p-3">❌ ดึงข้อมูลบิลขัดข้อง</td></tr>`; }
     }
 
+    async function deleteBillRecord(rowIndex) {
+      if(!confirm("⚠️ ยืนยันการลบประวัติบิลรายการนี้ออกจากฐานข้อมูล Google Sheets อย่างถาวร?")) return;
+      try {
+        const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteMonthlyBill', rowIndex: rowIndex }) });
+        const result = await res.json();
+        if(result.success) {
+          alert("🗑️ ลบข้อมูลบิลสำเร็จ!");
+          if(currentActiveRoom) loadRoomBillHistory(currentActiveRoom);
+        } else { alert("❌ " + result.message); }
+      } catch(err) { alert("ฐานข้อมูลขัดข้อง"); }
+    }
+
     async function markBillAsPaid(rowIndex) {
-      if(!confirm("💵 คุณตรวจสอบการชำระเงินโอน และต้องการเปลี่ยนสถานะเป็น 'ชำระแล้ว' ใช่หรือไม่?")) return;
+      if(!confirm("💵 เปลี่ยนสถานะบิลเป็น 'ชำระแล้ว' ใช่หรือไม่?")) return;
       try {
         const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'updateBillStatus', rowIndex: rowIndex }) });
         const result = await res.json();
         if(result.success) {
-          alert("🎉 ยืนยันการชำระเงินสำเร็จ!");
+          alert("🎉 ยืนยันการรับเงินสำเร็จ!");
           if(currentActiveRoom) loadRoomBillHistory(currentActiveRoom);
-        } else { alert("ข้อผิดพลาด: " + result.message); }
+        }
       } catch(err) { alert("ฐานข้อมูลขัดข้อง"); }
     }
 
     function prepareReceipt(roomNo, month, rent, water, elec, total) {
-      document.getElementById('pRoom').innerText = roomNo; document.getElementById('pMonth').innerText = month; document.getElementById('pRent').innerText = rent.toLocaleString() + " ฿"; document.getElementById('pWater').innerText = water.toLocaleString() + " ฿"; document.getElementById('pElec').innerText = elec.toLocaleString() + " ฿"; document.getElementById('pTotal').innerText = total.toLocaleString() + " ฿";
-      selectedReceiptData = { roomNo, month, rent, water, elec, total };
+      let displayMonth = month;
+      if(month && month.includes('T')) { displayMonth = month.split('T')[0]; }
+      document.getElementById('pRoom').innerText = roomNo; document.getElementById('pMonth').innerText = displayMonth; document.getElementById('pRent').innerText = rent.toLocaleString() + " ฿"; document.getElementById('pWater').innerText = water.toLocaleString() + " ฿"; document.getElementById('pElec').innerText = elec.toLocaleString() + " ฿"; document.getElementById('pTotal').innerText = total.toLocaleString() + " ฿";
+      selectedReceiptData = { roomNo, month: displayMonth, rent, water, elec, total };
       document.getElementById('printModal').classList.remove('hidden');
     }
 
@@ -590,7 +582,7 @@
         const resBill = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'createMonthlyBill', roomNo: roomNo, month: month, rent: rent, water: calcWaterCost, elec: calcElecCost, status: "ค้างชำระ" }) });
         const finalResult = await resBill.json();
         if(finalResult.success) { 
-          alert(`🎉 ออกบิลสำเร็จ! สรุปค่าน้ำ ${calcWaterCost} ฿ และค่าไฟ ${calcElecCost} ฿ เติมเข้าระบบเรียบร้อยครับ`); 
+          alert(`🎉 ออกบิลสำเร็จ! ค่าน้ำ ${calcWaterCost} ฿ และค่าไฟ ${calcElecCost} ฿ บันทึกเรียบร้อยครับ`); 
           document.getElementById('elecForm').reset(); 
           document.getElementById('waterRate').value = wRate; 
           document.getElementById('elecRate').value = eRate;   
@@ -601,12 +593,55 @@
     }
 
     async function loadChatMessages(roomNo) {
-      try {
-        const res = await fetch(`${API_URL}?action=getComments&roomNo=${roomNo}`); const comments = await res.json(); const chatBox = document.getElementById('chatBox'); chatBox.innerHTML = '';
-        if(comments.length === 0) { chatBox.innerHTML = '<p class="text-slate-400 text-center my-auto text-xs">ไม่มีบันทึกข้อความ</p>'; return; }
-        comments.forEach(c => { chatBox.innerHTML += `<div class="bg-white p-2 border rounded-xl mb-1 text-xs relative group shadow-sm"><b class="text-indigo-600">${c.user}:</b> ${c.message}</div>`; });
-      } catch (e) { }
+  try {
+    const res = await fetch(`${API_URL}?action=getComments&roomNo=${roomNo}`); 
+    const comments = await res.json(); 
+    const chatBox = document.getElementById('chatBox'); 
+    chatBox.innerHTML = '';
+    
+    if(comments.length === 0) { 
+      chatBox.innerHTML = '<p class="text-slate-400 text-center my-auto text-xs">ไม่มีบันทึกข้อความ</p>'; 
+      return; 
     }
+    
+    comments.forEach(c => {
+      chatBox.innerHTML += `
+        <div class="bg-white p-2 border rounded-xl mb-1 text-xs shadow-sm flex justify-between items-start gap-2 group">
+          <div class="flex-1">
+            <b class="text-indigo-600">${c.user}:</b> 
+            <span class="text-slate-700 font-medium break-all">${c.message}</span>
+            <div class="text-[9px] text-slate-400 mt-0.5">${c.timestamp}</div>
+          </div>
+          <button onclick="deleteCommentRecord(${c.rowIndex})" class="text-rose-500 hover:text-rose-700 font-bold px-1 rounded hover:bg-rose-50 transition" title="ลบโน้ตนี้">
+            ✕
+          </button>
+        </div>`;
+    });
+  } catch (e) { 
+    console.error("โหลดคอมเมนต์ขัดข้อง", e);
+  }
+}
+
+// ฟังก์ชันรองรับการกดยืนยันลบคอมเมนต์ส่งไปหลังบ้าน
+async function deleteCommentRecord(rowIndex) {
+  if(!confirm("🗑️ คุณแน่ใจใช่หรือไม่ว่าต้องการลบข้อความโน้ตบันทึกนี้?")) return;
+  try {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'deleteComment', rowIndex: rowIndex })
+    });
+    const result = await res.json();
+    if(result.success) {
+      if(currentActiveRoom) {
+        loadChatMessages(currentActiveRoom); // โหลดกล่องคอมเมนต์ใหม่ทันที
+      }
+    } else {
+      alert("ไม่สามารถลบข้อความได้: " + result.message);
+    }
+  } catch(err) {
+    alert("การเชื่อมต่อฐานข้อมูลขัดข้อง");
+  }
+}
 
     async function sendChatMessage() {
       const input = document.getElementById('chatInput'); if (!input.value.trim() || !currentActiveRoom) return;
