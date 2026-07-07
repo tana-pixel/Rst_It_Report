@@ -22,6 +22,16 @@
         .loading-overlay { display: none; position: fixed; inset: 0; z-index: 50; align-items: center; justify-content: center; background: rgba(15,23,42,0.24); }
         .loading-overlay.show { display: flex; }
         .spinner { width: 3rem; height: 3rem; border: 4px solid rgba(255,255,255,0.3); border-top-color: #f87171; border-radius: 9999px; animation: spin 0.8s linear infinite; }
+        .mobile-only { display: none; }
+        @media (max-width: 768px) {
+            body { font-size: 15px; }
+            .mobile-only { display: block; }
+            .desktop-only { display: none !important; }
+            input, select, textarea, button { min-height: 44px; }
+            button, select, input, textarea { touch-action: manipulation; }
+            .card-surface { border-radius: 20px; }
+            .mobile-stack { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+        }
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
@@ -71,7 +81,7 @@
     </div>
 
     <div id="main-section" class="hidden">
-        <header class="bg-red-700 text-white px-6 py-4 flex justify-between items-center shadow-xl">
+        <header class="bg-red-700 text-white px-4 py-4 sm:px-6 flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center shadow-xl mobile-stack">
             <div class="flex items-center gap-3">
                 <div class="inline-flex items-center justify-center h-11 w-11 rounded-2xl bg-white/10 shadow-inner shadow-white/10 border border-white/10 text-2xl">
                     <i class="fa-solid fa-cubes"></i>
@@ -96,12 +106,17 @@
             </div>
         </header>
 
-        <main class="p-6 max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <main class="p-4 sm:p-6 max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
             <div class="space-y-6 h-fit">
                 <div class="card-surface p-6 rounded-[28px] shadow-xl space-y-5">
                     <div class="flex items-center justify-between gap-3">
                         <h3 id="lbl-form-title" class="text-lg font-bold text-slate-900 section-heading flex items-center gap-2"><i class="fa-solid fa-square-plus text-red-600"></i> Stock Transaction Form</h3>
                         <span id="summaryBadgeLive" class="inline-flex items-center rounded-full bg-rose-50 text-rose-700 text-xs font-semibold px-3 py-1">Live Inventory</span>
+                    </div>
+                    <div class="mobile-only grid grid-cols-3 gap-2 rounded-2xl bg-slate-50 p-2">
+                        <button type="button" onclick="document.getElementById('transactionType').focus();" class="rounded-xl bg-white px-2 py-2.5 text-xs font-semibold text-slate-700 shadow-sm">Type</button>
+                        <button type="button" onclick="document.getElementById('item').focus();" class="rounded-xl bg-white px-2 py-2.5 text-xs font-semibold text-slate-700 shadow-sm">Item</button>
+                        <button type="button" onclick="document.getElementById('qty').focus();" class="rounded-xl bg-red-600 px-2 py-2.5 text-xs font-semibold text-white shadow-sm">Qty</button>
                     </div>
                     <form id="stockForm" class="space-y-4">
                         <div>
@@ -111,7 +126,7 @@
                         <div>
                             <label id="lbl-form-type" class="block mb-1.5 font-semibold text-slate-600 text-sm">Transaction Type</label>
                             <select id="transactionType" class="w-full bg-slate-50 p-2.5 rounded-lg border border-slate-200"></select>
-                        </div>
+                        </div> 
                         <div>
                             <label id="lbl-form-select-item" class="block mb-1.5 font-semibold text-slate-600 text-sm">Select Part / Asset</label>
                             <select id="item" required class="w-full bg-slate-50 p-2.5 rounded-lg border border-slate-200">
@@ -143,7 +158,7 @@
                                 <img id="previewImg" src="" class="max-h-24 inline-block rounded border border-slate-300 shadow-sm">
                             </div>
                         </div>
-                        <button type="submit" id="btn-submit" class="w-full btn-primary bg-red-600 text-white font-medium p-3 rounded-lg hover:bg-red-700 transition">
+                        <button type="submit" id="btn-submit" class="w-full btn-primary bg-red-600 text-white font-semibold p-3.5 rounded-2xl hover:bg-red-700 transition shadow-sm text-sm sm:text-base">
                             <i class="fa-solid fa-floppy-disk"></i> Save Transaction
                         </button>
                     </form>
@@ -164,7 +179,7 @@
                             <label id="lbl-admin-qty" class="block mb-1 text-slate-600 font-semibold text-xs">Initial Stock</label>
                             <input type="number" id="new_item_qty" min="0" required class="w-full bg-white p-2 rounded-lg border text-sm" placeholder="0">
                         </div>
-                        <button type="submit" id="btn-admin-add" class="w-full btn-primary bg-amber-600 text-white text-sm font-semibold p-2 rounded-lg hover:bg-amber-700 transition">Create Asset Item</button>
+                        <button type="submit" id="btn-admin-add" class="w-full btn-primary bg-amber-600 text-white text-sm font-semibold p-3 rounded-xl hover:bg-amber-700 transition">Create Asset Item</button>
                     </form>
                 </div>
             </div>
@@ -211,7 +226,7 @@
                         <div id="summaryBadgeInv" class="rounded-full bg-slate-100 text-slate-600 px-3 py-1 text-xs font-semibold">Updated live</div>
                     </div>
                     <div id="low-stock-alert" class="mb-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"></div>
-                    <div class="overflow-x-auto max-h-[300px] border border-slate-200 rounded-3xl shadow-sm">
+                    <div class="desktop-only overflow-x-auto max-h-[300px] border border-slate-200 rounded-3xl shadow-sm">
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="table-header text-white text-sm">
@@ -227,6 +242,7 @@
                             </tbody>
                         </table>
                     </div>
+                    <div id="inventoryCards" class="mobile-only mt-3 space-y-3"></div>
                 </div>
 
                 <div class="card-surface p-6 rounded-[28px] shadow-xl">
@@ -234,7 +250,7 @@
                         <h3 id="lbl-tbl-log-title" class="text-lg font-bold text-slate-800 section-heading flex items-center gap-2"><i class="fa-solid fa-history text-slate-600"></i> Recent Activity Logs</h3>
                         <div id="summaryBadgeLogs" class="rounded-full bg-slate-100 text-slate-600 px-3 py-1 text-xs font-semibold">Most recent 20</div>
                     </div>
-                    <div class="overflow-x-auto max-h-[350px] border border-slate-200 rounded-3xl shadow-sm">
+                    <div class="desktop-only overflow-x-auto max-h-[350px] border border-slate-200 rounded-3xl shadow-sm">
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="table-header text-white text-sm">
@@ -254,6 +270,7 @@
                             </tbody>
                         </table>
                     </div>
+                    <div id="logCards" class="mobile-only mt-3 space-y-3"></div>
                 </div>
             </div>
         </main>
@@ -531,7 +548,9 @@
                     const table = document.getElementById('inventoryTable');
                     const select = document.getElementById('item');
                     const lowStockAlert = document.getElementById('low-stock-alert');
+                    const inventoryCards = document.getElementById('inventoryCards');
                     table.innerHTML = '';
+                    inventoryCards.innerHTML = '';
                     select.innerHTML = '';
 
                     const defaultOption = document.createElement('option');
@@ -612,6 +631,23 @@
 
                         table.appendChild(row);
 
+                        const card = document.createElement('div');
+                        card.className = 'rounded-2xl border border-slate-200 bg-white p-3 shadow-sm';
+                        card.innerHTML = `
+                            <div class="flex items-start justify-between gap-2">
+                                <div>
+                                    <div class="font-semibold text-slate-800">${item.name}</div>
+                                    <div class="text-xs text-slate-500 font-mono mt-1">${item.code}</div>
+                                </div>
+                                <span class="rounded-full px-2.5 py-1 text-xs font-semibold ${isLowStock ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}">${item.qty}</span>
+                            </div>
+                            <div class="mt-3 flex items-center justify-between gap-2">
+                                <span class="text-xs text-slate-500">${isLowStock ? 'Low stock' : 'Available'}</span>
+                                <button type="button" onclick="selectItemToForm('${item.code}', '${item.name.replace(/'/g, "\\'")}')" class="rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white">Select</button>
+                            </div>
+                        `;
+                        inventoryCards.appendChild(card);
+
                         const option = document.createElement('option');
                         option.value = item.code;
                         option.textContent = `${item.code} - ${item.name}`;
@@ -668,7 +704,9 @@
                     latestLogData = result.data;
                     updateDashboardSummary();
                     const table = document.getElementById('logTable');
+                    const logCards = document.getElementById('logCards');
                     table.innerHTML = '';
+                    logCards.innerHTML = '';
 
                     result.data.reverse().forEach(log => {
                         let badgeColor = 'bg-slate-100 text-slate-600';
@@ -747,6 +785,24 @@
                         }
 
                         table.appendChild(row);
+
+                        const card = document.createElement('div');
+                        card.className = 'rounded-2xl border border-slate-200 bg-white p-3 shadow-sm';
+                        card.innerHTML = `
+                            <div class="flex items-start justify-between gap-2">
+                                <div>
+                                    <div class="font-semibold text-slate-800">${log.itemName}</div>
+                                    <div class="text-xs text-slate-500 mt-1">${log.timestamp}</div>
+                                </div>
+                                <span class="px-2 py-1 rounded-full text-[11px] font-semibold ${badgeColor}">${log.type}</span>
+                            </div>
+                            <div class="mt-2 text-xs text-slate-600">${displayReason}</div>
+                            <div class="mt-3 flex items-center justify-between text-xs text-slate-500">
+                                <span>${log.user}</span>
+                                <span>Qty ${log.qty}</span>
+                            </div>
+                        `;
+                        logCards.appendChild(card);
                     });
                 }
             } catch(e) {
