@@ -9,12 +9,26 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght=300;400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
-        .toast { transition: all 0.3s ease; transform: translateY(-20px); opacity: 0; }
+        .toast { transition: all 0.25s ease; transform: translateY(-20px); opacity: 0; }
         .toast.show { transform: translateY(0); opacity: 1; }
-        .clickable-row { cursor: pointer; user-select: none; }
+        .clickable-row { cursor: pointer; user-select: none; transition: background-color 0.2s ease; }
+        .card-surface { background: rgba(255,255,255,0.96); backdrop-filter: blur(12px); border: 1px solid rgba(148,163,184,0.16); }
+        .section-heading { letter-spacing: 0.02em; }
+        .table-header { background: rgba(15,23,42,0.95); }
+        .table-header th { border-color: rgba(148,163,184,0.18); }
+        .btn-primary { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 12px 30px rgba(15,23,42,0.12); }
+        .loading-overlay { display: none; position: fixed; inset: 0; z-index: 50; align-items: center; justify-content: center; background: rgba(15,23,42,0.24); }
+        .loading-overlay.show { display: flex; }
+        .spinner { width: 3rem; height: 3rem; border: 4px solid rgba(255,255,255,0.3); border-top-color: #f87171; border-radius: 9999px; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="bg-slate-100 min-h-screen text-slate-800">
+
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+    </div>
 
     <div id="toast" class="toast fixed top-5 right-5 z-50 max-w-sm w-full bg-white shadow-xl rounded-xl border p-4 flex items-start gap-3 pointer-events-none">
         <div id="toast-icon" class="text-xl"></div>
@@ -56,10 +70,15 @@
     </div>
 
     <div id="main-section" class="hidden">
-        <header class="bg-red-700 text-white px-6 py-4 flex justify-between items-center shadow-md">
+        <header class="bg-red-700 text-white px-6 py-4 flex justify-between items-center shadow-xl">
             <div class="flex items-center gap-3">
-                <i class="fa-solid fa-cubes text-2xl"></i>
-                <h1 id="lbl-app-title" class="text-lg font-bold">VN Asset & Stock Tracking System</h1>
+                <div class="inline-flex items-center justify-center h-11 w-11 rounded-2xl bg-white/10 shadow-inner shadow-white/10 border border-white/10 text-2xl">
+                    <i class="fa-solid fa-cubes"></i>
+                </div>
+                <div>
+                    <h1 id="lbl-app-title" class="text-lg font-bold">VN Asset & Stock Tracking System</h1>
+                    <p class="text-sm text-white/80">Asset, stock and workflow tracking</p>
+                </div>
             </div>
             <div class="flex items-center gap-4">
                 <select id="langSelect" onchange="changeLanguage(this.value)" class="bg-white border border-slate-300 rounded-lg p-1.5 text-xs font-semibold text-slate-800 shadow-sm focus:outline-none">
@@ -78,8 +97,11 @@
 
         <main class="p-6 max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="space-y-6 h-fit">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-5">
-                    <h3 id="lbl-form-title" class="text-lg font-bold text-slate-800 flex items-center gap-2"><i class="fa-solid fa-square-plus text-red-600"></i> Stock Transaction Form</h3>
+                <div class="card-surface p-6 rounded-[28px] shadow-xl space-y-5">
+                    <div class="flex items-center justify-between gap-3">
+                        <h3 id="lbl-form-title" class="text-lg font-bold text-slate-900 section-heading flex items-center gap-2"><i class="fa-solid fa-square-plus text-red-600"></i> Stock Transaction Form</h3>
+                        <span id="summaryBadgeLive" class="inline-flex items-center rounded-full bg-rose-50 text-rose-700 text-xs font-semibold px-3 py-1">Live Inventory</span>
+                    </div>
                     <form id="stockForm" class="space-y-4">
                         <div>
                             <label id="lbl-form-operator" class="block mb-1.5 font-semibold text-slate-600 text-sm">Operator</label>
@@ -120,7 +142,7 @@
                                 <img id="previewImg" src="" class="max-h-24 inline-block rounded border border-slate-300 shadow-sm">
                             </div>
                         </div>
-                        <button type="submit" id="btn-submit" class="w-full bg-red-600 text-white font-medium p-3 rounded-lg hover:bg-red-700 transition">
+                        <button type="submit" id="btn-submit" class="w-full btn-primary bg-red-600 text-white font-medium p-3 rounded-lg hover:bg-red-700 transition">
                             <i class="fa-solid fa-floppy-disk"></i> Save Transaction
                         </button>
                     </form>
@@ -141,23 +163,61 @@
                             <label id="lbl-admin-qty" class="block mb-1 text-slate-600 font-semibold text-xs">Initial Stock</label>
                             <input type="number" id="new_item_qty" min="0" required class="w-full bg-white p-2 rounded-lg border text-sm" placeholder="0">
                         </div>
-                        <button type="submit" id="btn-admin-add" class="w-full bg-amber-600 text-white text-sm font-semibold p-2 rounded-lg hover:bg-amber-700 transition">Create Asset Item</button>
+                        <button type="submit" id="btn-admin-add" class="w-full btn-primary bg-amber-600 text-white text-sm font-semibold p-2 rounded-lg hover:bg-amber-700 transition">Create Asset Item</button>
                     </form>
                 </div>
             </div>
 
             <div class="lg:col-span-2 space-y-6">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                    <h3 id="lbl-tbl-inv-title" class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-warehouse text-slate-600"></i> Current Warehouse Stock</h3>
-                    <div class="overflow-x-auto max-h-[300px] border rounded-xl">
+                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                    <div class="card-surface p-5 rounded-[28px] shadow-xl border border-slate-200">
+                        <div class="flex items-start gap-3">
+                            <div class="inline-flex items-center justify-center h-12 w-12 rounded-2xl bg-rose-50 text-rose-700 text-lg">
+                                <i class="fa-solid fa-boxes-stacked"></i>
+                            </div>
+                            <div>
+                                <p id="summaryLabelItems" class="text-xs uppercase tracking-[0.24em] text-slate-500">Stock SKUs</p>
+                                <p id="summaryTotalItems" class="mt-2 text-3xl font-semibold text-slate-900">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-surface p-5 rounded-[28px] shadow-xl border border-slate-200">
+                        <div class="flex items-start gap-3">
+                            <div class="inline-flex items-center justify-center h-12 w-12 rounded-2xl bg-emerald-50 text-emerald-700 text-lg">
+                                <i class="fa-solid fa-layer-group"></i>
+                            </div>
+                            <div>
+                                <p id="summaryLabelQty" class="text-xs uppercase tracking-[0.24em] text-slate-500">Total Stock</p>
+                                <p id="summaryTotalQty" class="mt-2 text-3xl font-semibold text-slate-900">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-surface p-5 rounded-[28px] shadow-xl border border-slate-200">
+                        <div class="flex items-start gap-3">
+                            <div class="inline-flex items-center justify-center h-12 w-12 rounded-2xl bg-sky-50 text-sky-700 text-lg">
+                                <i class="fa-solid fa-clock-rotate-left"></i>
+                            </div>
+                            <div>
+                                <p id="summaryLabelLogs" class="text-xs uppercase tracking-[0.24em] text-slate-500">Recent Activity</p>
+                                <p id="summaryTotalLogs" class="mt-2 text-3xl font-semibold text-slate-900">0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-surface p-6 rounded-[28px] shadow-xl">
+                    <div class="flex items-center justify-between mb-4 gap-3">
+                        <h3 id="lbl-tbl-inv-title" class="text-lg font-bold text-slate-800 section-heading flex items-center gap-2"><i class="fa-solid fa-warehouse text-slate-600"></i> Current Warehouse Stock</h3>
+                        <div id="summaryBadgeInv" class="rounded-full bg-slate-100 text-slate-600 px-3 py-1 text-xs font-semibold">Updated live</div>
+                    </div>
+                    <div class="overflow-x-auto max-h-[300px] border border-slate-200 rounded-3xl shadow-sm">
                         <table class="w-full text-left border-collapse">
                             <thead>
-                                <tr class="bg-slate-900 text-white text-sm">
-                                    <th class="p-3">No.</th>
-                                    <th id="th-inv-code" class="p-3">Item Code</th>
-                                    <th id="th-inv-name" class="p-3">Part Name / Specifications</th>
-                                    <th id="th-inv-qty" class="p-3 text-center">Available</th>
-                                    <th id="th-action" class="p-3 text-center hidden">Action (Admin)</th>
+                                <tr class="table-header text-white text-sm">
+                                    <th class="p-4">No.</th>
+                                    <th id="th-inv-code" class="p-4">Item Code</th>
+                                    <th id="th-inv-name" class="p-4">Part Name / Specifications</th>
+                                    <th id="th-inv-qty" class="p-4 text-center">Available</th>
+                                    <th id="th-action" class="p-4 text-center hidden">Action (Admin)</th>
                                 </tr>
                             </thead>
                             <tbody id="inventoryTable" class="divide-y text-sm">
@@ -167,21 +227,24 @@
                     </div>
                 </div>
 
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                    <h3 id="lbl-tbl-log-title" class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-history text-slate-600"></i> Recent Activity Logs</h3>
-                    <div class="overflow-x-auto max-h-[350px] border rounded-xl">
+                <div class="card-surface p-6 rounded-[28px] shadow-xl">
+                    <div class="flex items-center justify-between mb-4 gap-3">
+                        <h3 id="lbl-tbl-log-title" class="text-lg font-bold text-slate-800 section-heading flex items-center gap-2"><i class="fa-solid fa-history text-slate-600"></i> Recent Activity Logs</h3>
+                        <div id="summaryBadgeLogs" class="rounded-full bg-slate-100 text-slate-600 px-3 py-1 text-xs font-semibold">Most recent 20</div>
+                    </div>
+                    <div class="overflow-x-auto max-h-[350px] border border-slate-200 rounded-3xl shadow-sm">
                         <table class="w-full text-left border-collapse">
                             <thead>
-                                <tr class="bg-slate-900 text-white text-sm">
-                                    <th id="th-log-date" class="p-3">Date-Time</th>
-                                    <th id="th-log-user" class="p-3">Operator</th>
-                                    <th id="th-log-item" class="p-3">Part Name</th>
-                                    <th id="th-log-qty" class="p-3 text-center">Qty</th>
-                                    <th id="th-log-type" class="p-3">Type</th>
-                                    <th class="p-3">Line</th>
-                                    <th id="th-log-reason" class="p-3">Reason / Project</th>
-                                    <th id="th-log-photo" class="p-3 text-center">Photo</th>
-                                    <th id="th-log-action" class="p-3 text-center hidden">Log Action</th>
+                                <tr class="table-header text-white text-sm">
+                                    <th id="th-log-date" class="p-4">Date-Time</th>
+                                    <th id="th-log-user" class="p-4">Operator</th>
+                                    <th id="th-log-item" class="p-4">Part Name</th>
+                                    <th id="th-log-qty" class="p-4 text-center">Qty</th>
+                                    <th id="th-log-type" class="p-4">Type</th>
+                                    <th class="p-4">Line</th>
+                                    <th id="th-log-reason" class="p-4">Reason / Project</th>
+                                    <th id="th-log-photo" class="p-4 text-center">Photo</th>
+                                    <th id="th-log-action" class="p-4 text-center hidden">Log Action</th>
                                 </tr>
                             </thead>
                             <tbody id="logTable" class="divide-y text-sm">
@@ -198,8 +261,20 @@
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxNkdrlb2CCT-gJL41zZQy7VbKR1NRUFKM-MBN8c1mdG1Udtq2xpQ4xGu0h3ehRQHLaBw/exec";
         
         let currentUser = null;
-        let base64ImageString = ""; 
+        let base64ImageString = "";
         let currentLang = "th";
+        let latestInventoryData = [];
+        let latestLogData = [];
+
+        function updateDashboardSummary() {
+            const totalItems = latestInventoryData.length;
+            const totalQty = latestInventoryData.reduce((sum, item) => sum + (parseInt(item.qty, 10) || 0), 0);
+            const totalLogs = latestLogData.length;
+
+            document.getElementById('summaryTotalItems').textContent = totalItems;
+            document.getElementById('summaryTotalQty').textContent = totalQty.toLocaleString('en-US');
+            document.getElementById('summaryTotalLogs').textContent = totalLogs;
+        }
 
         const langDict = {
             en: {
@@ -216,6 +291,8 @@
                 thLogDate: "Date-Time", thLogUser: "Operator", thLogItem: "Part Name", thLogQty: "Qty",
                 thLogType: "Type", thLogReason: "Reason / Project", thLogPhoto: "Photo", thLogAction: "Log Action",
                 optStockOut: "Stock Out (Usage / Dispatch)", optStockIn: "Stock In (Restock / Arrival)",
+                summaryLabelItems: "Stock SKUs", summaryLabelQty: "Total Stock", summaryLabelLogs: "Recent Activity",
+                summaryBadgeLive: "Live Inventory", summaryBadgeInv: "Updated live", summaryBadgeLogs: "Most recent 20",
                 loading: "Loading data...", noPhoto: "No photo", selectPlaceholder: "-- Select Item --",
                 promptNewQty: "Enter new stock quantity for", msgInvalidLogin: "Invalid username or password",
                 msgSaveSuccess: "Transaction saved successfully", msgConfirmDelete: "Are you sure to delete log ID:",
@@ -236,6 +313,8 @@
                 thLogDate: "วัน-เวลา", thLogUser: "ผู้ทำรายการ", thLogItem: "ชื่อพัสดุ", thLogQty: "จำนวน",
                 thLogType: "ประเภท", thLogReason: "เหตุผลความจำเป็น / ชื่อโครงการ", thLogPhoto: "รูปภาพหลักฐาน", thLogAction: "การจัดการ Log (Admin)",
                 optStockOut: "เบิกออกไปใช้งาน (Stock Out)", optStockIn: "รับสินค้าเข้าคลัง (Stock In)",
+                summaryLabelItems: "จำนวนรหัสสินค้า", summaryLabelQty: "ยอดสต็อกรวม", summaryLabelLogs: "กิจกรรมล่าสุด",
+                summaryBadgeLive: "ข้อมูลสด", summaryBadgeInv: "อัปเดตทันที", summaryBadgeLogs: "ล่าสุด 20 รายการ",
                 loading: "กำลังโหลดข้อมูล...", noPhoto: "ไม่มีรูปภาพ", selectPlaceholder: "-- เลือกรายการพัสดุ --",
                 promptNewQty: "ระบุจำนวนสต็อกใหม่สำหรับ", msgInvalidLogin: "Username หรือ Password ไม่ถูกต้อง",
                 msgSaveSuccess: "บันทึกสต็อกเรียบร้อย", msgConfirmDelete: "⚠️ ยืนยันการลบประวัติกิจกรรมรหัส:",
@@ -256,6 +335,8 @@
                 thLogDate: "Ngày-Giờ", thLogUser: "Người thực hiện", thLogItem: "Tên tài sản", thLogQty: "SL",
                 thLogType: "Loại", thLogReason: "Lý do / Dự án", thLogPhoto: "Hình ảnh", thLogAction: "Quản lý Log",
                 optStockOut: "Xuất kho sử dụng (Stock Out)", optStockIn: "Nhập kho bổ sung (Stock In)",
+                summaryLabelItems: "Số mã hàng", summaryLabelQty: "Tổng số lượng", summaryLabelLogs: "Hoạt động gần đây",
+                summaryBadgeLive: "Dữ liệu trực tiếp", summaryBadgeInv: "Cập nhật ngay", summaryBadgeLogs: "20 mục gần nhất",
                 loading: "Đang tải dữ liệu...", noPhoto: "Không có ảnh", selectPlaceholder: "-- Chọn mặt hàng --",
                 promptNewQty: "Nhập số lượng kho mới cho", msgInvalidLogin: "Tên đăng nhập hoặc mật khẩu không đúng",
                 msgSaveSuccess: "Đã lưu giao dịch kho thành công", msgConfirmDelete: "⚠️ Bạn có chắc chắn muốn xóa mã log:",
@@ -309,12 +390,30 @@
             document.getElementById('th-log-reason').innerText = t.thLogReason;
             document.getElementById('th-log-photo').innerText = t.thLogPhoto;
             document.getElementById('th-log-action').innerText = t.thLogAction;
+            document.getElementById('summaryLabelItems').innerText = t.summaryLabelItems;
+            document.getElementById('summaryLabelQty').innerText = t.summaryLabelQty;
+            document.getElementById('summaryLabelLogs').innerText = t.summaryLabelLogs;
+            document.getElementById('summaryBadgeLive').innerText = t.summaryBadgeLive;
+            document.getElementById('summaryBadgeInv').innerText = t.summaryBadgeInv;
+            document.getElementById('summaryBadgeLogs').innerText = t.summaryBadgeLogs;
+
+            document.getElementById('summaryLabelItems').textContent = t.summaryLabelItems;
+            document.getElementById('summaryLabelQty').textContent = t.summaryLabelQty;
+            document.getElementById('summaryLabelLogs').textContent = t.summaryLabelLogs;
+            document.getElementById('summaryBadgeLive').textContent = t.summaryBadgeLive;
+            document.getElementById('summaryBadgeInv').textContent = t.summaryBadgeInv;
+            document.getElementById('summaryBadgeLogs').textContent = t.summaryBadgeLogs;
 
             const txSelect = document.getElementById('transactionType');
-            txSelect.innerHTML = `
-                <option value="Stock Out / เบิกออก / Xuất">${t.optStockOut}</option>
-                <option value="Stock In / รับเข้า / Nhập">${t.optStockIn}</option>
-            `;
+            txSelect.innerHTML = '';
+            const optionOut = document.createElement('option');
+            optionOut.value = 'Stock Out / เบิกออก / Xuất';
+            optionOut.textContent = t.optStockOut;
+            const optionIn = document.createElement('option');
+            optionIn.value = 'Stock In / รับเข้า / Nhập';
+            optionIn.textContent = t.optStockIn;
+            txSelect.appendChild(optionOut);
+            txSelect.appendChild(optionIn);
             
             if (currentUser) {
                 loadInventory();
@@ -340,6 +439,16 @@
                 t.classList.add('border-red-100');
             }
             setTimeout(() => { t.classList.remove('show'); }, 3500);
+        }
+
+        function escapeHtml(value) {
+            if (value === null || value === undefined) return '';
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
         }
 
         document.getElementById('imageFile').addEventListener('change', function(e) {
@@ -410,38 +519,78 @@
                 const res = await fetch(`${SCRIPT_URL}?action=getInventory`);
                 const result = await res.json();
                 if(result.success) {
+                    latestInventoryData = result.data;
+                    updateDashboardSummary();
                     const table = document.getElementById('inventoryTable');
                     const select = document.getElementById('item');
                     table.innerHTML = '';
-                    select.innerHTML = `<option value="">${langDict[currentLang].selectPlaceholder}</option>`;
-                    
+                    select.innerHTML = '';
+
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = '';
+                    defaultOption.textContent = langDict[currentLang].selectPlaceholder;
+                    select.appendChild(defaultOption);
+
                     result.data.forEach((item, index) => {
-                        let actionTd = '';
-                        if(currentUser && currentUser.role === 'Admin') {
-                            actionTd = `<td class="p-2 text-center" onclick="event.stopPropagation();">
-                                <button onclick="editStockInline('${item.code}', ${item.qty})" class="bg-amber-500 hover:bg-amber-600 text-white text-xs px-2 py-1 rounded font-bold">Edit</button>
-                                <button onclick="deleteItemAction('${item.code}')" class="bg-red-600 hover:bg-red-700 text-white text-xs px-2 py-1 rounded font-bold ml-1"><i class="fa-solid fa-trash-can"></i> Delete</button>
-                            </td>`;
-                        }
-                        
                         const row = document.createElement('tr');
-                        row.className = "hover:bg-slate-50 clickable-row";
-                        row.title = "Double click to select / ดับเบิ้ลคลิกเพื่อเลือกเบิก";
+                        row.className = 'hover:bg-slate-50 clickable-row';
+                        row.title = 'Double click to select / ดับเบิ้ลคลิกเพื่อเลือกเบิก';
                         row.ondblclick = () => selectItemToForm(item.code, item.name);
-                        
-                        row.innerHTML = `
-                            <td class="p-3 text-center text-slate-500">${index + 1}</td>
-                            <td class="p-3 font-mono">${item.code}</td>
-                            <td class="p-3">${item.name}</td>
-                            <td class="p-3 text-center font-bold">${item.qty}</td>
-                            ${actionTd}
-                        `;
-                        
+
+                        const cellIndex = document.createElement('td');
+                        cellIndex.className = 'p-3 text-center text-slate-500';
+                        cellIndex.textContent = index + 1;
+
+                        const cellCode = document.createElement('td');
+                        cellCode.className = 'p-3 font-mono';
+                        cellCode.textContent = item.code;
+
+                        const cellName = document.createElement('td');
+                        cellName.className = 'p-3';
+                        cellName.textContent = item.name;
+
+                        const cellQty = document.createElement('td');
+                        cellQty.className = 'p-3 text-center font-bold';
+                        cellQty.textContent = item.qty;
+
+                        row.appendChild(cellIndex);
+                        row.appendChild(cellCode);
+                        row.appendChild(cellName);
+                        row.appendChild(cellQty);
+
+                        if(currentUser && currentUser.role === 'Admin') {
+                            const actionCell = document.createElement('td');
+                            actionCell.className = 'p-2 text-center';
+                            actionCell.addEventListener('click', event => event.stopPropagation());
+
+                            const editBtn = document.createElement('button');
+                            editBtn.type = 'button';
+                            editBtn.className = 'bg-amber-500 hover:bg-amber-600 text-white text-xs px-2 py-1 rounded font-bold';
+                            editBtn.textContent = 'Edit';
+                            editBtn.addEventListener('click', () => editStockInline(item.code, item.qty));
+
+                            const delBtn = document.createElement('button');
+                            delBtn.type = 'button';
+                            delBtn.className = 'bg-red-600 hover:bg-red-700 text-white text-xs px-2 py-1 rounded font-bold ml-1';
+                            delBtn.innerHTML = '<i class="fa-solid fa-trash-can"></i> Delete';
+                            delBtn.addEventListener('click', () => deleteItemAction(item.code));
+
+                            actionCell.appendChild(editBtn);
+                            actionCell.appendChild(delBtn);
+                            row.appendChild(actionCell);
+                        }
+
                         table.appendChild(row);
-                        select.innerHTML += `<option value="${item.code}">${item.code} - ${item.name}</option>`;
+
+                        const option = document.createElement('option');
+                        option.value = item.code;
+                        option.textContent = `${item.code} - ${item.name}`;
+                        select.appendChild(option);
                     });
                 }
-            } catch(e) { console.error(e); }
+            } catch(e) {
+                console.error(e);
+            }
         }
 
         // ADMIN QUICK EDIT STOCK
@@ -486,40 +635,93 @@
                 const res = await fetch(`${SCRIPT_URL}?action=getLogs`);
                 const result = await res.json();
                 if(result.success) {
-                    const table = document.getElementById('logTable'); table.innerHTML = '';
-                    
+                    latestLogData = result.data;
+                    updateDashboardSummary();
+                    const table = document.getElementById('logTable');
+                    table.innerHTML = '';
+
                     result.data.reverse().forEach(log => {
-                        let badgeColor = "bg-slate-100 text-slate-600";
-                        if(log.type.includes("Out") || log.type.includes("เบิก") || log.type.includes("Xuất")) badgeColor = "bg-red-50 text-red-600";
-                        if(log.type.includes("In") || log.type.includes("รับ") || log.type.includes("Nhập")) badgeColor = "bg-green-50 text-green-600";
+                        let badgeColor = 'bg-slate-100 text-slate-600';
+                        if(log.type.includes('Out') || log.type.includes('เบิก') || log.type.includes('Xuất')) badgeColor = 'bg-red-50 text-red-600';
+                        if(log.type.includes('In') || log.type.includes('รับ') || log.type.includes('Nhập')) badgeColor = 'bg-green-50 text-green-600';
 
-                        let imageTd = `<td class="p-3 text-center text-slate-400 text-xs italic">${langDict[currentLang].noPhoto}</td>`;
-                        if(log.image && log.image.startsWith("data:image")) {
-                            imageTd = `<td class="p-3 text-center"><img src="${log.image}" class="h-10 w-10 object-cover rounded border inline-block cursor-pointer" onclick="window.open('${log.image}')"></td>`;
+                        const row = document.createElement('tr');
+                        row.className = 'hover:bg-slate-50';
+
+                        const cellTimestamp = document.createElement('td');
+                        cellTimestamp.className = 'p-3 text-slate-500 text-xs';
+                        cellTimestamp.textContent = log.timestamp;
+
+                        const cellUser = document.createElement('td');
+                        cellUser.className = 'p-3 font-medium text-xs';
+                        cellUser.textContent = log.user;
+
+                        const cellItem = document.createElement('td');
+                        cellItem.className = 'p-3 text-xs max-w-[200px] truncate';
+                        cellItem.title = log.itemName;
+                        cellItem.textContent = log.itemName;
+
+                        const cellQty = document.createElement('td');
+                        cellQty.className = 'p-3 text-center font-bold text-xs';
+                        cellQty.textContent = log.qty;
+
+                        const cellType = document.createElement('td');
+                        cellType.className = 'p-3 text-[11px]';
+                        const typeBadge = document.createElement('span');
+                        typeBadge.className = `px-2 py-0.5 rounded font-medium ${badgeColor}`;
+                        typeBadge.textContent = log.type;
+                        cellType.appendChild(typeBadge);
+
+                        const cellLine = document.createElement('td');
+                        cellLine.className = 'p-3 font-semibold text-blue-600 text-xs';
+                        cellLine.textContent = log.matchainLine || 'Non';
+
+                        const cellReason = document.createElement('td');
+                        cellReason.className = 'p-3 text-slate-600 text-xs max-w-[180px] truncate';
+                        const displayReason = log.reason ? log.reason : '—';
+                        cellReason.title = displayReason;
+                        cellReason.textContent = displayReason;
+
+                        const cellImage = document.createElement('td');
+                        cellImage.className = 'p-3 text-center';
+                        if(log.image && typeof log.image === 'string' && log.image.startsWith('data:image')) {
+                            const img = document.createElement('img');
+                            img.src = log.image;
+                            img.className = 'h-10 w-10 object-cover rounded border inline-block cursor-pointer';
+                            img.addEventListener('click', () => window.open(log.image));
+                            cellImage.appendChild(img);
+                        } else {
+                            cellImage.className = 'p-3 text-center text-slate-400 text-xs italic';
+                            cellImage.textContent = langDict[currentLang].noPhoto;
                         }
 
-                        let logActionTd = '';
+                        row.appendChild(cellTimestamp);
+                        row.appendChild(cellUser);
+                        row.appendChild(cellItem);
+                        row.appendChild(cellQty);
+                        row.appendChild(cellType);
+                        row.appendChild(cellLine);
+                        row.appendChild(cellReason);
+                        row.appendChild(cellImage);
+
                         if(currentUser && currentUser.role === 'Admin') {
-                            logActionTd = `<td class="p-3 text-center"><button onclick="deleteLogAction('${log.id}')" class="bg-red-600 hover:bg-red-700 text-white font-bold px-2 py-1 text-xs rounded transition shadow"><i class="fa-solid fa-trash-can"></i> Delete</button></td>`;
+                            const logActionCell = document.createElement('td');
+                            logActionCell.className = 'p-3 text-center';
+                            const deleteButton = document.createElement('button');
+                            deleteButton.type = 'button';
+                            deleteButton.className = 'bg-red-600 hover:bg-red-700 text-white font-bold px-2 py-1 text-xs rounded transition shadow';
+                            deleteButton.innerHTML = '<i class="fa-solid fa-trash-can"></i> Delete';
+                            deleteButton.addEventListener('click', () => deleteLogAction(log.id));
+                            logActionCell.appendChild(deleteButton);
+                            row.appendChild(logActionCell);
                         }
 
-                        const displayReason = log.reason ? log.reason : "—";
-
-                        table.innerHTML += `
-                            <tr class="hover:bg-slate-50">
-                                <td class="p-3 text-slate-500 text-xs">${log.timestamp}</td>
-                                <td class="p-3 font-medium text-xs">${log.user}</td>
-                                <td class="p-3 text-xs max-w-[200px] truncate" title="${log.itemName}">${log.itemName}</td>
-                                <td class="p-3 text-center font-bold text-xs">${log.qty}</td>
-                                <td class="p-3 text-[11px]"><span class="px-2 py-0.5 rounded font-medium ${badgeColor}">${log.type}</span></td>
-                                <td class="p-3 font-semibold text-blue-600 text-xs">${log.matchainLine || 'Non'}</td>
-                                <td class="p-3 text-slate-600 text-xs max-w-[180px] truncate" title="${displayReason}">${displayReason}</td>
-                                ${imageTd}
-                                ${logActionTd}
-                            </tr>`;
+                        table.appendChild(row);
                     });
                 }
-            } catch(e) { console.error(e); }
+            } catch(e) {
+                console.error(e);
+            }
         }
 
         // DELETE LOG ACTION 
