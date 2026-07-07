@@ -152,6 +152,7 @@
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="bg-slate-900 text-white text-sm">
+                                    <th class="p-3">No.</th>
                                     <th id="th-inv-code" class="p-3">Item Code</th>
                                     <th id="th-inv-name" class="p-3">Part Name / Specifications</th>
                                     <th id="th-inv-qty" class="p-3 text-center">Available</th>
@@ -193,7 +194,7 @@
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz9Ut_-xEaM01KOA14_OIGK3OFcWY6urecTBWYfPLcX0TIYy3jePaU9TuxGPfpGY_Dpng/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxNkdrlb2CCT-gJL41zZQy7VbKR1NRUFKM-MBN8c1mdG1Udtq2xpQ4xGu0h3ehRQHLaBw/exec";
         
         let currentUser = null;
         let base64ImageString = ""; 
@@ -413,7 +414,7 @@
                     table.innerHTML = '';
                     select.innerHTML = `<option value="">${langDict[currentLang].selectPlaceholder}</option>`;
                     
-                    result.data.forEach(item => {
+                    result.data.forEach((item, index) => {
                         let actionTd = '';
                         if(currentUser && currentUser.role === 'Admin') {
                             actionTd = `<td class="p-2 text-center" onclick="event.stopPropagation();">
@@ -428,6 +429,7 @@
                         row.ondblclick = () => selectItemToForm(item.code, item.name);
                         
                         row.innerHTML = `
+                            <td class="p-3 text-center text-slate-500">${index + 1}</td>
                             <td class="p-3 font-mono">${item.code}</td>
                             <td class="p-3">${item.name}</td>
                             <td class="p-3 text-center font-bold">${item.qty}</td>
