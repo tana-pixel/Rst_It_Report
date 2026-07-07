@@ -12,6 +12,7 @@
         .toast { transition: all 0.25s ease; transform: translateY(-20px); opacity: 0; }
         .toast.show { transform: translateY(0); opacity: 1; }
         .clickable-row { cursor: pointer; user-select: none; transition: background-color 0.2s ease; }
+        .low-stock-row { background-color: rgba(250, 204, 21, 0.12); }
         .card-surface { background: rgba(255,255,255,0.96); backdrop-filter: blur(12px); border: 1px solid rgba(148,163,184,0.16); }
         .section-heading { letter-spacing: 0.02em; }
         .table-header { background: rgba(15,23,42,0.95); }
@@ -209,6 +210,7 @@
                         <h3 id="lbl-tbl-inv-title" class="text-lg font-bold text-slate-800 section-heading flex items-center gap-2"><i class="fa-solid fa-warehouse text-slate-600"></i> Current Warehouse Stock</h3>
                         <div id="summaryBadgeInv" class="rounded-full bg-slate-100 text-slate-600 px-3 py-1 text-xs font-semibold">Updated live</div>
                     </div>
+                    <div id="low-stock-alert" class="mb-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"></div>
                     <div class="overflow-x-auto max-h-[300px] border border-slate-200 rounded-3xl shadow-sm">
                         <table class="w-full text-left border-collapse">
                             <thead>
@@ -262,8 +264,7 @@
         
         let currentUser = null;
         let base64ImageString = "";
-        let currentLang = "th";
-        let latestInventoryData = [];
+        let currentLang = "th";        const LOW_STOCK_THRESHOLD = 3;        let latestInventoryData = [];
         let latestLogData = [];
 
         function updateDashboardSummary() {
@@ -294,6 +295,8 @@
                 summaryLabelItems: "Stock SKUs", summaryLabelQty: "Total Stock", summaryLabelLogs: "Recent Activity",
                 summaryBadgeLive: "Live Inventory", summaryBadgeInv: "Updated live", summaryBadgeLogs: "Most recent 20",
                 loading: "Loading data...", noPhoto: "No photo", selectPlaceholder: "-- Select Item --",
+                lowStockTitle: "Low stock alert", lowStockDesc: "Items at or below the warning threshold will be highlighted.",
+                lowStockEmpty: "All items are above the low-stock threshold.", lowStockItem: "item(s) need attention",
                 promptNewQty: "Enter new stock quantity for", msgInvalidLogin: "Invalid username or password",
                 msgSaveSuccess: "Transaction saved successfully", msgConfirmDelete: "Are you sure to delete log ID:",
                 msgConfirmDeleteItem: "Are you sure to delete item:",
@@ -316,6 +319,8 @@
                 summaryLabelItems: "จำนวนรหัสสินค้า", summaryLabelQty: "ยอดสต็อกรวม", summaryLabelLogs: "กิจกรรมล่าสุด",
                 summaryBadgeLive: "ข้อมูลสด", summaryBadgeInv: "อัปเดตทันที", summaryBadgeLogs: "ล่าสุด 20 รายการ",
                 loading: "กำลังโหลดข้อมูล...", noPhoto: "ไม่มีรูปภาพ", selectPlaceholder: "-- เลือกรายการพัสดุ --",
+                lowStockTitle: "แจ้งเตือนสต็อกต่ำ", lowStockDesc: "รายการที่มีจำนวนเท่ากับหรือต่ำกว่าจุดเตือนจะถูกไฮไลต์ไว้",
+                lowStockEmpty: "สินค้าทั้งหมดยังอยู่เหนือเกณฑ์สต็อกต่ำ", lowStockItem: "รายการต้องตรวจสอบ",
                 promptNewQty: "ระบุจำนวนสต็อกใหม่สำหรับ", msgInvalidLogin: "Username หรือ Password ไม่ถูกต้อง",
                 msgSaveSuccess: "บันทึกสต็อกเรียบร้อย", msgConfirmDelete: "⚠️ ยืนยันการลบประวัติกิจกรรมรหัส:",
                 msgConfirmDeleteItem: "⚠️ ยืนยันการลบรายการสินค้า:",
@@ -338,6 +343,8 @@
                 summaryLabelItems: "Số mã hàng", summaryLabelQty: "Tổng số lượng", summaryLabelLogs: "Hoạt động gần đây",
                 summaryBadgeLive: "Dữ liệu trực tiếp", summaryBadgeInv: "Cập nhật ngay", summaryBadgeLogs: "20 mục gần nhất",
                 loading: "Đang tải dữ liệu...", noPhoto: "Không có ảnh", selectPlaceholder: "-- Chọn mặt hàng --",
+                lowStockTitle: "Cảnh báo tồn kho thấp", lowStockDesc: "Các mặt hàng ở mức hoặc dưới ngưỡng cảnh báo sẽ được đánh dấu.",
+                lowStockEmpty: "Tất cả mặt hàng đều trên ngưỡng cảnh báo tồn kho thấp.", lowStockItem: "mặt hàng cần chú ý",
                 promptNewQty: "Nhập số lượng kho mới cho", msgInvalidLogin: "Tên đăng nhập hoặc mật khẩu không đúng",
                 msgSaveSuccess: "Đã lưu giao dịch kho thành công", msgConfirmDelete: "⚠️ Bạn có chắc chắn muốn xóa mã log:",
                 msgConfirmDeleteItem: "⚠️ Bạn có chắc chắn muốn xóa mặt hàng:",
@@ -523,6 +530,7 @@
                     updateDashboardSummary();
                     const table = document.getElementById('inventoryTable');
                     const select = document.getElementById('item');
+                    const lowStockAlert = document.getElementById('low-stock-alert');
                     table.innerHTML = '';
                     select.innerHTML = '';
 
@@ -531,9 +539,31 @@
                     defaultOption.textContent = langDict[currentLang].selectPlaceholder;
                     select.appendChild(defaultOption);
 
+                    const lowStockItems = result.data.filter(item => Number(item.qty) <= LOW_STOCK_THRESHOLD);
+                    if(lowStockItems.length > 0) {
+                        lowStockAlert.innerHTML = `
+                            <div class="flex items-start gap-2">
+                                <i class="fa-solid fa-triangle-exclamation mt-0.5"></i>
+                                <div>
+                                    <div class="font-semibold">${langDict[currentLang].lowStockTitle}</div>
+                                    <div class="text-xs mt-1">${lowStockItems.length} ${langDict[currentLang].lowStockItem}</div>
+                                    <div class="text-xs mt-1">${langDict[currentLang].lowStockDesc}</div>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        lowStockAlert.innerHTML = `
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-circle-check"></i>
+                                <span>${langDict[currentLang].lowStockEmpty}</span>
+                            </div>
+                        `;
+                    }
+
                     result.data.forEach((item, index) => {
                         const row = document.createElement('tr');
-                        row.className = 'hover:bg-slate-50 clickable-row';
+                        const isLowStock = Number(item.qty) <= LOW_STOCK_THRESHOLD;
+                        row.className = isLowStock ? 'hover:bg-amber-50 clickable-row low-stock-row' : 'hover:bg-slate-50 clickable-row';
                         row.title = 'Double click to select / ดับเบิ้ลคลิกเพื่อเลือกเบิก';
                         row.ondblclick = () => selectItemToForm(item.code, item.name);
 
@@ -550,7 +580,7 @@
                         cellName.textContent = item.name;
 
                         const cellQty = document.createElement('td');
-                        cellQty.className = 'p-3 text-center font-bold';
+                        cellQty.className = `p-3 text-center font-bold ${isLowStock ? 'text-amber-600' : ''}`;
                         cellQty.textContent = item.qty;
 
                         row.appendChild(cellIndex);
