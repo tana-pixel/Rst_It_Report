@@ -136,9 +136,9 @@
                         <span id="summaryBadgeLive" class="inline-flex items-center rounded-full bg-rose-50 text-rose-700 text-xs font-semibold px-3 py-1">Live Inventory</span>
                     </div>
                     <div class="mobile-only grid grid-cols-3 gap-2 rounded-2xl bg-slate-50 p-2">
-                        <button type="button" onclick="document.getElementById('transactionType').focus();" class="rounded-xl bg-white px-2 py-2.5 text-xs font-semibold text-slate-700 shadow-sm">Type</button>
-                        <button type="button" onclick="document.getElementById('item').focus();" class="rounded-xl bg-white px-2 py-2.5 text-xs font-semibold text-slate-700 shadow-sm">Item</button>
-                        <button type="button" onclick="document.getElementById('qty').focus();" class="rounded-xl bg-red-600 px-2 py-2.5 text-xs font-semibold text-white shadow-sm">Qty</button>
+                        <button type="button" id="mobileShortcutType" onclick="focusField('transactionType')" class="rounded-xl bg-white px-2 py-2.5 text-xs font-semibold text-slate-700 shadow-sm">Type</button>
+                        <button type="button" id="mobileShortcutItem" onclick="focusField('item')" class="rounded-xl bg-white px-2 py-2.5 text-xs font-semibold text-slate-700 shadow-sm">Item</button>
+                        <button type="button" id="mobileShortcutQty" onclick="focusField('qty')" class="rounded-xl bg-white px-2 py-2.5 text-xs font-semibold text-slate-700 shadow-sm">Qty</button>
                     </div>
                     <form id="stockForm" class="space-y-4">
                         <div>
@@ -320,6 +320,30 @@
             document.getElementById('summaryTotalLogs').textContent = totalLogs;
         }
 
+        function setMobileShortcutActive(fieldId) {
+            const buttons = {
+                transactionType: document.getElementById('mobileShortcutType'),
+                item: document.getElementById('mobileShortcutItem'),
+                qty: document.getElementById('mobileShortcutQty')
+            };
+
+            Object.entries(buttons).forEach(([key, button]) => {
+                if (!button) return;
+                if (key === fieldId) {
+                    button.className = 'rounded-xl bg-red-600 px-2 py-2.5 text-xs font-semibold text-white shadow-sm';
+                } else {
+                    button.className = 'rounded-xl bg-white px-2 py-2.5 text-xs font-semibold text-slate-700 shadow-sm';
+                }
+            });
+        }
+
+        function focusField(fieldId) {
+            const el = document.getElementById(fieldId);
+            if (!el) return;
+            el.focus();
+            setMobileShortcutActive(fieldId);
+        }
+
         const langDict = {
             en: {
                 authTitle: "Authorized Access Only", authDesc: "Please sign in with your account to proceed",
@@ -475,6 +499,14 @@
             changeLanguage('th');
             document.getElementById('btnShowLogin').addEventListener('click', () => showAuthMode('login'));
             document.getElementById('btnShowRegister').addEventListener('click', () => showAuthMode('register'));
+
+            ['transactionType', 'item', 'qty'].forEach(fieldId => {
+                const el = document.getElementById(fieldId);
+                if (el) {
+                    el.addEventListener('focus', () => setMobileShortcutActive(fieldId));
+                    el.addEventListener('change', () => setMobileShortcutActive(fieldId));
+                }
+            });
         });
 
         function showAuthMode(mode) {
