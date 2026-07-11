@@ -232,7 +232,10 @@
           </div>
         </div>
         <div class="small" id="latestEntry" style="margin-bottom:14px; font-weight: 500;">อัปเดตล่าสุดเมื่อ: -</div>
-        <button id="exportBtn" class="secondary" style="margin-bottom: 14px; font-size:12px; padding:8px 12px; width:auto; margin-left:auto;">📥 ส่งออกข้อมูลประวัติ (.TXT)</button>
+        <div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:14px; justify-content:flex-end;">
+          <button id="refreshBtn" class="secondary" style="font-size:12px; padding:8px 12px; width:auto;">🔄 Refresh</button>
+          <button id="exportBtn" class="secondary" style="font-size:12px; padding:8px 12px; width:auto;">📥 ส่งออกข้อมูลประวัติ (.TXT)</button>
+        </div>
         
         <div style="overflow-x: auto;">
           <table>
@@ -489,6 +492,10 @@
 
     document.getElementById('startCamera').addEventListener('click', startCamera);
     document.getElementById('captureBtn').addEventListener('click', capturePhoto);
+    document.getElementById('refreshBtn').addEventListener('click', function () {
+      showStatus('กำลังรีเฟรชข้อมูล...', false);
+      loadDashboard();
+    });
     document.getElementById('exportBtn').addEventListener('click', async function () {
       try {
         const text = await callWebApi('exportAttendanceText');
