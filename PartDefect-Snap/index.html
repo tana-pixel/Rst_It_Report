@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spare Parts Defect Logger & Statistics Table</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background-color: #f1f5f9; 
+            margin: 0; 
+            padding: 20px; 
+            color: #1e293b;
+        }
+        h2 { margin-top: 0; color: #0f172a; text-align: center; margin-bottom: 25px; font-weight: 700; }
+        
+        /* Layout ซ้าย-ขวา */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* แบ่งพื้นที่ครึ่งซ้ายและขวา */
+            gap: 25px;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        /* กล่องสไตล์มินิมอล/คลีน แบบระบบ Enterprise */
+        .card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            box-sizing: border-box;
+        }
+        .card h3 { margin-top: 0; border-bottom: 2px solid #f1f5f9; padding-bottom: 12px; color: #334155; font-size: 1.3rem; }
+
+        /* --- ฝั่งซ้าย: โซนกล้องและการบันทึก --- */
+        video { width: 100%; max-height: 260px; border-radius: 8px; background-color: #000; transform: scaleX(-1); }
+        .grid-buttons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 15px 0 25px 0; }
+        .part-btn { background-color: #3b82f6; border: none; border-radius: 8px; padding: 18px 10px; font-size: 1.1rem; font-weight: bold; color: white; cursor: pointer; transition: background 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .part-btn:hover { background-color: #1d4ed8; }
+        .part-btn:active { transform: scale(0.98); }
+
+        /* ตารางล็อกประวัติด้านล่างกล้อง */
+        .list-container { max-height: 250px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px; }
+        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 10px; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; }
+        .item-row:last-child { border-bottom: none; }
+        .item-info b { color: #2563eb; font-size: 1rem; }
+        .action-btns { display: flex; gap: 4px; }
+        .btn { padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: bold; color: white; }
+        .btn-view { background-color: #0ea5e9; }
+        .btn-edit { background-color: #f59e0b; }
+        .btn-delete { background-color: #ef4444; }
+
+        /* --- ฝั่งขวา: โซนตารางสรุปสถิติ (Statistics Dashboard) --- */
+        /* KPI Cards */
+        .kpi-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+        .kpi-box { background: #f8fafc; border-top: 4px solid #3b82f6; padding: 18px; border-radius: 8px; text-align: center; box-shadow: inset 0 0 0 1px #e2e8f0; }
+        .kpi-box.pending { border-top-color: #f59e0b; }
+        .kpi-title { font-size: 0.85rem; color: #64748b; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; }
+        .kpi-value { font-size: 2rem; font-weight: 700; margin-top: 8px; color: #0f172a; }
+
+        /* ตารางสถิติสรุปผลรายพาร์ท */
+        .stats-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.95rem; }
+        .stats-table th { background-color: #f8fafc; color: #475569; font-weight: 600; text-align: left; padding: 14px 12px; border-bottom: 2px solid #e2e8f0; }
+        .stats-table td { padding: 14px 12px; border-bottom: 1px solid #e2e8f0; color: #334155; }
+        .stats-table tr:hover { background-color: #f8fafc; }
+        .stats-table tr:last-child td { border-bottom: none; }
+        
+        /* สไตล์ตัวเลขเน้นสีให้ดูโปร */
+        .text-bold { font-weight: 700; color: #0f172a; }
+        .badge-pct { background-color: #e0f2fe; color: #0369a1; padding: 4px 8px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; }
+
+        .loading { opacity: 0.5; pointer-events: none; }
+        canvas#canvas { display: none; }
+
+        /* Responsive สำหรับหน้าจอขนาดเล็ก */
+        @media (max-width: 900px) {
+            .main-layout { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Spare Parts Quality Management System</h2>
+    
+    <div class="main-layout">
+        
+        <div class="card">
+            <h3>📷 Live Inspection Camera</h3>
+            <video id="webcam" autoplay playsinline></video>
+            <p id="camera-status" style="color: gray; font-size: 0.85rem; margin: 8px 0; text-align: center; font-weight: 500;">Connecting to device camera...</p>
+            
+            <div class="grid-buttons">
+                <button class="part-btn" onclick="captureAndUpload('30P')">Capture 30P</button>
+                <button class="part-btn" onclick="captureAndUpload('50P2')">Capture 50P2</button>
+                <button class="part-btn" onclick="captureAndUpload('50P3')">Capture 50P3</button>
+                <button class="part-btn" onclick="captureAndUpload('60P')">Capture 60P</button>
+            </div>
+
+            <h3>📋 Recent Defect Logs</h3>
+            <div class="list-container" id="log-list">Loading real-time logs...</div>
+        </div>
+
+        <div class="card">
+            <h3>📊 Statistical Summary Dashboard</h3>
+
+            <button class="part-btn" onclick="exportToExcel()" style="background-color: #10b981; margin-bottom: 20px; font-size: 1rem; padding: 12px;">
+    📥 Export Data to Excel (.csv)
+</button>
+            
+            <div class="kpi-container">
+                <div class="kpi-box">
+                    <div class="kpi-title">Total Defective Items</div>
+                    <div class="kpi-value" id="kpi-total">0</div>
+                </div>
+                <div class="kpi-box pending">
+                    <div class="kpi-title">Awaiting Review</div>
+                    <div class="kpi-value" id="kpi-pending">0</div>
+                </div>
+            </div>
+
+            <h3 style="border: none; font-size: 1.1rem; margin-bottom: 10px; color: #475569;">Defect Breakdown Table</h3>
+            <table class="stats-table">
+                <thead>
+                    <tr>
+                        <th>Part Type</th>
+                        <th>Defect Count</th>
+                        <th>Contribution (%)</th>
+                    </tr>
+                </thead>
+                <tbody id="stats-table-body">
+                    <tr><td colspan="3" style="text-align: center; color: gray;">Calculating statistics...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <canvas id="canvas"></canvas> <script>
+        // ⚠️ ใส่ URL Web App ของ Google Apps Script ที่ได้จากการ Deploy ที่นี่
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx7g7QQuLP1qbzQBZhiagIhqa0jtgdTB7-6PMtlKjYD9q6H9fn0ZU9_UuU63nhIHsJx/exec"; 
+        
+        const video = document.getElementById('webcam');
+        const canvas = document.getElementById('canvas');
+        const cameraStatus = document.getElementById('camera-status');
+
+        window.onload = () => {
+            initWebcam();
+            fetchLogs();
+        };
+
+        function initWebcam() {
+            navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } })
+            .then(stream => {
+                video.srcObject = stream;
+                cameraStatus.innerText = "● System Camera Connected";
+                cameraStatus.style.color = "#16a34a";
+            })
+            .catch(err => {
+                cameraStatus.innerText = "❌ Unable to access webcam.";
+                cameraStatus.style.color = "#dc2626";
+            });
+        }
+
+        function captureAndUpload(partName) {
+            if (cameraStatus.style.color !== "rgb(22, 163, 74)" && cameraStatus.style.color !== "green") {
+                // เช็กสถานะสีเขียวเพื่อความชัวร์ว่ากล้องพร้อมทำงาน
+            }
+            document.body.classList.add('loading');
+            
+            const context = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.translate(canvas.width, 0);
+            context.scale(-1, 1);
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            const base64String = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
+            executeAction({ action: "insert", partType: partName, image: base64String });
+        }
+
+        function executeAction(payload) {
+            fetch(WEB_APP_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            })
+            .then(() => {
+                document.body.classList.remove('loading');
+                setTimeout(fetchLogs, 1500); // รีเฟรชทั้งตารางสถิติและ Log ทันทีหลังบันทึก
+            })
+            .catch(err => {
+                alert("Error connecting to server: " + err);
+                document.body.classList.remove('loading');
+            });
+        }
+
+        function fetchLogs() {
+            const listDiv = document.getElementById('log-list');
+            fetch(WEB_APP_URL, {
+                method: "POST",
+                body: JSON.stringify({ action: "fetch" })
+            })
+            .then(res => res.json())
+            .then(response => {
+                if(response.status === "success") {
+                    const logs = response.data;
+                    
+                    // เรียกฟังก์ชันคำนวณตารางสถิติเชิงตัวเลขฝั่งขวา
+                    calculateStatisticsTable(logs); 
+                    
+                    if(logs.length === 0) { listDiv.innerHTML = "<div style='padding:10px;text-align:center;color:gray;'>No data recorded yet.</div>"; return; }
+                    
+                    listDiv.innerHTML = "";
+                    logs.forEach(item => {
+                        const row = document.createElement('div');
+                        row.className = "item-row";
+                        row.innerHTML = `
+                            <div class="item-info">
+                              
+                            <b>${item.partType}</b><br>
+                                
+                                <small style="color:#64748b;">${item.timestamp}</small>
+                            </div>
+                            <div class="action-btns">
+                                <button class="btn btn-view" onclick="viewImage('${item.image}')">View</button>
+                                <button class="btn btn-edit" onclick="editPart('${item.id}', '${item.partType}')">Edit</button>
+                                <button class="btn btn-delete" onclick="deleteItem('${item.id}')">Delete</button>
+                            </div>
+                        `;
+                        listDiv.appendChild(row);
+                    });
+                }
+            }).catch(() => {
+                listDiv.innerHTML = "<div style='padding:10px;text-align:center;color:#dc2626;'>Database connection error.</div>";
+            });
+        }
+
+        // ฟังก์ชันหัวใจหลักในการคำนวณสถิติและ Render ตารางตัวเลข
+        function calculateStatisticsTable(logs) {
+            const totalCount = logs.length;
+            document.getElementById('kpi-total').innerText = totalCount;
+            
+            const pendingCount = logs.filter(item => item.status === "Pending").length;
+            document.getElementById('kpi-pending').innerText = pendingCount;
+
+            // ชิ้นส่วนที่ต้องการเก็บสถิติ
+            const targetedParts = ["30P", "50P2", "50P3", "60P"];
+            const partCounts = { "30P": 0, "50P2": 0, "50P3": 0, "60P": 0 };
+            
+            // นับจำนวนชิ้นงานที่ไม่สมบูรณ์แยกตามพาร์ท
+            logs.forEach(item => {
+                if (partCounts[item.partType] !== undefined) {
+                    partCounts[item.partType]++;
+                }
+            });
+
+            // เจนเนอเรทแถวตาราง HTML ออกมาโชว์แบบเรียลไทม์
+            const tableBody = document.getElementById('stats-table-body');
+            tableBody.innerHTML = "";
+
+            targetedParts.forEach(part => {
+                const count = partCounts[part];
+                // คำนวณเปอร์เซ็นต์สัดส่วนความผิดพลาด (ถ้าผลรวมเป็น 0 ให้เป็น 0%)
+                const percentage = totalCount > 0 ? ((count / totalCount) * 100).toFixed(1) : "0.0";
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="text-bold">${part}</td>
+                    <td class="text-bold" style="color: #2563eb;">${count} items</td>
+                    <td><span class="badge-pct">${percentage}%</span></td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        function viewImage(base64) {
+            const newTab = window.open();
+            newTab.document.body.innerHTML = `<img src="data:image/jpeg;base64,${base64}" style="max-width:100%; height:auto; border-radius:8px; box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);" />`;
+        }
+
+        function editPart(id, currentPart) {
+            const newPart = prompt(`Edit Part Type (Current: ${currentPart}):`, currentPart);
+            if (newPart && newPart !== currentPart) {
+                document.body.classList.add('loading');
+                executeAction({ action: "update", id: id, partType: newPart });
+            }
+        }
+
+        function deleteItem(id) {
+            if (confirm("Confirm deletion of this statistical record?")) {
+                document.body.classList.add('loading');
+                executeAction({ action: "delete", id: id });
+            }
+        }
+
+        // ฟังก์ชันสำหรับ Export ข้อมูลเป็นไฟล์ CSV (เปิดใช้งานบน Excel ได้ทันที)
+        function exportToExcel() {
+            // 1. ดึงข้อมูลดิบจาก API ของ Google Sheets อีกครั้งผ่าน fetch เพื่อความสดใหม่ของข้อมูล
+            fetch(WEB_APP_URL, {
+                method: "POST",
+                body: JSON.stringify({ action: "fetch" })
+            })
+            .then(res => res.json())
+            .then(response => {
+                if (response.status === "success") {
+                    const logs = response.data;
+                    
+                    if (logs.length === 0) {
+                        alert("No data available to export.");
+                        return;
+                    }
+
+                    // 2. ตั้งหัวตาราง (Header) ของไฟล์ Excel
+                    let csvContent = "\uFEFF"; // ใส่ BOM เพื่อบังคับให้ Excel อ่านภาษาไทย/สัญลักษณ์สากลได้ถูกต้อง ไม่เป็นภาษาต่างดาว
+                    csvContent += "ID,Timestamp,Part Type,Status\n";
+
+                    // 3. วนลูปใส่ข้อมูลแต่ละบรรทัด
+                    logs.forEach(item => {
+                        // จัดฟอร์แมตวันที่ให้อ่านง่ายใน Excel
+                        const dateObj = new Date(item.timestamp);
+                        const formattedDate = dateObj.toLocaleDateString('en-GB') + " " + dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                        
+                        // สร้างแถวข้อมูล (ใช้เครื่องหมายจุลภาค , คั่นระหว่างคอลัมน์)
+                        const row = `"${item.id}","${formattedDate}","${item.partType}","${item.status}"`;
+                        csvContent += row + "\n";
+                    });
+
+                    // 4. สร้างลิงก์ดาวน์โหลดไฟล์หลอกขึ้นมา เพื่อสั่งให้เบราว์เซอร์เซฟไฟล์ลงเครื่อง
+                    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                    const link = document.createElement("a");
+                    const url = URL.createObjectURL(blob);
+                    
+                    // ตั้งชื่อไฟล์ตามวันเวลาปัจจุบันที่กดโหลด เช่น defect_report_2026-07-11.csv
+                    const currentDate = new Date().toISOString().split('T')[0];
+                    link.setAttribute("href", url);
+                    link.setAttribute("download", `spare_parts_defect_report_${currentDate}.csv`);
+                    link.style.visibility = 'hidden';
+                    
+                    document.body.appendChild(link);
+                    link.click(); // สั่งคลิกดาวน์โหลดอัตโนมัติ
+                    document.body.removeChild(link);
+                } else {
+                    alert("Failed to fetch data for export.");
+                }
+            })
+            .catch(err => {
+                alert("Error exporting data: " + err);
+            });
+        }
+
+        
+    </script>
+</body>
+</html>
