@@ -2,91 +2,154 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <base target="_top" />
-  <title>ระบบบันทึกเวลาและภาพใบหน้า</title>
+  <title>Time Attendance System</title>
   <style>
     :root {
-      --bg: #0b0f17;                   
-      --panel: #131926;                
-      --panel-dark: #090d14;           
-      --text: #f1f5f9;                 
-      --muted: #64748b;                
-      --primary: #10b981;              
-      --primary-hover: #059669;        
-      --success: #34d399;              
-      --danger: #f87171;               
-      --warning: #fbbf24;              
-      --border: #1e293b;               
-      --glow: rgba(16, 185, 129, 0.15); 
+      /* คอนเซปต์สี Yetta Professional Light - ส้มและฟ้าคริสตัลโปร่งแสง (ไม่มีชมพู) */
+      --bg-gradient: linear-gradient(135deg, #0ea5e9 0%, #f97316 100%);
+      --primary: #f97316;              
+      --primary-hover: #ea580c;        
+      --cyan: #06b6d4;
+      --success: #10b981;              
+      --danger: #ef4444;               
+      --warning: #f59e0b;              
+      
+      /* เอฟเฟกต์กระจกใส (Glassmorphism) สว่างและเคลียร์ตาขึ้น */
+      --glass-bg: rgba(255, 255, 255, 0.5);
+      --glass-panel: rgba(255, 255, 255, 0.6);
+      --glass-card: rgba(255, 255, 255, 0.35);
+      --glass-border: rgba(255, 255, 255, 0.5);
+      --glow: rgba(6, 182, 212, 0.25);
     }
 
     * { box-sizing: border-box; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; }
+    
     body {
       margin: 0;
-      background: linear-gradient(145deg, #0b0f17 0%, #0f172a 100%);
-      color: var(--text);
-      padding: 24px;
+      background: var(--bg-gradient);
+      background-attachment: fixed;
+      color: #0f172a; 
+      padding: 30px 20px;
+      -webkit-tap-highlight-color: transparent; /* ลบแสงสะท้อนตอนกดปุ่มใน iOS */
     }
+
+    /* กล่องครอบหลักสไตล์กระจกคริสตัลหรูหรา */
     .container {
-      max-width: 1350px;
+      max-width: 1400px;
       margin: auto;
-      background: var(--panel);
-      border: 1px solid var(--border);
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
       border-radius: 24px;
-      padding: 28px;
-      box-shadow: 0 25px 60px rgba(0,0,0,0.45);
+      padding: 30px;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.15),
+                  inset 0 1px 3px rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
     }
+
     .hero { 
       display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; 
-      margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 20px;
+      margin-bottom: 24px; border-bottom: 1px solid var(--glass-border); padding-bottom: 20px;
     }
-    .hero h1 { margin: 0; font-size: 30px; font-weight: 700; letter-spacing: -0.5px; background: linear-gradient(to right, #ffffff, #a7f3d0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .badge { display: inline-block; padding: 6px 14px; background: rgba(16, 185, 129, 0.12); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 999px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .hero h1 { margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.5px; color: #ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    
+    .badge { 
+      display: inline-block; padding: 6px 14px; 
+      background: rgba(255, 255, 255, 0.8); 
+      color: #0369a1; 
+      border: 1px solid var(--glass-border);
+      border-radius: 999px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 6px;
+    }
+    
     .grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 24px; }
-    .card { background: rgba(19, 25, 38, 0.6); border: 1px solid var(--border); border-radius: 20px; padding: 22px; backdrop-filter: blur(10px); }
-    .card h3 { margin-top: 0; font-size: 18px; font-weight: 600; color: #cbd5e1; margin-bottom: 16px; border-left: 4px solid var(--primary); padding-left: 10px; }
+    
+    /* การ์ดสไตล์กระจกโปร่งใส */
+    .card { 
+      background: var(--glass-card); 
+      border: 1px solid var(--glass-border); 
+      border-radius: 20px; 
+      padding: 24px; 
+      box-shadow: inset 0 1px 4px rgba(255, 255, 255, 0.5), 0 10px 30px rgba(0, 0, 0, 0.03);
+    }
+    
+    .card h3 { margin-top: 0; font-size: 18px; font-weight: 700; color: #ffffff; margin-bottom: 16px; border-left: 4px solid var(--cyan); padding-left: 10px; text-shadow: 0 1px 2px rgba(0,0,0,0.05); }
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    label { display: block; font-weight: 500; margin-top: 12px; margin-bottom: 6px; color: #94a3b8; font-size: 13px; }
-    input, select, button { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border); background: var(--panel-dark); color: var(--text); font-size: 14px; transition: all 0.2s ease; }
-    input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px var(--glow); }
-    button { cursor: pointer; font-weight: 600; border: none; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    label { display: block; font-weight: 600; margin-top: 12px; margin-bottom: 6px; color: #1e293b; font-size: 13px; }
     
-    .primary { background: linear-gradient(135deg, var(--primary), #059669); color: #ffffff; }
-    .primary:hover { background: linear-gradient(135deg, #059669, #047857); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
-    .secondary { background: #1e293b; color: #cbd5e1; border: 1px solid #334155; }
-    .secondary:hover { background: #334155; color: #ffffff; }
-    .danger { background: rgba(248, 113, 113, 0.15); color: var(--danger); border: 1px solid rgba(248, 113, 113, 0.25); }
-    .danger:hover { background: #ef4444; color: white; transform: translateY(-1px); }
-    .warning { background: rgba(251, 191, 36, 0.15); color: var(--warning); border: 1px solid rgba(251, 191, 36, 0.25); }
-    .warning:hover { background: #d97706; color: white; transform: translateY(-1px); }
-    .success { background: linear-gradient(135deg, var(--success), #059669); color: #0b0f17; font-weight: 700; }
-    .success:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(52, 211, 153, 0.3); }
+    /* อินพุตสไตล์กระจกโปร่งแสง */
+    input, select, button { 
+      width: 100%; padding: 12px 14px; border-radius: 12px; 
+      border: 1px solid var(--glass-border); 
+      background: rgba(255, 255, 255, 0.65); 
+      color: #0f172a; font-size: 14px; font-weight: 500; transition: all 0.2s ease; 
+      -webkit-appearance: none; /* ล้างรูปแบบเริ่มต้นของเบราว์เซอร์ iOS */
+    }
+    input:focus, select:focus { 
+      outline: none; 
+      border-color: var(--cyan); 
+      background: rgba(255, 255, 255, 0.9); 
+      box-shadow: 0 0 12px var(--glow); 
+    }
     
-    .loginBox, .cameraWrap, .mapWrap { margin-top: 14px; border: 1px dashed var(--border); border-radius: 16px; padding: 16px; background: rgba(9, 13, 20, 0.5); }
-    video { width: 100%; max-width: 360px; border-radius: 14px; display: block; margin: 12px auto 0; background: var(--panel-dark); min-height: 220px; object-fit: cover; border: 1px solid var(--border); }
-    #photoPreview { width: 200px !important; height: 200px !important; border-radius: 14px; display: block; margin: 12px auto 0; background: var(--panel-dark); object-fit: cover !important; border: 2px solid var(--primary); box-shadow: 0 0 15px var(--glow); }
+    /* กล่องควบคุมและค้นหาจากปฏิทิน */
+    .filter-box {
+      background: rgba(255, 255, 255, 0.5);
+      border: 1px solid var(--glass-border);
+      padding: 14px;
+      border-radius: 14px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .filter-box label { margin: 0; font-weight: 700; color: #0f172a; white-space: nowrap; }
+    .filter-box input[type="date"] { padding: 8px 12px; background: rgba(255,255,255,0.8); width: auto; flex-grow: 1; }
+
+    button { cursor: pointer; font-weight: 700; border: none; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    
+    .primary { background: linear-gradient(135deg, var(--primary), #ea580c); color: #ffffff; box-shadow: 0 4px 12px rgba(234, 88, 12, 0.2); }
+    .primary:hover { background: linear-gradient(135deg, #ea580c, #c2410c); transform: translateY(-1px); }
+    .cyan-btn { background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white; }
+    .cyan-btn:hover { background: #0284c7; }
+    .secondary { background: rgba(255, 255, 255, 0.5); color: #0f172a; border: 1px solid var(--glass-border); }
+    .secondary:hover { background: rgba(255, 255, 255, 0.8); }
+    
+    .danger { background: rgba(239, 68, 68, 0.15); color: #b91c1c; border: 1px solid rgba(239, 68, 68, 0.25); }
+    .danger:hover { background: #ef4444; color: white; }
+    .warning { background: rgba(245, 158, 11, 0.15); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.25); }
+    .warning:hover { background: #d97706; color: white; }
+    .success { background: linear-gradient(135deg, #10b981, #059669); color: white; }
+    
+    .loginBox, .cameraWrap, .mapWrap { margin-top: 14px; border: 1px solid var(--glass-border); border-radius: 16px; padding: 16px; background: rgba(255, 255, 255, 0.25); }
+    
+    video { width: 100%; max-width: 360px; border-radius: 14px; display: block; margin: 12px auto 0; background: rgba(255,255,255,0.3); min-height: 220px; object-fit: cover; border: 1px solid var(--glass-border); }
+    #photoPreview { width: 200px !important; height: 200px !important; border-radius: 14px; display: block; margin: 12px auto 0; background: rgba(255,255,255,0.3); object-fit: cover !important; border: 3px solid var(--cyan); box-shadow: 0 0 15px var(--glow); }
     .actions { display: flex; gap: 10px; margin-top: 12px; }
-    .status { margin-top: 14px; padding: 14px; border-radius: 12px; background: rgba(30, 41, 59, 0.5); color: #94a3b8; border: 1px solid var(--border); line-height: 1.5; font-size: 13px; text-align: center; }
-    .status.error { background: rgba(239, 68, 68, 0.1); color: #fca5a5; border-color: rgba(239, 68, 68, 0.2); }
+    
+    .status { margin-top: 14px; padding: 14px; border-radius: 12px; background: rgba(255,255,255,0.6); color: #1e293b; border: 1px solid var(--glass-border); font-weight: 600; text-align: center; font-size: 13px; }
+    .status.error { background: rgba(239, 68, 68, 0.2); color: #7f1d1d; border-color: rgba(239, 68, 68, 0.3); }
     
     .summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
-    .summary .box { background: var(--panel-dark); border: 1px solid var(--border); border-radius: 14px; padding: 12px; text-align: center; }
-    .summary .box div:last-child { font-size: 20px; font-weight: 700; margin-top: 4px; color: #ffffff; }
-    .small { font-size: 12px; color: var(--muted); }
-    table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; }
-    th, td { padding: 10px 8px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
-    th { color: #94a3b8; font-weight: 600; padding-bottom: 12px; }
+    .summary .box { background: rgba(255, 255, 255, 0.45); border: 1px solid var(--glass-border); border-radius: 14px; padding: 12px; text-align: center; }
+    .summary .box div:last-child { font-size: 22px; font-weight: 800; margin-top: 4px; color: #0f172a; }
+    .small { font-size: 12px; color: #334155; font-weight: 500; }
     
-    .thumb { width: 60px !important; height: 60px !important; object-fit: cover !important; border-radius: 10px; border: 1px solid var(--border); display: block; }
-    .admin-btn { padding: 5px 10px; font-size: 11px; margin-top: 4px; border-radius: 8px; display: inline-block; width: auto; margin-right: 4px; font-weight: 500; }
-    .admin-section { border: 1px solid rgba(16, 185, 129, 0.3); padding: 16px; border-radius: 16px; margin-top: 16px; background: rgba(16, 185, 129, 0.02); display: none; box-shadow: inset 0 0 20px rgba(16, 185, 129, 0.02); }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; }
+    th, td { padding: 12px 8px; border-bottom: 1px solid var(--glass-border); text-align: left; vertical-align: top; color: #0f172a; }
+    th { color: #1e293b; font-weight: 700; padding-bottom: 12px; }
+    
+    .thumb { width: 60px !important; height: 60px !important; object-fit: cover !important; border-radius: 10px; border: 1px solid var(--glass-border); display: block; }
+    .admin-btn { padding: 5px 10px; font-size: 11px; margin-top: 4px; border-radius: 8px; display: inline-block; width: auto; margin-right: 4px; font-weight: 600; }
+    .admin-section { border: 1px solid rgba(255, 255, 255, 0.5); padding: 16px; border-radius: 16px; margin-top: 16px; background: rgba(255, 255, 255, 0.35); display: none; }
 
-    /* สไตล์เพิ่มเติมสำหรับกรอบพิกัดและแผนที่ */
     .geo-badge-box { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
-    .geo-badge { background: #1e293b; border: 1px solid var(--border); padding: 6px 12px; border-radius: 8px; font-size: 12px; color: #cbd5e1; font-weight: 600; }
-    .geo-badge span { color: var(--primary); }
-    #mapFrame { width: 100%; height: 200px; border-radius: 12px; border: 1px solid var(--border); margin-top: 10px; background: var(--panel-dark); }
+    .geo-badge { background: rgba(255, 255, 255, 0.5); border: 1px solid var(--glass-border); padding: 6px 12px; border-radius: 8px; font-size: 12px; color: #0f172a; font-weight: 700; }
+    .geo-badge span { color: #ea580c; }
+    
+    #mapFrame { width: 100%; height: 200px; border-radius: 12px; border: 1px solid var(--glass-border); margin-top: 10px; background: rgba(255,255,255,0.4); }
+    #mapPlaceholder { text-align:center; padding:30px; color:#334155; font-size:13px; background:rgba(255,255,255,0.4); margin-top:10px; border-radius:12px; border:1px solid var(--glass-border); font-weight: 500; }
 
     @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } .summary { grid-template-columns: 1fr; } .row { grid-template-columns: 1fr; } }
   </style>
@@ -95,16 +158,17 @@
   <div class="container">
     <div class="hero">
       <div>
-        <div class="badge">💎 RST Time Stamp Onsite</div>
-        <h1>ระบบบันทึกเวลาและภาพใบหน้า</h1>
-        <p class="small" style="margin-top: 4px; margin-bottom: 0;">ระบบพิกัดและยืนยันตัวตน</p>
+        <div class="badge">Time Attendance</div>
+        <h1>ระบบบันทึกเวลาและภาพใบหน้าอิเล็กทรอนิกส์</h1>
+        <p class="small" style="margin-top: 4px; margin-bottom: 0; color: #ffffff;">Rst RUAMSINTHAI GROUP</p>
       </div>
-      <div id="serverTime" class="small">กำลังซิงค์เวลาเซิร์ฟเวอร์คลาวด์...</div>
+      <div id="serverTime" class="small" style="color: #ffffff;">กำลังซิงค์เวลาเซิร์ฟเวอร์คลาวด์...</div>
     </div>
 
     <div class="grid">
+      <!-- ส่วนที่ 1: ลงเวลา / ล็อกอิน -->
       <div class="card">
-        <h3>🔐 การเข้าสู่ระบบ</h3>
+        <h3>🔐 การเข้าสู่ระบบยืนยันตน</h3>
         <form id="loginForm" class="loginBox">
           <div class="row">
             <div>
@@ -119,36 +183,37 @@
           <button type="submit" class="primary" style="margin-top: 12px;">ยืนยันเข้าสู่ระบบ</button>
         </form>
 
-        <div id="loginState" class="small" style="margin-top: 10px; font-weight: 500; color: var(--muted); text-align: center;">🛡️ สภาพการยืนยันตัวตน: รอการเข้าสู่ระบบ</div>
+        <div id="loginState" class="small" style="margin-top: 10px; font-weight: 700; color: #ffffff; text-align: center; text-shadow: 0 1px 2px rgba(0,0,0,0.1);">🛡️ สภาพการยืนยันตัวตน: รอการเข้าสู่ระบบ</div>
 
+        <!-- 👑 แผงจัดการสำหรับ Admin -->
         <div id="adminPanel" class="admin-section">
-          <h4 style="color: var(--primary); margin-top:0; margin-bottom:12px; font-size:14px; display:flex; align-items:center; gap:6px;">👑 แผงบริหารจัดการระบบสำหรับผู้ดูแล</h4>
+          <h4 style="color: #ffffff; margin-top:0; margin-bottom:12px; font-size:14px; text-shadow: 0 1px 2px rgba(0,0,0,0.1);">👑 แผงบริหารจัดการระบบสำหรับผู้ดูแล</h4>
           
-          <div id="addEmployeeBox" style="background: var(--panel-dark); padding: 14px; border-radius: 12px; border: 1px dashed rgba(16, 185, 129, 0.3); margin-bottom:14px;">
-             <span style="font-size:12px; font-weight:600; color:var(--success);">👤 เพิ่มพนักงานใหม่เข้าระบบ</span>
+          <div id="addEmployeeBox" style="background: rgba(255,255,255,0.3); padding: 14px; border-radius: 12px; border: 1px dashed rgba(255,255,255,0.6); margin-bottom:14px;">
+             <span style="font-size:12px; font-weight:700; color:#059669;">👤 เพิ่มพนักงานใหม่เข้าระบบ</span>
              <div class="row" style="margin-top:10px;">
-                <input id="newEmpId" placeholder="รหัสพนักงานใหม่" style="padding:8px 10px; font-size:12px;" />
-                <input id="newEmpName" placeholder="ชื่อ-นามสกุล" style="padding:8px 10px; font-size:12px;" />
+                <input id="newEmpId" placeholder="รหัสพนักงานใหม่" />
+                <input id="newEmpName" placeholder="ชื่อ-นามสกุล" />
              </div>
              <div class="row" style="margin-top:8px;">
-                <input id="newEmpDept" placeholder="แผนก / ตำแหน่ง" style="padding:8px 10px; font-size:12px;" />
-                <input id="newEmpPin" type="password" placeholder="กำหนดพินล็อกอิน" style="padding:8px 10px; font-size:12px;" />
+                <input id="newEmpDept" placeholder="แผนก / ตำแหน่ง" />
+                <input id="newEmpPin" type="password" placeholder="กำหนดพินล็อกอิน" />
              </div>
              <button type="button" id="submitNewEmpBtn" class="success" style="padding:9px; font-size:12px; margin-top:10px; width:auto; margin-left:auto;">+ บันทึกพนักงานใหม่</button>
           </div>
 
-          <div id="editControls" style="display:none; background: var(--panel-dark); padding: 14px; border-radius: 12px; border: 1px solid var(--border);">
-             <span class="small" style="color:var(--warning)">กำลังแก้ไขข้อมูลประวัติแถวที่: <b id="targetRowLabel">-</b></span>
+          <div id="editControls" style="display:none; background: rgba(255,255,255,0.3); padding: 14px; border-radius: 12px; border: 1px solid var(--glass-border);">
+             <span class="small" style="color:#b45309">กำลังแก้ไขข้อมูลประวัติแถวที่: <b id="targetRowLabel">-</b></span>
              <div class="row" style="margin-top:8px;">
-                <input id="editEmpId" placeholder="รหัสพนักงาน" style="padding:8px 12px; font-size:12px;" />
-                <input id="editEmpName" placeholder="ชื่อพนักงาน" style="padding:8px 12px; font-size:12px;" />
+                <input id="editEmpId" placeholder="รหัสพนักงาน" />
+                <input id="editEmpName" placeholder="ชื่อพนักงาน" />
              </div>
              <div class="row" style="margin-top:8px;">
-                <select id="editMode" style="padding:8px 12px; font-size:12px;">
+                <select id="editMode">
                    <option value="CHECK_IN">CHECK_IN</option>
                    <option value="CHECK_OUT">CHECK_OUT</option>
                 </select>
-                <input id="editNote" placeholder="หมายเหตุเพิ่มเติม" style="padding:8px 12px; font-size:12px;" />
+                <input id="editNote" placeholder="หมายเหตุเพิ่มเติม" />
              </div>
              <div class="actions" style="margin-top:10px;">
                 <button type="button" id="saveEditBtn" class="warning" style="padding:8px 12px; font-size:12px; width:auto;">บันทึกการแก้ไข</button>
@@ -157,23 +222,24 @@
           </div>
         </div>
 
+        <!-- ฟอร์มลงเวลาทำงาน -->
         <form id="attendanceForm" style="margin-top: 18px;">
-          <h3 style="border-left: 4px solid #64748b;">🕒 ลงเวลาเข้า-ออกงาน</h3>
+          <h3 style="border-left: 4px solid #ffffff;">🕒 บันทึกเวลาปฏิบัติงาน</h3>
           <div class="row">
             <div>
               <label>รหัสพนักงาน</label>
-              <input id="employeeId" required readonly placeholder="รอสิทธิ์ล็อกอิน" style="background-color: rgba(9, 13, 20, 0.8); color: #94a3b8;" />
+              <input id="employeeId" required readonly placeholder="รอสิทธิ์ล็อกอิน" style="background-color: rgba(255, 255, 255, 0.4); color: #334155;" />
             </div>
             <div>
               <label>ชื่อพนักงาน</label>
-              <input id="employeeName" required readonly placeholder="รอสิทธิ์ล็อกอิน" style="background-color: rgba(9, 13, 20, 0.8); color: #94a3b8;" />
+              <input id="employeeName" required readonly placeholder="รอสิทธิ์ล็อกอิน" style="background-color: rgba(255, 255, 255, 0.4); color: #334155;" />
             </div>
           </div>
 
           <div class="row" style="margin-top: 4px;">
             <div>
               <label>สังกัดแผนก</label>
-              <input id="department" readonly placeholder="รอสิทธิ์ล็อกอิน" style="background-color: rgba(9, 13, 20, 0.8); color: #94a3b8;" />
+              <input id="department" readonly placeholder="รอสิทธิ์ล็อกอิน" style="background-color: rgba(255, 255, 255, 0.4); color: #334155;" />
             </div>
             <div>
               <label>ประเภทรายการ</label>
@@ -187,25 +253,27 @@
           <label>หมายเหตุ / ระบุงานนอกสถานที่</label>
           <input id="note" placeholder="ระบุเหตุผล (ถ้ามี)" />
 
+          <!-- ส่วนกล้องถ่ายภาพ (เพิ่มฟังก์ชันป้องกันจอดำใน Apple/Safari) -->
           <div class="cameraWrap">
-            <div class="small" style="color: #cbd5e1; font-weight:500;">📸 ระบบเปิดรับกล้องยืนยันใบหน้า</div>
-            <video id="video" autoplay playsinline></video>
+            <div class="small" style="color: #0f172a; font-weight:700;">📸 ระบบเปิดรับกล้องยืนยันใบหน้า</div>
+            <video id="video" autoplay playsinline muted></video>
             <canvas id="canvas" hidden></canvas>
             <img id="photoPreview" alt="ภาพถ่ายสำเร็จ" style="display:none;" />
             <div class="actions">
               <button type="button" id="startCamera" class="secondary">เปิดกล้องใช้งาน</button>
-              <button type="button" id="captureBtn" class="primary">กดถ่ายรูปภาพ</button>
+              <button type="button" id="captureBtn" class="cyan-btn">กดถ่ายรูปภาพ</button>
             </div>
           </div>
 
+          <!-- 📍 ส่วนพิกัดและ Google Maps -->
           <div class="mapWrap">
-            <div class="small" style="color: #cbd5e1; font-weight:500;">📍 การระบุพิกัดตำแหน่งทางภูมิศาสตร์</div>
+            <div class="small" style="color: #0f172a; font-weight:700;">📍 การระบุพิกัดตำแหน่งทางภูมิศาสตร์</div>
             <div class="geo-badge-box">
               <div class="geo-badge">Latitude: <span id="latText">รอเรียกพิกัด...</span></div>
               <div class="geo-badge">Longitude: <span id="lngText">รอเรียกพิกัด...</span></div>
             </div>
             <iframe id="mapFrame" src="about:blank" allowfullscreen loading="lazy" style="display: none;"></iframe>
-            <div id="mapPlaceholder" style="text-align:center; padding:30px; color:var(--muted); font-size:13px; background:var(--panel-dark); margin-top:10px; border-radius:12px; border:1px solid var(--border);">
+            <div id="mapPlaceholder">
               🗺️ แผนที่จะปรากฏที่นี่เมื่อระบบเริ่มอ่านพิกัดความปลอดภัย
             </div>
           </div>
@@ -215,26 +283,34 @@
         <div id="status" class="status">🟢 ระบบสแตนด์บาย พร้อมบันทึกเวลาทำงาน</div>
       </div>
 
+      <!-- ส่วนที่ 2: แดชบอร์ดข้อมูลด้านขวา (มีระบบปฏิทินกรองประวัติ) -->
       <div class="card">
-        <h3>📊 ข้อมูลสรุปประจำวันนี้</h3>
+        <h3>📊 แผงควบคุมประวัติและสรุปผล</h3>
+        
+        <!-- 📅 ปฏิทินกรองค้นหาประวัติรายวัน (Professional Feature) -->
+        <div class="filter-box">
+          <label>📅 เลือกวันที่เรียกดูประวัติ:</label>
+          <input type="date" id="filterDateInput" />
+        </div>
+
         <div class="summary">
           <div class="box">
-            <div class="small" style="color: #94a3b8;">บันทึกทั้งหมด</div>
+            <div class="small" style="color: #1e293b;">บันทึกรวมในวัน</div>
             <div id="totalCount">0</div>
           </div>
           <div class="box">
-            <div class="small" style="color: #34d399;">เข้างาน (IN)</div>
-            <div id="checkInCount" style="color: #34d399 !important;">0</div>
+            <div class="small" style="color: #047857;">เข้างาน (IN)</div>
+            <div id="checkInCount" style="color: #047857 !important;">0</div>
           </div>
           <div class="box">
-            <div class="small" style="color: #f87171;">ออกงาน (OUT)</div>
-            <div id="checkOutCount" style="color: #f87171 !important;">0</div>
+            <div class="small" style="color: #b91c1c;">ออกงาน (OUT)</div>
+            <div id="checkOutCount" style="color: #b91c1c !important;">0</div>
           </div>
         </div>
-        <div class="small" id="latestEntry" style="margin-bottom:14px; font-weight: 500;">อัปเดตล่าสุดเมื่อ: -</div>
-        <div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:14px; justify-content:flex-end;">
-          <button id="refreshBtn" class="secondary" style="font-size:12px; padding:8px 12px; width:auto;">🔄 Refresh</button>
-          <button id="exportBtn" class="secondary" style="font-size:12px; padding:8px 12px; width:auto;">📥 ส่งออกข้อมูลประวัติ (.TXT)</button>
+        <div class="small" id="latestEntry" style="margin-bottom:14px; font-weight: 700; color: #ffffff; text-shadow: 0 1px 1px rgba(0,0,0,0.15);">อัปเดตล่าสุด: -</div>
+        <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap:8px;">
+          <span class="small" style="color:#ffffff; font-weight:600; text-shadow:0 1px 1px rgba(0,0,0,0.1)">🗄️ ประวัติทั้งหมดจัดเก็บแยกไว้บนฐานข้อมูลคลาวด์เพื่อให้ HR ดึงทำเงินเดือน</span>
+          <button id="exportBtn" class="secondary" style="font-size:11px; padding:6px 12px; width:auto; margin-left:auto;">📥 ดึงไฟล์ประวัติรวมทั้งหมด (.TXT)</button>
         </div>
         
         <div style="overflow-x: auto;">
@@ -255,18 +331,25 @@
   </div>
 
   <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwxh4AZezAHkfhrksXM-eJFisZI7i8ML2ShLLnXKg1p9Hy48KAWzkvti52rFzrKc7Kx/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZoCKgk0-1FQsdl4wZ-Hbs5gOETPRGCnX02e05r6DgO2v2Xn9WzF09_WwypcPT2zk/exec';
 
     let stream = null; let capturedImage = ''; 
     let loginIdStr = ''; let loginPinStr = ''; 
     let currentEmployee = null; let activeEditingRowId = null;
+
+    // แปลงข้อมูลจาก Date Input (YYYY-MM-DD) เป็นรูปฟอร์แมต DD/MM/YYYY
+    function formatDateStringToSearch(dateString) {
+      if(!dateString) return "";
+      const parts = dateString.split('-');
+      if(parts.length !== 3) return "";
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
 
     function showStatus(message, isError) {
       const status = document.getElementById('status');
       status.textContent = message; status.className = 'status' + (isError ? ' error' : '');
     }
 
-    // 🗺️ ฟังก์ชันโหลดแผนที่ Google Maps แบบสดเมื่อดึง GPS สำเร็จ
     function updateGoogleMap(lat, lng) {
       document.getElementById('latText').textContent = lat.toFixed(6);
       document.getElementById('lngText').textContent = lng.toFixed(6);
@@ -274,20 +357,19 @@
       const mapFrame = document.getElementById('mapFrame');
       const placeholder = document.getElementById('mapPlaceholder');
       
-      // ใช้จุดฝังพิกัดแผนที่ทางการของ Google Maps Embed API แบบเปิด
       mapFrame.src = `https://maps.google.com/maps?q=${lat},${lng}&hl=th&z=16&output=embed`;
       mapFrame.style.display = 'block';
       placeholder.style.display = 'none';
     }
 
-    // ฟังก์ชันช่วยดึงพิกัดล่วงหน้าเมื่อล็อกอินเสร็จ เพื่อให้แผนที่แสดงผลทันที
     function initGeoLocationFetch() {
+      // เพิ่ม Fallback ออปชันให้ดึงพิกัดได้เร็วและนิ่งขึ้นบนอุปกรณ์เคลื่อนที่
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
           updateGoogleMap(position.coords.latitude, position.coords.longitude);
         }, function() {
-          console.log('GPS Access Pending or Denied on Init');
-        });
+          console.log('GPS Access Pending on Init');
+        }, { enableHighAccuracy: false, timeout: 5000 });
       }
     }
 
@@ -299,18 +381,17 @@
       const stateBox = document.getElementById('loginState');
       if (employee.isAdmin) {
         stateBox.textContent = '👑 สิทธิ์แอดมินระดับสูงสุด: ' + employee.employeeName + ' (' + employee.employeeId + ')';
-        stateBox.style.color = '#34d399';
+        stateBox.style.color = '#ffffff';
         document.getElementById('adminPanel').style.display = 'block';
         document.getElementById('adminTh').style.display = 'table-cell';
       } else {
         stateBox.textContent = '👤 เข้าสู่ระบบสำเร็จ: ' + employee.employeeName;
-        stateBox.style.color = '#3b82f6';
+        stateBox.style.color = '#1e293b';
         document.getElementById('adminPanel').style.display = 'none';
         document.getElementById('adminTh').style.display = 'none';
       }
-      
-      // ดึงพิกัดมาขึ้น Google Maps รอไว้เลยทันทีหลังจากระบุตัวตนสำเร็จ
       initGeoLocationFetch();
+      loadDashboard();
     }
 
     async function callWebApi(action, data = {}) {
@@ -335,12 +416,28 @@
     async function startCamera() {
       try {
         if (stream) stream.getTracks().forEach(track => track.stop());
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+        
+        // เพิ่มเงื่อนไขเพื่อซัพพอร์ตสิทธิ์กล้องของเบราว์เซอร์ iOS Safari และ Chrome Mobile
+        const constraints = { 
+          video: { 
+            facingMode: 'user',
+            width: { ideal: 640 },
+            height: { ideal: 640 }
+          }, 
+          audio: false 
+        };
+        
+        stream = await navigator.mediaDevices.getUserMedia(constraints);
         const video = document.getElementById('video');
-        video.srcObject = stream; video.style.display = 'block';
+        video.srcObject = stream; 
+        video.setAttribute('playsinline', true); // บังคับไม่ให้เปิด Fullscreen ใน iOS
+        video.setAttribute('webkit-playsinline', true);
+        video.style.display = 'block';
         document.getElementById('photoPreview').style.display = 'none';
         await video.play();
-      } catch (err) { showStatus('กล้องทำงานไม่สำเร็จ: ' + err.message, true); }
+      } catch (err) { 
+        showStatus('กล้องทำงานไม่สำเร็จ (หากใช้ iPhone กรุณาเปิดผ่าน Safari โดยตรง): ' + err.message, true); 
+      }
     }
 
     function capturePhoto() {
@@ -348,31 +445,52 @@
       if (!video.videoWidth) return;
       const size = Math.min(video.videoWidth, video.videoHeight);
       canvas.width = size; canvas.height = size;
-      canvas.getContext('2d').drawImage(video, (video.videoWidth - size) / 2, (video.videoHeight - size) / 2, size, size, 0, 0, size, size);
+      
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, (video.videoWidth - size) / 2, (video.videoHeight - size) / 2, size, size, 0, 0, size, size);
+      
       capturedImage = canvas.toDataURL('image/jpeg', 0.7);
       preview.src = capturedImage; preview.style.display = 'block'; video.style.display = 'none';
     }
 
     async function loadDashboard() {
       try {
-        const recent = await callWebApi('getRecentAttendance', { limit: 15 }); renderRecent(recent);
-        const summary = await callWebApi('getAttendanceSummary'); renderSummary(summary);
-      } catch (err) { console.error(err); }
+        const selectedDateVal = document.getElementById('filterDateInput').value;
+        const targetSearchDateStr = formatDateStringToSearch(selectedDateVal);
+        
+        const allRecent = await callWebApi('getRecentAttendance', { limit: 200 }); 
+        const filteredRows = allRecent.filter(row => row.timestamp && row.timestamp.includes(targetSearchDateStr));
+        renderRecent(filteredRows);
+        
+        let checkIn = 0; let checkOut = 0;
+        filteredRows.forEach(row => {
+          if(row.mode === 'CHECK_IN') checkIn++;
+          if(row.mode === 'CHECK_OUT') checkOut++;
+        });
+        
+        const summaryObj = {
+          total: filteredRows.length,
+          checkIn: checkIn,
+          checkOut: checkOut,
+          latest: filteredRows.length > 0 ? filteredRows[0].timestamp : '-'
+        };
+        renderSummary(summaryObj);
+      } catch (err) { console.error('Dashboard Engine Error: ', err); }
     }
 
     function renderSummary(summary) {
       document.getElementById('totalCount').textContent = summary.total || 0;
       document.getElementById('checkInCount').textContent = summary.checkIn || 0;
       document.getElementById('checkOutCount').textContent = summary.checkOut || 0;
-      document.getElementById('latestEntry').textContent = 'ล่าสุดเมื่อวันที่: ' + (summary.latest || '-');
-      document.getElementById('serverTime').textContent = 'ซิงค์ระบบเมื่อ: ' + new Date().toLocaleString('th-TH');
+      document.getElementById('latestEntry').textContent = 'บันทึกล่าสุดของวันที่เลือก: ' + (summary.latest || '-');
+      document.getElementById('serverTime').textContent = 'ซิงค์ระบบล่าสุด: ' + new Date().toLocaleString('th-TH');
     }
 
     function renderRecent(rows) {
       const tbody = document.getElementById('recentBody');
       const isAdminActive = currentEmployee && currentEmployee.isAdmin;
       if (!rows || rows.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="${isAdminActive ? 4 : 3}">ไม่มีข้อมูลพบในระบบช่วงนี้</td></tr>`; return;
+        tbody.innerHTML = `<tr><td colspan="${isAdminActive ? 4 : 3}" style="text-align:center; padding: 25px; color:#ffffff; font-weight:600;">ไม่พบบันทึกข้อมูลเวลาของวันที่กำหนดในระบบ</td></tr>`; return;
       }
       tbody.innerHTML = rows.map((row) => {
         const photoCell = row.photoBase64 ? `<img class="thumb" src="${row.photoBase64}" />` : '-';
@@ -382,36 +500,35 @@
             <button class="danger admin-btn" onclick="deleteRowRecord(${row.rowId})">ลบ</button>
           </td>` : '';
         return `<tr>
-          <td><b style="color:#ffffff;">${row.timestamp}</b><br/><span class="small" style="color:#cbd5e1">${row.employeeId} - ${row.employeeName}</span><br/><span class="small" style="color:var(--muted);">${row.note ? '📝 ' + row.note : ''}</span></td>
-          <td style="vertical-align:middle; font-weight:700; color:${row.mode==='CHECK_IN'?'#34d399':'#f87171'};">${row.mode}</td>
+          <td><b style="color:#0f172a;">${row.timestamp}</b><br/><span class="small" style="color:#1e293b">${row.employeeId} - ${row.employeeName}</span><br/><span class="small" style="color:#334155;">${row.note ? '📝 ' + row.note : ''}</span></td>
+          <td style="vertical-align:middle; font-weight:700; color:${row.mode==='CHECK_IN'?'#047857':'#b91c1c'};">${row.mode}</td>
           <td>${photoCell}</td>${adminActionCell}
         </tr>`;
       }).join('');
     }
+
+    function setDefaultFilterDate() {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      document.getElementById('filterDateInput').value = `${yyyy}-${mm}-${dd}`;
+    }
+
+    document.getElementById('filterDateInput').addEventListener('change', loadDashboard);
 
     document.getElementById('submitNewEmpBtn').addEventListener('click', async function() {
       const id = document.getElementById('newEmpId').value.trim();
       const name = document.getElementById('newEmpName').value.trim();
       const dept = document.getElementById('newEmpDept').value.trim();
       const pin = document.getElementById('newEmpPin').value.trim();
-      
-      if (!id || !name || !pin) {
-        alert('กรุณากรอกข้อมูลพนักงานใหม่ให้ครบถ้วน'); return;
-      }
-      
+      if (!id || !name || !pin) { alert('กรุณากรอกข้อมูลพนักงานให้ครบถ้วน'); return; }
       try {
-        const res = await callWebApi('addEmployee', {
-          newEmpData: { id, name, dept, pin },
-          adminId: loginIdStr, pin: loginPinStr
-        });
+        const res = await callWebApi('addEmployee', { newEmpData: { id, name, dept, pin }, adminId: loginIdStr, pin: loginPinStr });
         showStatus(res.message);
-        document.getElementById('newEmpId').value = '';
-        document.getElementById('newEmpName').value = '';
-        document.getElementById('newEmpDept').value = '';
-        document.getElementById('newEmpPin').value = '';
-      } catch(err) {
-        showStatus('ไม่สามารถเพิ่มพนักงานได้: ' + err.message, true);
-      }
+        document.getElementById('newEmpId').value = ''; document.getElementById('newEmpName').value = '';
+        document.getElementById('newEmpDept').value = ''; document.getElementById('newEmpPin').value = '';
+      } catch(err) { showStatus('เพิ่มพนักงานล้มเหลว: ' + err.message, true); }
     });
 
     window.initiateEditRow = function(rowId, empId, empName, mode, note) {
@@ -435,16 +552,14 @@
           },
           adminId: loginIdStr, pin: loginPinStr
         });
-        showStatus('แก้ไขข้อมูลบนคลาวด์คีย์สำเร็จแล้ว'); resetEditFields(); loadDashboard();
+        showStatus('แก้ไขประวัติแถวข้อมูลสำเร็จแล้ว'); resetEditFields(); loadDashboard();
       } catch(err) { showStatus('แก้ไขข้อมูลล้มเหลว: ' + err.message, true); }
     });
 
     window.deleteRowRecord = async function(rowId) {
-      if(!confirm('คุณต้องการยืนยันที่จะลบข้อมูลประวัติแถวที่ ' + rowId + ' ใช่หรือไม่?')) return;
+      if(!confirm('คุณต้องการลบข้อมูลประวัติแถวที่ ' + rowId + ' ใช่หรือไม่?')) return;
       try {
-        const res = await callWebApi('deleteAttendance', { 
-          rowId, adminId: loginIdStr, pin: loginPinStr
-        });
+        const res = await callWebApi('deleteAttendance', { rowId, adminId: loginIdStr, pin: loginPinStr });
         showStatus(res.message); loadDashboard();
       } catch(err) { showStatus('การลบล้มเหลว: ' + err.message, true); }
     };
@@ -458,26 +573,32 @@
       const pinInput = document.getElementById('loginPin').value.trim();
       try {
         const employee = await callWebApi('verifyEmployee', { employeeId: idInput, pin: pinInput });
-        currentEmployee = employee; 
-        loginIdStr = idInput; 
-        loginPinStr = pinInput; 
-        prefIllEmployee(employee); loadDashboard();
-        showStatus('🔒 ถอดรหัสผ่านและยืนยันสิทธิ์สำเร็จเรียบร้อย');
+        currentEmployee = employee; loginIdStr = idInput; loginPinStr = pinInput; 
+        prefIllEmployee(employee);
+        showStatus('🔒 สิทธิ์การเข้าใช้งานได้รับการถอดรหัสและอนุมัติแล้ว');
       } catch (err) { showStatus(err.message, true); }
     });
 
     document.getElementById('attendanceForm').addEventListener('submit', function (e) {
       e.preventDefault(); 
-      if (!currentEmployee || !capturedImage) {
-        showStatus('⚠️ กรุณาถ่ายภาพยืนยันตัวตนก่อนบันทึกเวลา', true);
-        return;
-      }
+      if (!currentEmployee) { showStatus('⚠️ กรุณาเข้าสู่ระบบก่อนทำการบันทึกเวลา', true); return; }
       
+      if (!capturedImage) {
+        const previewImg = document.getElementById('photoPreview');
+        if (previewImg && previewImg.style.display !== 'none' && previewImg.src.startsWith('data:image')) {
+          capturedImage = previewImg.src;
+        }
+      }
+      if (!capturedImage) { showStatus('⚠️ กรุณากดถ่ายภาพใบหน้ายืนยันก่อนกดบันทึกข้อมูล', true); return; }
+      
+      showStatus('⏳ กำลังจัดทำแพ็กเกจข้อมูลพิกัดความปลอดภัยและความเร็วเครือข่าย...');
+
+      // เพิ่มความยืดหยุ่น (Fallback HighAccuracy) สำหรับกรณีอุปกรณ์รับสัญญาณดาวเทียมได้ยาก
+      const geoOptions = { enableHighAccuracy: true, timeout: 9000, maximumAge: 0 };
+
       navigator.geolocation.getCurrentPosition(async function (position) {
         try {
-          // แสดงและอัปเดตแผนที่ก่อนส่งข้อมูล
           updateGoogleMap(position.coords.latitude, position.coords.longitude);
-
           const result = await callWebApi('submitAttendance', {
             employeeId: currentEmployee.employeeId, employeeName: currentEmployee.employeeName, department: currentEmployee.department,
             mode: document.getElementById('mode').value, note: document.getElementById('note').value.trim(), pin: loginPinStr,
@@ -485,26 +606,48 @@
           });
           showStatus(result.message); document.getElementById('note').value = '';
           document.getElementById('photoPreview').style.display = 'none'; document.getElementById('video').style.display = 'block';
-          capturedImage = ''; loadDashboard();
+          capturedImage = ''; 
+          setDefaultFilterDate(); 
+          loadDashboard();
         } catch (err) { showStatus(err.message, true); }
-      }, function() { showStatus('⚠️ กรุณาเปิดระบบระบุตำแหน่ง GPS เพื่อทำการบันทึกเวลา', true); });
+      }, function(error) {
+        // หาก HighAccuracy ล้มเหลว (เช่นในที่อับสัญญาณบนมือถือ) ให้ลองแบบเปิดกว้างแทนเพื่อไม่ให้ระบบค้าง
+        navigator.geolocation.getCurrentPosition(async function (pos) {
+             try {
+               updateGoogleMap(pos.coords.latitude, pos.coords.longitude);
+               const result = await callWebApi('submitAttendance', {
+                 employeeId: currentEmployee.employeeId, employeeName: currentEmployee.employeeName, department: currentEmployee.department,
+                 mode: document.getElementById('mode').value, note: document.getElementById('note').value.trim() + " (Low Acc GPS)", pin: loginPinStr,
+                 photoBase64: capturedImage, device: navigator.userAgent, latitude: pos.coords.latitude, longitude: pos.coords.longitude
+               });
+               showStatus(result.message); document.getElementById('note').value = '';
+               document.getElementById('photoPreview').style.display = 'none'; document.getElementById('video').style.display = 'block';
+               capturedImage = ''; setDefaultFilterDate(); loadDashboard();
+             } catch(err) { showStatus(err.message, true); }
+        }, function() {
+           let gpsErrorMsg = '⚠️ ไม่สามารถระบุพิกัด GPS ได้ กรุณาเปิดสิทธิ์ระบุตำแหน่งบนอุปกรณ์ของคุณ';
+           showStatus(gpsErrorMsg, true);
+        }, { enableHighAccuracy: false, timeout: 5000 });
+      }, geoOptions);
     });
 
     document.getElementById('startCamera').addEventListener('click', startCamera);
     document.getElementById('captureBtn').addEventListener('click', capturePhoto);
-    document.getElementById('refreshBtn').addEventListener('click', function () {
-      showStatus('กำลังรีเฟรชข้อมูล...', false);
-      loadDashboard();
-    });
+    
     document.getElementById('exportBtn').addEventListener('click', async function () {
       try {
+        showStatus('⏳ กำลังรวบรวมและรวบรวมไฟล์ข้อมูลดิบทั้งหมดจากระบบคลาวด์สำหรับฝ่าย HR...');
         const text = await callWebApi('exportAttendanceText');
         const blob = new Blob([text], { type: 'text/plain;charset=utf-8;' });
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'attendance_report.txt'; a.click();
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'COMPREHENSIVE_HR_REPORT.txt'; a.click();
+        showStatus('📥 ดึงไฟล์ข้อมูลดิบสำหรับส่งต่อ HR สำเร็จเรียบร้อย');
       } catch (err) { showStatus(err.message, true); }
     });
 
-    window.addEventListener('load', function () { loadDashboard(); });
+    window.addEventListener('load', function () { 
+      setDefaultFilterDate();
+      loadDashboard(); 
+    });
   </script>
 </body>
 </html>
