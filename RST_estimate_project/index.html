@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RST Smart Estimate - Dashboard & Form</title>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7fc; margin: 0; padding: 25px 15px; color: #333; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .dashboard-section { background: #fff; padding: 20px 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); margin-bottom: 25px; }
+        .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
+        .dashboard-title { font-size: 18px; color: #1e3a8a; margin: 0; font-weight: 700; }
+        .btn-refresh { background-color: #f1f5f9; border: 1px solid #cbd5e1; color: #334155; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 13px; transition: all 0.2s; }
+        .btn-refresh:hover { background-color: #e2e8f0; color: #0f172a; }
+        .kpi-container { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px; }
+        .kpi-card { flex: 1; min-width: 200px; background: #fff; border: 1px solid #e2e8f0; padding: 15px 20px; border-radius: 10px; border-left: 5px solid #3b82f6; }
+        .kpi-card.blue { border-left-color: #1d4ed8; }
+        .kpi-card.green { border-left-color: #10b981; }
+        .kpi-card.gold { border-left-color: #d97706; }
+        .kpi-label { font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase; margin-bottom: 4px; }
+        .kpi-value { font-size: 24px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
+        .kpi-subtext { font-size: 11px; color: #94a3b8; }
+        .summary-table { width: 100%; border: 1px solid #e2e8f0; border-collapse: collapse; border-radius: 6px; overflow: hidden; }
+        .summary-table th { background-color: #f1f5f9; padding: 8px 12px; font-size: 12px; text-align: left; color: #475569; }
+        .summary-table td { padding: 8px 12px; font-size: 12px; border-bottom: 1px solid #f1f5f9; }
+        .app-layout { display: flex; gap: 25px; flex-wrap: wrap; }
+        .left-column { flex: 1.2; min-width: 500px; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); }
+        .right-column { flex: 1; min-width: 450px; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); border-top: 5px solid #10b981; }
+        h2 { color: #1d4ed8; margin-top: 0; margin-bottom: 20px; border-bottom: 2px solid #eff6ff; padding-bottom: 10px; font-size: 20px; }
+        h3 { color: #10b981; margin-top: 0; margin-bottom: 20px; border-bottom: 2px solid #ecfdf5; padding-bottom: 10px; font-size: 20px; }
+        .form-row { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; }
+        .form-group { flex: 1; min-width: 150px; }
+        .form-group.wide { flex: 2; }
+        .form-group.short { flex: 0.5; min-width: 80px; }
+        label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 13px; color: #475569; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; font-size: 13px; }
+        input:focus, select:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+        .button-group { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+        .btn { padding: 12px; font-size: 14px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: all 0.2s; flex: 1; text-align: center; }
+        .btn-success { background-color: #1e7e34; color: white; }
+        .btn-success:hover { background-color: #155a24; }
+        .btn-excel { background-color: #107c41; color: white; }
+        .btn-excel:hover { background-color: #0b5930; }
+        .btn:disabled { background-color: #cbd5e1; cursor: not-allowed; color: #94a3b8; }
+        .table-container { margin-top: 20px; max-height: 300px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+        th { background-color: #f8fafc; color: #475569; padding: 10px 12px; border-bottom: 2px solid #e2e8f0; position: sticky; top: 0; font-weight: 600; }
+        td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; color: #334155; }
+        .delete-btn { color: #ef4444; cursor: pointer; font-weight: bold; text-align: center; font-size: 15px; }
+        .hint { font-size: 11px; color: #64748b; margin-top: 4px; }
+        .search-box { display: flex; gap: 10px; margin-bottom: 15px; }
+        .search-btn { background-color: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; transition: all 0.2s; }
+        .search-btn:hover { background-color: #059669; }
+        .btn-use-part { background-color: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 600; transition: all 0.1s; }
+        .btn-use-part:hover { background-color: #dbeafe; }
+        .status-message { margin-top: 15px; padding: 12px; border-radius: 6px; display: none; font-weight: 600; font-size: 13px; }
+        .status-success { background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+        .status-error { background-color: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+        .status-loading { background-color: #dbeafe; color: #1d4ed8; border: 1px solid #bfdbfe; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="dashboard-section">
+        <div class="dashboard-header">
+            <div class="dashboard-title">📈 แดชบอร์ดสรุป</div>
+            <button type="button" class="btn-refresh" onclick="fetchLiveDashboardData()">🔄 รีเฟรชข้อมูลแดชบอร์ด (Refresh)</button>
+        </div>
+        <div class="kpi-container">
+            <div class="kpi-card blue"><div class="kpi-label">จำนวนรายการใน Sheet ทั้งหมด</div><div class="kpi-value" id="dashTotalItems">กำลังโหลด...</div><div class="kpi-subtext">รายการรวมทั้ง 3 แท็บจริง</div></div>
+            <div class="kpi-card green"><div class="kpi-label">จำนวนชิ้นสินค้ารวม (QTY)</div><div class="kpi-value" id="dashTotalQty">กำลังโหลด...</div><div class="kpi-subtext">จำนวนชิ้น/ชุดทั้งหมดสะสม</div></div>
+            <div class="kpi-card gold"><div class="kpi-label">ยอดราคารวมทั้งสิ้น (บาท)</div><div class="kpi-value" id="dashTotalAmount">กำลังโหลด...</div><div class="kpi-subtext">คำนวณจากสูตรราคาในชีทตอนนี้</div></div>
+        </div>
+        <table class="summary-table">
+            <thead>
+                <tr><th>ชื่อแท็บหมวดหมู่</th><th style="text-align: center;">จำนวนรายการจริง</th><th style="text-align: center;">จำนวนชิ้นรวม (QTY)</th><th style="text-align: right;">ยอดเงินรวมในชีท (บาท)</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><b>Part list-estimate</b></td><td style="text-align: center;" id="sumPartListRows">-</td><td style="text-align: center;" id="sumPartListQty">-</td><td style="text-align: right; font-weight: bold; color: #1e3a8a;" id="sumPartListAmount">-</td></tr>
+                <tr><td><b>Electrical-part</b></td><td style="text-align: center;" id="sumElectricRows">-</td><td style="text-align: center;" id="sumElectricQty">-</td><td style="text-align: right; font-weight: bold; color: #1e3a8a;" id="sumElectricAmount">-</td></tr>
+                <tr><td><b>Mechanical-part</b></td><td style="text-align: center;" id="sumMechanicRows">-</td><td style="text-align: center;" id="sumMechanicQty">-</td><td style="text-align: right; font-weight: bold; color: #1e3a8a;" id="sumMechanicAmount">-</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="app-layout">
+        <div class="left-column">
+            <h2>📝 บันทึกข้อมูล</h2>
+            <div id="inputForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="section">หมวดหมู่เป้าหมาย (Section)</label>
+                        <select id="section">
+                            <option value="Part list-estimate">Part list-estimate</option>
+                            <option value="Electrical-part">Electrical-part</option>
+                            <option value="Mechanical-part">Mechanical-part</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="brand">ยี่ห้อสินค้า (Brand)</label>
+                        <input type="text" id="brand" placeholder="เช่น Schneider, SMC">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group wide">
+                        <label for="description">รายละเอียดสินค้า (DESCRIPTION)</label>
+                        <input type="text" id="description" placeholder="เช่น VCF1, EDR-120-24">
+                    </div>
+                    <div class="form-group short">
+                        <label for="quantity">จำนวน (QTY)</label>
+                        <input type="number" id="quantity" value="1" min="1">
+                        <div class="hint">กด Enter พักของ</div>
+                    </div>
+                </div>
+            </div>
+            <div class="table-container">
+                <table id="itemsTable">
+                    <thead><tr><th style="width: 50px;">ลำดับ</th><th>หมวดหมู่</th><th>ยี่ห้อ</th><th>รายละเอียดสินค้า</th><th style="width: 60px;">QTY</th><th style="width: 40px; text-align: center;">ลบ</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div id="statusBox" class="status-message"></div>
+            <div class="button-group">
+                <button type="button" class="btn btn-success" id="submitAllBtn" onclick="submitDataToSheets()">บันทึกข้อมูล</button>
+                <button type="button" class="btn btn-excel" id="downloadExcelBtn" onclick="exportDataFromSheetToExcel()">ดาวน์โหลด Excel สวยงาม 📥</button>
+            </div>
+        </div>
+
+        <div class="right-column">
+            <h3>🔍 ค้นหาข้อมูลราคาและร้านค้า (Search-db)</h3>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="พิมพ์คีย์เวิร์ด ยี่ห้อ, รายละเอียด หรือชื่อร้านค้า..." onkeypress="handleSearchKeyPress(event)">
+                <button type="button" class="search-btn" onclick="searchFromDatabase()">ค้นหา</button>
+            </div>
+            <div class="table-container" style="max-height: 400px;">
+                <table id="searchResultsTable">
+                    <thead><tr><th>ยี่ห้อ</th><th>รายละเอียด / สเปก</th><th>ราคา (บาท)</th><th>ร้านค้า / เบอร์โทร</th><th style="width: 80px; text-align: center;">ดึงข้อมูล</th></tr></thead>
+                    <tbody><tr><td colspan="5" style="text-align: center; color: #94a3b8; padding: 20px;">กรอกคำค้นหาแล้วกดปุ่มเพื่อเริ่มค้นหาประวัติอะไหล่</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ⚠️ วางลิงก์ Web App ที่ได้จากปุ่ม Deploy ของ Google Apps Script ที่นี่
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwWIlKGO6gguLN7kV-D-yhWn0WLu-rQ7deGXid7t9lZKMMMJIBJB5hBjPedKOiO0_5Ddg/exec";
+
+    let currentSheetTotalItems = 0; 
+    const itemsData = [];
+
+    window.onload = function() { fetchLiveDashboardData(); };
+
+    function fetchLiveDashboardData() {
+        if (WEB_APP_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL" || !WEB_APP_URL) return;
+        fetch(WEB_APP_URL)
+        .then(response => response.json())
+        .then(data => { currentSheetTotalItems = data.totalItems; updateDashboardUI(data); })
+        .catch(error => { console.error("Dashboard Load Error:", error); });
+    }
+
+    function updateDashboardUI(data) {
+        document.getElementById('dashTotalItems').innerText = Number(data.totalItems).toLocaleString();
+        document.getElementById('dashTotalQty').innerText = Number(data.totalQty).toLocaleString();
+        document.getElementById('dashTotalAmount').innerText = Number(data.totalAmount).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+        const sections = ["Part list-estimate", "Electrical-part", "Mechanical-part"];
+        const ids = {
+            "Part list-estimate": ["sumPartListRows", "sumPartListQty", "sumPartListAmount"],
+            "Electrical-part": ["sumElectricRows", "sumElectricQty", "sumElectricAmount"],
+            "Mechanical-part": ["sumMechanicRows", "sumMechanicQty", "sumMechanicAmount"]
+        };
+        sections.forEach(sec => {
+            if (data.details && data.details[sec]) {
+                document.getElementById(ids[sec][0]).innerText = data.details[sec].rows.toLocaleString();
+                document.getElementById(ids[sec][1]).innerText = data.details[sec].qty.toLocaleString();
+                document.getElementById(ids[sec][2]).innerText = data.details[sec].amount.toLocaleString(undefined, {minimumFractionDigits: 2});
+            }
+        });
+    }
+
+    document.getElementById('quantity').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); addItemToList(); }
+    });
+
+    function addItemToList() {
+        const section = document.getElementById('section').value;
+        const brand = document.getElementById('brand').value.trim();
+        const description = document.getElementById('description').value.trim();
+        const quantity = parseInt(document.getElementById('quantity').value);
+
+        if (!description) { alert('กรุณากรอก รายละเอียดสินค้า (DESCRIPTION) ก่อนครับ'); return; }
+        itemsData.push({ section, brand: brand || '-', description, qty: quantity });
+        updateTable();
+        document.getElementById('brand').value = '';
+        document.getElementById('description').value = '';
+        document.getElementById('quantity').value = '1';
+        document.getElementById('description').focus();
+    }
+
+    function updateTable() {
+        const tbody = document.querySelector('#itemsTable tbody');
+        tbody.innerHTML = '';
+        itemsData.forEach((data, index) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td style="font-weight:bold;">${index + 1}</td><td>${data.section}</td><td>${data.brand}</td><td>${data.description}</td><td>${data.qty}</td><td class="delete-btn" onclick="removeItem(${index})">✕</td>`;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function removeItem(index) { itemsData.splice(index, 1); updateTable(); }
+    function handleSearchKeyPress(event) { if (event.key === 'Enter') { searchFromDatabase(); } }
+
+    function searchFromDatabase() {
+        const keyword = document.getElementById('searchInput').value.trim();
+        if (!keyword) { alert("กรุณากรอกข้อมูลเพื่อใช้สืบค้นค้นหาครับ"); return; }
+        const tbody = document.querySelector('#searchResultsTable tbody');
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #1d4ed8; padding: 20px;">🔄 กำลังค้นหา...</td></tr>`;
+
+        fetch(`${WEB_APP_URL}?search=${encodeURIComponent(keyword)}`)
+        .then(response => response.json())
+        .then(res => {
+            tbody.innerHTML = '';
+            if (res.status === "success" && res.results.length > 0) {
+                res.results.forEach(result => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><b>${result.brand}</b></td><td>${result.description}</td>
+                        <td style="font-weight:bold; color:#10b981;">${result.unitPrice ? result.unitPrice.toLocaleString(undefined, {minimumFractionDigits: 2}) : '-'}</td>
+                        <td><div>${result.supplier}</div><small style="color:#64748b;">โทร: ${result.tel}</small></td>
+                        <td style="text-align:center;"><button type="button" class="btn-use-part" onclick="useSearchResultToForm('${result.brand}', '${result.description}')">⚡ เลือกใช้</button></td>`;
+                    tbody.appendChild(tr);
+                });
+            } else {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #ef4444; padding: 20px;">❌ ไม่พบประวัติข้อมูลที่ตรงกับคำค้นหา</td></tr>`;
+            }
+        });
+    }
+
+    function useSearchResultToForm(brand, desc) {
+        document.getElementById('brand').value = brand !== "-" ? brand : "";
+        document.getElementById('description').value = desc;
+        document.getElementById('quantity').focus();
+    }
+
+    function showStatus(message, type) {
+        const statusBox = document.getElementById('statusBox');
+        statusBox.innerText = message;
+        statusBox.className = 'status-message status-' + type;
+        statusBox.style.display = 'block';
+    }
+
+    // 🛠️ แก้ไขฟังก์ชันบันทึกข้อมูล: รองรับการเช็ก Response จริง ป้องกันการข้าม Error
+    function submitDataToSheets() {
+        if (itemsData.length === 0) {
+            alert('กรุณากรอกรายละเอียดและกดเพิ่มลงตารางฝั่งซ้ายก่อนกดบันทึกครับ');
+            return;
+        }
+
+        const submitBtn = document.getElementById('submitAllBtn');
+        submitBtn.disabled = true;
+        showStatus('กำลังบันทึกข้อมูล...', 'loading');
+
+        fetch(WEB_APP_URL, {
+            method: 'POST',
+            mode: 'no-cors', // บังคับเพื่อไม่ให้ติดบล็อค CORS นอกโดเมน
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ items: itemsData })
+        })
+        .then(() => {
+            // เนื่องจากใช้ mode no-cors ฝั่งเว็บจะไม่เห็นค่า JSON ที่ตอบกลับมา แต่ข้อมูลจะเข้าชีทไปแล้วเรียบร้อย
+            showStatus('ส่งข้อมูลบันทึกสำเร็จ!', 'success');
+            itemsData.length = 0;
+            updateTable();
+            submitBtn.disabled = false;
+            // หน่วงเวลา 1.5 วินาที เพื่อดึงค่าอัปเดต Dashboard สดจากชีท
+            setTimeout(fetchLiveDashboardData, 1500);
+        })
+        .catch(error => {
+            console.error("Submit error:", error);
+            showStatus('เกิดข้อผิดพลาดในการบันทึกข้อมูล', 'error');
+            submitBtn.disabled = false;
+        });
+    }
+
+    function exportDataFromSheetToExcel() {
+        if (currentSheetTotalItems === 0) { alert('ไม่มีข้อมูลสะสมค้างอยู่ในชีท จึงไม่สามารถ Export ได้ครับ'); return; }
+        const excelBtn = document.getElementById('downloadExcelBtn');
+        excelBtn.disabled = true;
+        showStatus('กำลังดึงข้อมูลรายงาน...', 'loading');
+
+        fetch(WEB_APP_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: "export_and_clear" })
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.sheetData) {
+                const wb = XLSX.utils.book_new();
+                const headers = ["ITEM", "Brand", "DESCRIPTION", "QTY", "Unit Price", "Total Price", "Supplier", "Tel"];
+                
+                Object.keys(result.sheetData).forEach(sectionName => {
+                    const wsData = [headers];
+                    const rawItems = result.sheetData[sectionName];
+                    rawItems.forEach((item, idx) => {
+                        const rIdx = idx + 2;
+                        wsData.push([idx + 1, item.brand, item.description, item.qty, item.unitPrice || "", item.unitPrice ? item.totalPrice : `=D${rIdx}*E${rIdx}`, item.supplier || "", item.tel || ""]);
+                    });
+                    const tIdx = wsData.length + 1;
+                    wsData.push(["Total", "", "Total Price", "", "", `=SUM(F2:F${tIdx-1})`, "", ""]);
+                    const ws = XLSX.utils.aoa_to_sheet(wsData);
+                    ws['!cols'] = [{ wch: 8 }, { wch: 18 }, { wch: 35 }, { wch: 10 }, { wch: 14 }, { wch: 16 }, { wch: 25 }, { wch: 16 }];
+                    XLSX.utils.book_append_sheet(wb, ws, sectionName);
+                });
+
+                XLSX.writeFile(wb, "RST_Estimate_Report.xlsx");
+                showStatus('ดาวน์โหลดไฟล์รายงาน Excel เรียบร้อยแล้ว!', 'success');
+            }
+            excelBtn.disabled = false;
+            fetchLiveDashboardData();
+        })
+        .catch(err => {
+            showStatus('ไม่สามารถคุยกับระบบหลังบ้านเพื่อทำ Excel ได้', 'error');
+            excelBtn.disabled = false;
+        });
+    }
+</script>
+</body>
+</html>
