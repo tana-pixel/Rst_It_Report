@@ -17,13 +17,12 @@
         /* Layout ซ้าย-ขวา */
         .main-layout {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* แบ่งพื้นที่ครึ่งซ้ายและขวา */
+            grid-template-columns: 1fr 1fr; 
             gap: 25px;
             max-width: 1300px;
             margin: 0 auto;
         }
 
-        /* กล่องสไตล์มินิมอล/คลีน แบบระบบ Enterprise */
         .card {
             background: white;
             padding: 24px;
@@ -33,19 +32,18 @@
         }
         .card h3 { margin-top: 0; border-bottom: 2px solid #f1f5f9; padding-bottom: 12px; color: #334155; font-size: 1.3rem; }
 
-        /* --- ฝั่งซ้าย: โซนกล้องและการบันทึก --- */
-        video { width: 100%; max-height: 260px; border-radius: 8px; background-color: #000; transform: scaleX(-1); }
+        /* 📷 แก้ไข CSS กล้อง: เอา scaleX(-1) ออก เพื่อไม่ให้ภาพกล้องหลังกลับด้านซ้ายขวา */
+        video { width: 100%; max-height: 260px; border-radius: 8px; background-color: #000; object-fit: cover; }
+        
         .grid-buttons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 15px 0 25px 0; }
         .part-btn { background-color: #3b82f6; border: none; border-radius: 8px; padding: 18px 10px; font-size: 1.1rem; font-weight: bold; color: white; cursor: pointer; transition: background 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .part-btn:hover { background-color: #1d4ed8; }
         .part-btn:active { transform: scale(0.98); }
 
-        /* ตารางล็อกประวัติด้านล่างกล้อง */
         .list-container { max-height: 380px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px; }
         .item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 10px; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; }
         .item-row:last-child { border-bottom: none; }
         
-        /* สไตล์แสดงรูปภาพขนาดเล็กประกอบตาราง */
         .item-detail-flex { display: flex; align-items: center; gap: 12px; }
         .img-thumbnail { width: 65px; height: 50px; border-radius: 6px; object-fit: cover; border: 1px solid #e2e8f0; cursor: zoom-in; }
 
@@ -56,8 +54,6 @@
         .btn-edit { background-color: #f59e0b; }
         .btn-delete { background-color: #ef4444; }
 
-        /* --- ฝั่งขวา: โซนตารางสรุปสถิติ --- */
-        /* ตัวเลือกวันที่กรองข้อมูล */
         .filter-container { background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
         .date-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
         .date-inputs label { font-size: 0.85rem; font-weight: 600; color: #475569; display: flex; flex-direction: column; gap: 4px; }
@@ -69,43 +65,33 @@
         .btn-print { background-color: #6366f1; color: white; border: none; border-radius: 8px; padding: 12px; font-size: 0.95rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
         .btn-print:hover { background-color: #4f46e5; }
 
-        /* KPI Cards */
         .kpi-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
         .kpi-box { background: #f8fafc; border-top: 4px solid #3b82f6; padding: 18px; border-radius: 8px; text-align: center; box-shadow: inset 0 0 0 1px #e2e8f0; }
         .kpi-box.pending { border-top-color: #f59e0b; }
         .kpi-title { font-size: 0.85rem; color: #64748b; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; }
         .kpi-value { font-size: 2rem; font-weight: 700; margin-top: 8px; color: #0f172a; }
 
-        /* ตารางสถิติสรุปผลรายพาร์ท */
         .stats-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.95rem; }
         .stats-table th { background-color: #f8fafc; color: #475569; font-weight: 600; text-align: left; padding: 14px 12px; border-bottom: 2px solid #e2e8f0; }
         .stats-table td { padding: 14px 12px; border-bottom: 1px solid #e2e8f0; color: #334155; }
-        .stats-table tr:hover { background-color: #f8fafc; }
-        .stats-table tr:last-child td { border-bottom: none; }
         
         .text-bold { font-weight: 700; color: #0f172a; }
         .badge-pct { background-color: #e0f2fe; color: #0369a1; padding: 4px 8px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; }
 
         .loading { opacity: 0.5; pointer-events: none; }
         canvas#canvas { display: none; }
-
-        /* ส่วนซ่อนสำหรับจัดหน้าสั่งพิมพ์ในกระดาษ A4 */
         .print-only-header { display: none; }
 
-        @media (max-width: 900px) {
-            .main-layout { grid-template-columns: 1fr; }
-        }
+        @media (max-width: 900px) { .main-layout { grid-template-columns: 1fr; } }
 
-        /* 🖨️ CSS ออกแบบเฉพาะสำหรับตอนกดพิมพ์รายงาน (Print / Save as PDF) */
+        /* CSS สำหรับจัดหน้ากระดาษตอนกดพิมพ์ (Print / Save PDF) */
         @media print {
             body { background: white !important; color: #000 !important; padding: 0 !important; }
             h2, .grid-buttons, #webcam, #camera-status, .action-btns, .filter-container, #log-list { display: none !important; }
-            
             .main-layout { display: block !important; }
             .card { box-shadow: none !important; border: none !important; padding: 0 !important; margin-bottom: 30px !important; }
-            .card:first-child { display: none !important; } /* ซ่อนกล้องฝั่งซ้ายทั้งหมด */
+            .card:first-child { display: none !important; } 
             
-            /* แสดงหัวกระดาษรายงานแบบเป็นทางการ */
             .print-only-header { 
                 display: block !important; 
                 text-align: center; 
@@ -116,18 +102,15 @@
             .print-only-header h1 { margin: 0 0 5px 0; font-size: 1.8rem; color: #0f172a; }
             .print-only-header p { margin: 0; font-size: 0.95rem; color: #475569; }
 
-            /* ปรับแต่งตารางรายงานสรุปพาร์ทสำหรับการพิมพ์ */
             .stats-table th { background-color: #f1f5f9 !important; border-bottom: 2px solid #94a3b8 !important; color: #000 !important; }
             .stats-table td { border-bottom: 1px solid #cbd5e1 !important; color: #000 !important; }
             
-            /* สร้างและแสดงรายการความชำรุดพร้อมรูปภาพแบบจัดเรียงสวยงามเวลาพิมพ์ */
             #print-defect-table-container { display: block !important; margin-top: 35px; }
             .print-defect-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
             .print-defect-table th { background: #f1f5f9; padding: 10px; border: 1px solid #cbd5e1; text-align: left; }
             .print-defect-table td { padding: 10px; border: 1px solid #cbd5e1; vertical-align: middle; }
             .print-img { width: 90px; height: 70px; object-fit: cover; border-radius: 4px; border: 1px solid #94a3b8; }
         }
-        
         #print-defect-table-container { display: none; }
     </style>
 </head>
@@ -214,8 +197,7 @@
                             <th style="width: 100px;">Evidence Photo</th>
                         </tr>
                     </thead>
-                    <tbody id="print-defect-table-body">
-                        </tbody>
+                    <tbody id="print-defect-table-body"></tbody>
                 </table>
             </div>
         </div>
@@ -225,7 +207,7 @@
     <canvas id="canvas"></canvas> 
     
     <script>
-        // ⚠️ ใส่ URL Web App ของ Google Apps Script ที่พี่ทำการ Deploy ไว้
+        // ⚠️ สลับ URL ตรงนี้ให้เป็นลิงก์ Web App Google Script ของพี่เอง
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx7g7QQuLP1qbzQBZhiagIhqa0jtgdTB7-6PMtlKjYD9q6H9fn0ZU9_UuU63nhIHsJx/exec"; 
         
         const video = document.getElementById('webcam');
@@ -237,33 +219,49 @@
             initWebcam();
             fetchLogs();
 
-            // ตั้งค่าเริ่มต้นของ Date Picker ค้นหาวันที่ปัจจุบันโดยอัตโนมัติ
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('start-date').value = today;
             document.getElementById('end-date').value = today;
         };
 
+        // 🌟 แก้ไขฟังก์ชันเปิดกล้อง: บังคับเลือกกล้องหลังมือถือ (environment)
         function initWebcam() {
-            navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } })
+            const constraints = {
+                video: {
+                    facingMode: { exact: "environment" } // 👈 บังคับดึงกล้องตัวหลังของโทรศัพท์มือถือเท่านั้น
+                }
+            };
+
+            navigator.mediaDevices.getUserMedia(constraints)
             .then(stream => {
                 video.srcObject = stream;
-                cameraStatus.innerText = "● System Camera Connected";
+                cameraStatus.innerText = "● Rear Camera Connected (กล้องหลัง)";
                 cameraStatus.style.color = "#16a34a";
             })
             .catch(err => {
-                cameraStatus.innerText = "❌ Unable to access webcam.";
-                cameraStatus.style.color = "#dc2626";
+                // เผื่อเปิดในคอมพิวเตอร์ที่ไม่มีกล้องหลัง ให้เปิดกล้องทั่วไปสแตนด์บายทดแทน
+                navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    video.srcObject = stream;
+                    cameraStatus.innerText = "● Standard Camera Connected";
+                    cameraStatus.style.color = "#f59e0b";
+                })
+                .catch(e => {
+                    cameraStatus.innerText = "❌ Unable to access webcam.";
+                    cameraStatus.style.color = "#dc2626";
+                });
             });
         }
 
+        // แก้ไขฟังก์ชันถ่ายภาพ: ไม่ต้องกลับฝั่งภาพซ้ายขวา (เนื่องจากใช้กล้องหลังแล้ว)
         function captureAndUpload(partName) {
             document.body.classList.add('loading');
             
             const context = canvas.getContext('2d');
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
-            context.translate(canvas.width, 0);
-            context.scale(-1, 1);
+            
+            // วาดภาพตรงๆ จากเลนส์กล้องหลัง ไม่ต้องสลับกระจกเงา
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
             
             const base64String = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
@@ -272,8 +270,7 @@
 
         function executeAction(payload) {
             fetch(WEB_APP_URL, {
-                method: "POST",
-                mode: "no-cors",
+                method: "POST", mode: "no-cors",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
             })
@@ -282,22 +279,18 @@
                 setTimeout(fetchLogs, 1500);
             })
             .catch(err => {
-                alert("Error connecting to server: " + err);
+                alert("Server error: " + err);
                 document.body.classList.remove('loading');
             });
         }
 
         function fetchLogs() {
             const listDiv = document.getElementById('log-list');
-            fetch(WEB_APP_URL, {
-                method: "POST",
-                body: JSON.stringify({ action: "fetch" })
-            })
+            fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify({ action: "fetch" }) })
             .then(res => res.json())
             .then(response => {
                 if(response.status === "success") {
                     globalLogs = response.data;
-                    
                     calculateStatisticsTable(globalLogs); 
                     
                     if(globalLogs.length === 0) { listDiv.innerHTML = "<div style='padding:10px;text-align:center;color:gray;'>No data recorded yet.</div>"; return; }
@@ -307,11 +300,9 @@
                         const row = document.createElement('div');
                         row.className = "item-row";
                         
-                        // ถ้ารูปภาพส่งมาเป็น base64 ให้สร้าง Image Source
                         const imgSrc = item.image ? `data:image/jpeg;base64,${item.image}` : '';
-                        const imgTag = imgSrc ? `<img class="img-thumbnail" src="${imgSrc}" onclick="viewImage('${item.image}')" alt="defect evidence" />` : '<div style="width:65px; height:50px; background:#e2e8f0; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:10px;">No Image</div>';
+                        const imgTag = imgSrc ? `<img class="img-thumbnail" src="${imgSrc}" onclick="viewImage('${item.image}')" alt="defect" />` : '<div style="width:65px; height:50px; background:#e2e8f0; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:10px;">No Image</div>';
 
-                        // แสดงข้อมูลในรูปแบบรูปภาพประกอบรายละเอียดทันทีตามต้องการ
                         row.innerHTML = `
                             <div class="item-detail-flex">
                                 ${imgTag}
@@ -345,9 +336,7 @@
             const partCounts = { "30P": 0, "50P2": 0, "50P3": 0, "60P": 0 };
             
             logs.forEach(item => {
-                if (partCounts[item.partType] !== undefined) {
-                    partCounts[item.partType]++;
-                }
+                if (partCounts[item.partType] !== undefined) partCounts[item.partType]++;
             });
 
             const tableBody = document.getElementById('stats-table-body');
@@ -369,7 +358,7 @@
 
         function viewImage(base64) {
             const newTab = window.open();
-            newTab.document.body.innerHTML = `<img src="data:image/jpeg;base64,${base64}" style="max-width:100%; height:auto; border-radius:8px; box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);" />`;
+            newTab.document.body.innerHTML = `<img src="data:image/jpeg;base64,${base64}" style="max-width:100%; height:auto; border-radius:8px;" />`;
         }
 
         function editPart(id, currentPart) {
@@ -381,21 +370,17 @@
         }
 
         function deleteItem(id) {
-            if (confirm("Confirm deletion of this statistical record?")) {
+            if (confirm("Confirm deletion?")) {
                 document.body.classList.add('loading');
                 executeAction({ action: "delete", id: id });
             }
         }
 
-        // 🌟 กรองช่วงวันที่เพื่อดาวน์โหลดไฟล์ Excel (คอลัมน์สะอาด นำสเตตัสเก่าที่ไม่จำเป็นออก รหัสไม่เพี้ยน)
         function exportToExcelByDate() {
             const startInput = document.getElementById('start-date').value; 
             const endInput = document.getElementById('end-date').value;
 
-            if (!startInput || !endInput) {
-                alert("Please select both start and end dates.");
-                return;
-            }
+            if (!startInput || !endInput) { alert("Please select dates."); return; }
 
             const [sYear, sMonth, sDay] = startInput.split('-');
             const sheetMonth = parseInt(sMonth).toString();
@@ -404,33 +389,17 @@
             const filteredLogs = globalLogs.filter(item => {
                 if (!item.timestamp) return false;
                 const tsStr = item.timestamp.toString().trim();
-
                 const formatStandard = `${sheetMonth}/${sheetDay}/${sYear}`;
-                if (tsStr.includes(formatStandard)) return true;
-
                 const formatReverse = `${sheetDay}/${sheetMonth}/${sYear}`;
-                if (tsStr.includes(formatReverse)) return true;
-
-                if (tsStr.includes(startInput)) return true;
-
-                return false;
+                return tsStr.includes(formatStandard) || tsStr.includes(formatReverse) || tsStr.includes(startInput);
             });
 
-            if (filteredLogs.length === 0) {
-                alert(`No records found for date: ${startInput}`);
-                return;
-            }
+            if (filteredLogs.length === 0) { alert(`No records found for date: ${startInput}`); return; }
 
-            // จัดหัวตารางข้อมูลใหม่ให้ตอบโจทย์ และ ล็อกรหัส ID เพื่อไม่ให้เป็นค่าแบบ 1.7838E+12 ใน Excel
             let csvContent = "\uFEFFRecord ID,Date Time,Part Type,Box ID (Barcode)\n";
-            
             filteredLogs.forEach(item => {
-                const safeId = `\t${item.id}`; // ใส่ Tab บังคับเป็น Text
-                const safeTimestamp = item.timestamp ? item.timestamp.toString().replace(/"/g, '""') : '';
-                const safePartType = item.partType ? item.partType.toString().replace(/"/g, '""') : '';
-                const safeBoxId = item.boxId ? item.boxId.toString().replace(/"/g, '""') : 'N/A';
-
-                csvContent += `"${safeId}","${safeTimestamp}","${safePartType}","${safeBoxId}"\n`;
+                const safeId = `\t${item.id}`; 
+                csvContent += `"${safeId}","${item.timestamp}","${item.partType}","${item.boxId || 'N/A'}"\n`;
             });
 
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -440,36 +409,25 @@
             link.click();
         }
 
-        // 🌟 ฟังก์ชันพิมพ์รายงาน (ดึงข้อมูลช่วงวันที่เลือกเพื่อไปแรนเดอร์รายงานพร้อมภาพส่งพิมพ์ออกเครื่องปริ้น หรือ PDF)
+        // ฟังก์ชันสั่งปริ้นรายงานพร้อมแนบภาพหลักฐาน
         function printReport() {
             const startInput = document.getElementById('start-date').value;
             const endInput = document.getElementById('end-date').value;
 
-            if (!startInput || !endInput) {
-                alert("Please select date range for print report.");
-                return;
-            }
+            if (!startInput || !endInput) { alert("Please select date range."); return; }
 
             const [sYear, sMonth, sDay] = startInput.split('-');
             const sheetMonth = parseInt(sMonth).toString();
             const sheetDay = parseInt(sDay).toString();
 
-            // ค้นหารายการตามวันที่เพื่อดึงข้อมูลมาเรียงในกระดาษพิมพ์
             const printLogs = globalLogs.filter(item => {
                 if (!item.timestamp) return false;
                 const tsStr = item.timestamp.toString().trim();
-
                 const formatStandard = `${sheetMonth}/${sheetDay}/${sYear}`;
-                if (tsStr.includes(formatStandard)) return true;
-
                 const formatReverse = `${sheetDay}/${sheetMonth}/${sYear}`;
-                if (tsStr.includes(formatReverse)) return true;
-
-                if (tsStr.includes(startInput)) return true;
-                return false;
+                return tsStr.includes(formatStandard) || tsStr.includes(formatReverse) || tsStr.includes(startInput);
             });
 
-            // อัปเดตข้อมูลหัวเรื่องก่อนปริ้น
             document.getElementById('print-date-subtitle').innerText = `Report Period: ${startInput} to ${endInput}`;
             document.getElementById('current-print-time').innerText = new Date().toLocaleString('th-TH');
 
@@ -477,7 +435,7 @@
             printTableBody.innerHTML = "";
 
             if (printLogs.length === 0) {
-                printTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:gray;">No damaged box records found on selected date.</td></tr>`;
+                printTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:gray;">No records found.</td></tr>`;
             } else {
                 printLogs.forEach(item => {
                     const tr = document.createElement('tr');
@@ -493,13 +451,9 @@
                 });
             }
 
-            // คำนวณตารางสถิติตัวบนใหม่ตามตัวแปรที่กรองมาพิมพ์
             calculateStatisticsTable(printLogs);
-
-            // เรียกสั่งพิมพ์ของเบราว์เซอร์
             window.print();
 
-            // หลังพิมพ์เสร็จ ทำการคืนตารางหลักกลับมาแสดงข้อมูลประวัติแถวทั้งหมด
             setTimeout(() => {
                 calculateStatisticsTable(globalLogs);
             }, 1000);
