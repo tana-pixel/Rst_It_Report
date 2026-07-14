@@ -41,9 +41,14 @@
         .part-btn:active { transform: scale(0.98); }
 
         /* ตารางล็อกประวัติด้านล่างกล้อง */
-        .list-container { max-height: 250px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px; }
+        .list-container { max-height: 380px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px; }
         .item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 10px; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; }
         .item-row:last-child { border-bottom: none; }
+        
+        /* สไตล์แสดงรูปภาพขนาดเล็กประกอบตาราง */
+        .item-detail-flex { display: flex; align-items: center; gap: 12px; }
+        .img-thumbnail { width: 65px; height: 50px; border-radius: 6px; object-fit: cover; border: 1px solid #e2e8f0; cursor: zoom-in; }
+
         .item-info b { color: #2563eb; font-size: 1rem; }
         .action-btns { display: flex; gap: 4px; }
         .btn { padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: bold; color: white; }
@@ -51,7 +56,19 @@
         .btn-edit { background-color: #f59e0b; }
         .btn-delete { background-color: #ef4444; }
 
-        /* --- ฝั่งขวา: โซนตารางสรุปสถิติ (Statistics Dashboard) --- */
+        /* --- ฝั่งขวา: โซนตารางสรุปสถิติ --- */
+        /* ตัวเลือกวันที่กรองข้อมูล */
+        .filter-container { background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
+        .date-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+        .date-inputs label { font-size: 0.85rem; font-weight: 600; color: #475569; display: flex; flex-direction: column; gap: 4px; }
+        .date-inputs input { padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; }
+        
+        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn-excel { background-color: #10b981; color: white; border: none; border-radius: 8px; padding: 12px; font-size: 0.95rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-excel:hover { background-color: #059669; }
+        .btn-print { background-color: #6366f1; color: white; border: none; border-radius: 8px; padding: 12px; font-size: 0.95rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-print:hover { background-color: #4f46e5; }
+
         /* KPI Cards */
         .kpi-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
         .kpi-box { background: #f8fafc; border-top: 4px solid #3b82f6; padding: 18px; border-radius: 8px; text-align: center; box-shadow: inset 0 0 0 1px #e2e8f0; }
@@ -66,20 +83,61 @@
         .stats-table tr:hover { background-color: #f8fafc; }
         .stats-table tr:last-child td { border-bottom: none; }
         
-        /* สไตล์ตัวเลขเน้นสีให้ดูโปร */
         .text-bold { font-weight: 700; color: #0f172a; }
         .badge-pct { background-color: #e0f2fe; color: #0369a1; padding: 4px 8px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; }
 
         .loading { opacity: 0.5; pointer-events: none; }
         canvas#canvas { display: none; }
 
-        /* Responsive สำหรับหน้าจอขนาดเล็ก */
+        /* ส่วนซ่อนสำหรับจัดหน้าสั่งพิมพ์ในกระดาษ A4 */
+        .print-only-header { display: none; }
+
         @media (max-width: 900px) {
             .main-layout { grid-template-columns: 1fr; }
         }
+
+        /* 🖨️ CSS ออกแบบเฉพาะสำหรับตอนกดพิมพ์รายงาน (Print / Save as PDF) */
+        @media print {
+            body { background: white !important; color: #000 !important; padding: 0 !important; }
+            h2, .grid-buttons, #webcam, #camera-status, .action-btns, .filter-container, #log-list { display: none !important; }
+            
+            .main-layout { display: block !important; }
+            .card { box-shadow: none !important; border: none !important; padding: 0 !important; margin-bottom: 30px !important; }
+            .card:first-child { display: none !important; } /* ซ่อนกล้องฝั่งซ้ายทั้งหมด */
+            
+            /* แสดงหัวกระดาษรายงานแบบเป็นทางการ */
+            .print-only-header { 
+                display: block !important; 
+                text-align: center; 
+                border-bottom: 2px double #334155; 
+                padding-bottom: 15px; 
+                margin-bottom: 25px; 
+            }
+            .print-only-header h1 { margin: 0 0 5px 0; font-size: 1.8rem; color: #0f172a; }
+            .print-only-header p { margin: 0; font-size: 0.95rem; color: #475569; }
+
+            /* ปรับแต่งตารางรายงานสรุปพาร์ทสำหรับการพิมพ์ */
+            .stats-table th { background-color: #f1f5f9 !important; border-bottom: 2px solid #94a3b8 !important; color: #000 !important; }
+            .stats-table td { border-bottom: 1px solid #cbd5e1 !important; color: #000 !important; }
+            
+            /* สร้างและแสดงรายการความชำรุดพร้อมรูปภาพแบบจัดเรียงสวยงามเวลาพิมพ์ */
+            #print-defect-table-container { display: block !important; margin-top: 35px; }
+            .print-defect-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+            .print-defect-table th { background: #f1f5f9; padding: 10px; border: 1px solid #cbd5e1; text-align: left; }
+            .print-defect-table td { padding: 10px; border: 1px solid #cbd5e1; vertical-align: middle; }
+            .print-img { width: 90px; height: 70px; object-fit: cover; border-radius: 4px; border: 1px solid #94a3b8; }
+        }
+        
+        #print-defect-table-container { display: none; }
     </style>
 </head>
 <body>
+
+    <div class="print-only-header">
+        <h1>Spare Parts Damage & Defect Inspection Report</h1>
+        <p id="print-date-subtitle">Report Period: All Records</p>
+        <p style="font-size: 0.85rem; margin-top: 5px; color: #64748b;">Printed on: <span id="current-print-time"></span></p>
+    </div>
 
     <h2>Spare Parts Quality Management System</h2>
     
@@ -97,16 +155,27 @@
                 <button class="part-btn" onclick="captureAndUpload('60P')">Capture 60P</button>
             </div>
 
-            <h3>📋 Recent Defect Logs</h3>
+            <h3>📋 Recent Defect Logs (Real-time)</h3>
             <div class="list-container" id="log-list">Loading real-time logs...</div>
         </div>
 
         <div class="card">
             <h3>📊 Statistical Summary Dashboard</h3>
 
-            <button class="part-btn" onclick="exportToExcel()" style="background-color: #10b981; margin-bottom: 20px; font-size: 1rem; padding: 12px;">
-    📥 Export Data to Excel (.csv)
-</button>
+            <div class="filter-container">
+                <div class="date-inputs">
+                    <label>Start Date:
+                        <input type="date" id="start-date">
+                    </label>
+                    <label>End Date:
+                        <input type="date" id="end-date">
+                    </label>
+                </div>
+                <div class="action-grid">
+                    <button class="btn-excel" onclick="exportToExcelByDate()">📥 Export to Excel (.csv)</button>
+                    <button class="btn-print" onclick="printReport()">🖨️ Print Report (PDF)</button>
+                </div>
+            </div>
             
             <div class="kpi-container">
                 <div class="kpi-box">
@@ -132,21 +201,46 @@
                     <tr><td colspan="3" style="text-align: center; color: gray;">Calculating statistics...</td></tr>
                 </tbody>
             </table>
+
+            <div id="print-defect-table-container">
+                <h3 style="margin-top: 30px; border: none; font-size: 1.2rem; color: #000;">Damage Evidence Details</h3>
+                <table class="print-defect-table">
+                    <thead>
+                        <tr>
+                            <th>Record ID</th>
+                            <th>Date Time</th>
+                            <th>Part Type</th>
+                            <th>Box ID (Barcode)</th>
+                            <th style="width: 100px;">Evidence Photo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="print-defect-table-body">
+                        </tbody>
+                </table>
+            </div>
         </div>
 
     </div>
 
-    <canvas id="canvas"></canvas> <script>
-        // ⚠️ ใส่ URL Web App ของ Google Apps Script ที่ได้จากการ Deploy ที่นี่
+    <canvas id="canvas"></canvas> 
+    
+    <script>
+        // ⚠️ ใส่ URL Web App ของ Google Apps Script ที่พี่ทำการ Deploy ไว้
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx7g7QQuLP1qbzQBZhiagIhqa0jtgdTB7-6PMtlKjYD9q6H9fn0ZU9_UuU63nhIHsJx/exec"; 
         
         const video = document.getElementById('webcam');
         const canvas = document.getElementById('canvas');
         const cameraStatus = document.getElementById('camera-status');
+        let globalLogs = []; 
 
         window.onload = () => {
             initWebcam();
             fetchLogs();
+
+            // ตั้งค่าเริ่มต้นของ Date Picker ค้นหาวันที่ปัจจุบันโดยอัตโนมัติ
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('start-date').value = today;
+            document.getElementById('end-date').value = today;
         };
 
         function initWebcam() {
@@ -163,9 +257,6 @@
         }
 
         function captureAndUpload(partName) {
-            if (cameraStatus.style.color !== "rgb(22, 163, 74)" && cameraStatus.style.color !== "green") {
-                // เช็กสถานะสีเขียวเพื่อความชัวร์ว่ากล้องพร้อมทำงาน
-            }
             document.body.classList.add('loading');
             
             const context = canvas.getContext('2d');
@@ -188,7 +279,7 @@
             })
             .then(() => {
                 document.body.classList.remove('loading');
-                setTimeout(fetchLogs, 1500); // รีเฟรชทั้งตารางสถิติและ Log ทันทีหลังบันทึก
+                setTimeout(fetchLogs, 1500);
             })
             .catch(err => {
                 alert("Error connecting to server: " + err);
@@ -205,23 +296,29 @@
             .then(res => res.json())
             .then(response => {
                 if(response.status === "success") {
-                    const logs = response.data;
+                    globalLogs = response.data;
                     
-                    // เรียกฟังก์ชันคำนวณตารางสถิติเชิงตัวเลขฝั่งขวา
-                    calculateStatisticsTable(logs); 
+                    calculateStatisticsTable(globalLogs); 
                     
-                    if(logs.length === 0) { listDiv.innerHTML = "<div style='padding:10px;text-align:center;color:gray;'>No data recorded yet.</div>"; return; }
+                    if(globalLogs.length === 0) { listDiv.innerHTML = "<div style='padding:10px;text-align:center;color:gray;'>No data recorded yet.</div>"; return; }
                     
                     listDiv.innerHTML = "";
-                    logs.forEach(item => {
+                    globalLogs.forEach(item => {
                         const row = document.createElement('div');
                         row.className = "item-row";
+                        
+                        // ถ้ารูปภาพส่งมาเป็น base64 ให้สร้าง Image Source
+                        const imgSrc = item.image ? `data:image/jpeg;base64,${item.image}` : '';
+                        const imgTag = imgSrc ? `<img class="img-thumbnail" src="${imgSrc}" onclick="viewImage('${item.image}')" alt="defect evidence" />` : '<div style="width:65px; height:50px; background:#e2e8f0; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:10px;">No Image</div>';
+
+                        // แสดงข้อมูลในรูปแบบรูปภาพประกอบรายละเอียดทันทีตามต้องการ
                         row.innerHTML = `
-                            <div class="item-info">
-                              
-                            <b>${item.partType}</b><br>
-                                
-                                <small style="color:#64748b;">${item.timestamp}</small>
+                            <div class="item-detail-flex">
+                                ${imgTag}
+                                <div class="item-info">
+                                    <b>${item.partType}</b> <span style="color:#64748b; font-size:0.8rem;">(Box: ${item.boxId || 'N/A'})</span><br>
+                                    <small style="color:#64748b;">📅 ${item.timestamp}</small>
+                                </div>
                             </div>
                             <div class="action-btns">
                                 <button class="btn btn-view" onclick="viewImage('${item.image}')">View</button>
@@ -237,7 +334,6 @@
             });
         }
 
-        // ฟังก์ชันหัวใจหลักในการคำนวณสถิติและ Render ตารางตัวเลข
         function calculateStatisticsTable(logs) {
             const totalCount = logs.length;
             document.getElementById('kpi-total').innerText = totalCount;
@@ -245,24 +341,20 @@
             const pendingCount = logs.filter(item => item.status === "Pending").length;
             document.getElementById('kpi-pending').innerText = pendingCount;
 
-            // ชิ้นส่วนที่ต้องการเก็บสถิติ
             const targetedParts = ["30P", "50P2", "50P3", "60P"];
             const partCounts = { "30P": 0, "50P2": 0, "50P3": 0, "60P": 0 };
             
-            // นับจำนวนชิ้นงานที่ไม่สมบูรณ์แยกตามพาร์ท
             logs.forEach(item => {
                 if (partCounts[item.partType] !== undefined) {
                     partCounts[item.partType]++;
                 }
             });
 
-            // เจนเนอเรทแถวตาราง HTML ออกมาโชว์แบบเรียลไทม์
             const tableBody = document.getElementById('stats-table-body');
             tableBody.innerHTML = "";
 
             targetedParts.forEach(part => {
                 const count = partCounts[part];
-                // คำนวณเปอร์เซ็นต์สัดส่วนความผิดพลาด (ถ้าผลรวมเป็น 0 ให้เป็น 0%)
                 const percentage = totalCount > 0 ? ((count / totalCount) * 100).toFixed(1) : "0.0";
 
                 const tr = document.createElement('tr');
@@ -295,62 +387,123 @@
             }
         }
 
-        // ฟังก์ชันสำหรับ Export ข้อมูลเป็นไฟล์ CSV (เปิดใช้งานบน Excel ได้ทันที)
-        function exportToExcel() {
-            // 1. ดึงข้อมูลดิบจาก API ของ Google Sheets อีกครั้งผ่าน fetch เพื่อความสดใหม่ของข้อมูล
-            fetch(WEB_APP_URL, {
-                method: "POST",
-                body: JSON.stringify({ action: "fetch" })
-            })
-            .then(res => res.json())
-            .then(response => {
-                if (response.status === "success") {
-                    const logs = response.data;
-                    
-                    if (logs.length === 0) {
-                        alert("No data available to export.");
-                        return;
-                    }
+        // 🌟 กรองช่วงวันที่เพื่อดาวน์โหลดไฟล์ Excel (คอลัมน์สะอาด นำสเตตัสเก่าที่ไม่จำเป็นออก รหัสไม่เพี้ยน)
+        function exportToExcelByDate() {
+            const startInput = document.getElementById('start-date').value; 
+            const endInput = document.getElementById('end-date').value;
 
-                    // 2. ตั้งหัวตาราง (Header) ของไฟล์ Excel
-                    let csvContent = "\uFEFF"; // ใส่ BOM เพื่อบังคับให้ Excel อ่านภาษาไทย/สัญลักษณ์สากลได้ถูกต้อง ไม่เป็นภาษาต่างดาว
-                    csvContent += "ID,Timestamp,Part Type,Status\n";
+            if (!startInput || !endInput) {
+                alert("Please select both start and end dates.");
+                return;
+            }
 
-                    // 3. วนลูปใส่ข้อมูลแต่ละบรรทัด
-                    logs.forEach(item => {
-                        // จัดฟอร์แมตวันที่ให้อ่านง่ายใน Excel
-                        const dateObj = new Date(item.timestamp);
-                        const formattedDate = dateObj.toLocaleDateString('en-GB') + " " + dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-                        
-                        // สร้างแถวข้อมูล (ใช้เครื่องหมายจุลภาค , คั่นระหว่างคอลัมน์)
-                        const row = `"${item.id}","${formattedDate}","${item.partType}","${item.status}"`;
-                        csvContent += row + "\n";
-                    });
+            const [sYear, sMonth, sDay] = startInput.split('-');
+            const sheetMonth = parseInt(sMonth).toString();
+            const sheetDay = parseInt(sDay).toString();
 
-                    // 4. สร้างลิงก์ดาวน์โหลดไฟล์หลอกขึ้นมา เพื่อสั่งให้เบราว์เซอร์เซฟไฟล์ลงเครื่อง
-                    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                    const link = document.createElement("a");
-                    const url = URL.createObjectURL(blob);
-                    
-                    // ตั้งชื่อไฟล์ตามวันเวลาปัจจุบันที่กดโหลด เช่น defect_report_2026-07-11.csv
-                    const currentDate = new Date().toISOString().split('T')[0];
-                    link.setAttribute("href", url);
-                    link.setAttribute("download", `spare_parts_defect_report_${currentDate}.csv`);
-                    link.style.visibility = 'hidden';
-                    
-                    document.body.appendChild(link);
-                    link.click(); // สั่งคลิกดาวน์โหลดอัตโนมัติ
-                    document.body.removeChild(link);
-                } else {
-                    alert("Failed to fetch data for export.");
-                }
-            })
-            .catch(err => {
-                alert("Error exporting data: " + err);
+            const filteredLogs = globalLogs.filter(item => {
+                if (!item.timestamp) return false;
+                const tsStr = item.timestamp.toString().trim();
+
+                const formatStandard = `${sheetMonth}/${sheetDay}/${sYear}`;
+                if (tsStr.includes(formatStandard)) return true;
+
+                const formatReverse = `${sheetDay}/${sheetMonth}/${sYear}`;
+                if (tsStr.includes(formatReverse)) return true;
+
+                if (tsStr.includes(startInput)) return true;
+
+                return false;
             });
+
+            if (filteredLogs.length === 0) {
+                alert(`No records found for date: ${startInput}`);
+                return;
+            }
+
+            // จัดหัวตารางข้อมูลใหม่ให้ตอบโจทย์ และ ล็อกรหัส ID เพื่อไม่ให้เป็นค่าแบบ 1.7838E+12 ใน Excel
+            let csvContent = "\uFEFFRecord ID,Date Time,Part Type,Box ID (Barcode)\n";
+            
+            filteredLogs.forEach(item => {
+                const safeId = `\t${item.id}`; // ใส่ Tab บังคับเป็น Text
+                const safeTimestamp = item.timestamp ? item.timestamp.toString().replace(/"/g, '""') : '';
+                const safePartType = item.partType ? item.partType.toString().replace(/"/g, '""') : '';
+                const safeBoxId = item.boxId ? item.boxId.toString().replace(/"/g, '""') : 'N/A';
+
+                csvContent += `"${safeId}","${safeTimestamp}","${safePartType}","${safeBoxId}"\n`;
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.setAttribute("href", URL.createObjectURL(blob));
+            link.setAttribute("download", `SpareParts_DefectReport_${startInput}.csv`);
+            link.click();
         }
 
-        
+        // 🌟 ฟังก์ชันพิมพ์รายงาน (ดึงข้อมูลช่วงวันที่เลือกเพื่อไปแรนเดอร์รายงานพร้อมภาพส่งพิมพ์ออกเครื่องปริ้น หรือ PDF)
+        function printReport() {
+            const startInput = document.getElementById('start-date').value;
+            const endInput = document.getElementById('end-date').value;
+
+            if (!startInput || !endInput) {
+                alert("Please select date range for print report.");
+                return;
+            }
+
+            const [sYear, sMonth, sDay] = startInput.split('-');
+            const sheetMonth = parseInt(sMonth).toString();
+            const sheetDay = parseInt(sDay).toString();
+
+            // ค้นหารายการตามวันที่เพื่อดึงข้อมูลมาเรียงในกระดาษพิมพ์
+            const printLogs = globalLogs.filter(item => {
+                if (!item.timestamp) return false;
+                const tsStr = item.timestamp.toString().trim();
+
+                const formatStandard = `${sheetMonth}/${sheetDay}/${sYear}`;
+                if (tsStr.includes(formatStandard)) return true;
+
+                const formatReverse = `${sheetDay}/${sheetMonth}/${sYear}`;
+                if (tsStr.includes(formatReverse)) return true;
+
+                if (tsStr.includes(startInput)) return true;
+                return false;
+            });
+
+            // อัปเดตข้อมูลหัวเรื่องก่อนปริ้น
+            document.getElementById('print-date-subtitle').innerText = `Report Period: ${startInput} to ${endInput}`;
+            document.getElementById('current-print-time').innerText = new Date().toLocaleString('th-TH');
+
+            const printTableBody = document.getElementById('print-defect-table-body');
+            printTableBody.innerHTML = "";
+
+            if (printLogs.length === 0) {
+                printTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:gray;">No damaged box records found on selected date.</td></tr>`;
+            } else {
+                printLogs.forEach(item => {
+                    const tr = document.createElement('tr');
+                    const imgTag = item.image ? `<img class="print-img" src="data:image/jpeg;base64,${item.image}" />` : 'No Image';
+                    tr.innerHTML = `
+                        <td>${item.id}</td>
+                        <td>${item.timestamp}</td>
+                        <td><b>${item.partType}</b></td>
+                        <td>${item.boxId || 'N/A'}</td>
+                        <td style="text-align:center;">${imgTag}</td>
+                    `;
+                    printTableBody.appendChild(tr);
+                });
+            }
+
+            // คำนวณตารางสถิติตัวบนใหม่ตามตัวแปรที่กรองมาพิมพ์
+            calculateStatisticsTable(printLogs);
+
+            // เรียกสั่งพิมพ์ของเบราว์เซอร์
+            window.print();
+
+            // หลังพิมพ์เสร็จ ทำการคืนตารางหลักกลับมาแสดงข้อมูลประวัติแถวทั้งหมด
+            setTimeout(() => {
+                calculateStatisticsTable(globalLogs);
+            }, 1000);
+        }
     </script>
 </body>
 </html>
