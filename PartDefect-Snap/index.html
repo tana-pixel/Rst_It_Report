@@ -84,7 +84,7 @@
         .btn-delete { background-color: #ef4444; }
         .btn-delete:hover { background-color: #dc2626; }
 
-        /* 🌟 Skeleton Loading Animation (แอนิเมชันแถบวิ่งตอนดาวน์โหลดข้อมูล) */
+        /* Skeleton Loading Animation */
         .skeleton-row { display: flex; align-items: center; justify-content: space-between; padding: 15px; border-bottom: 1px solid #e2e8f0; }
         .skeleton-thumbnail { width: 65px; height: 50px; background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px; }
         .skeleton-text { width: 120px; height: 15px; background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 4px; }
@@ -104,7 +104,7 @@
         .btn-print { background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); color: white; border: none; border-radius: 10px; padding: 14px; font-size: 0.95rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 10px rgba(99, 102, 241, 0.2); transition: all 0.2s; }
         .btn-print:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(99, 102, 241, 0.3); }
 
-        /* KPI แบบไม่มีพาร์ทที่ไม่ได้ใช้งาน */
+        /* KPI Container */
         .kpi-container { display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 25px; }
         .kpi-box { background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border-top: 4px solid #3b82f6; padding: 22px; border-radius: 12px; text-align: center; box-shadow: inset 0 0 0 1px #e2e8f0; }
         .kpi-title { font-size: 0.85rem; color: #64748b; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; }
@@ -125,7 +125,7 @@
             .main-layout { grid-template-columns: 1fr; }
         }
 
-        /* 🖨️ รูปแบบรายงานสั่งพิมพ์กระดาษ / PDF */
+        /* รูปแบบรายงานสั่งพิมพ์กระดาษ / PDF */
         @media print {
             body { background: white !important; color: #000 !important; padding: 0 !important; }
             h2, .grid-buttons, #webcam, #camera-status, .action-btns, .filter-container, #log-list { display: none !important; }
@@ -259,13 +259,8 @@
             document.getElementById('end-date').value = today;
         };
 
-        // กล้องหลังมือถือเสถียรยิ่งขึ้น
         function initWebcam() {
-            const constraints = {
-                video: { facingMode: { exact: "environment" } }
-            };
-
-            navigator.mediaDevices.getUserMedia(constraints)
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
             .then(stream => {
                 video.srcObject = stream;
                 cameraStatus.innerText = "● Rear Camera Connected (กล้องหลัง)";
@@ -285,7 +280,6 @@
             });
         }
 
-        // ถ่ายภาพพร้อม Toast Notification ปรากฏที่มุมจอโดยไม่ขัดจังหวะการบันทึกข้อมูล
         function captureAndUpload(partName) {
             Swal.fire({
                 title: 'Uploading...',
@@ -311,7 +305,6 @@
             })
             .then(() => {
                 Swal.close();
-                // 🌟 ยกระดับการแจ้งเตือนสำเร็จด้วย Toast Notification แบบ Enterprise
                 const Toast = Swal.mixin({
                     toast: true, position: 'top-end',
                     showConfirmButton: false, timer: 3000,
@@ -325,11 +318,8 @@
             });
         }
 
-        // โหลดข้อมูลล่าสุดพร้อม Skeleton Shimmer Effect
         function fetchLogs() {
             const listDiv = document.getElementById('log-list');
-            
-            // 🌟 ระหว่างรอดึงข้อมูล ให้สร้างตารางแบบวูบวาบ (Skeleton) แทนคำว่า "Loading..." หยาบ ๆ
             listDiv.innerHTML = `
                 <div class="skeleton-row"><div class="skeleton-thumbnail"></div><div class="skeleton-text"></div><div class="skeleton-btns"></div></div>
                 <div class="skeleton-row"><div class="skeleton-thumbnail"></div><div class="skeleton-text"></div><div class="skeleton-btns"></div></div>
@@ -406,30 +396,21 @@
             });
         }
 
-        // เปิดดูรูปขนาดเต็มรูปแบบพรีเมียม
         function viewImage(base64) {
             Swal.fire({
                 imageUrl: `data:image/jpeg;base64,${base64}`,
                 imageAlt: 'Evidence Defect Photo',
                 showConfirmButton: false,
-                showCloseButton: true,
-                customClass: { popup: 'animated fadeInDown' }
+                showCloseButton: true
             });
         }
 
-        // แก้ไขพาร์ทด้วยระบบป๊อปอัป SweetAlert แบบกล่องโมเดลแทน prompt
         function editPart(id, currentPart) {
             Swal.fire({
                 title: 'แก้ไขชนิดพาร์ทสินค้าชำรุด',
                 input: 'select',
-                inputOptions: {
-                    '30P': '30P',
-                    '50P2': '50P2',
-                    '50P3': '50P3',
-                    '60P': '60P'
-                },
+                inputOptions: { '30P': '30P', '50P2': '50P2', '50P3': '50P3', '60P': '60P' },
                 inputValue: currentPart,
-                inputPlaceholder: 'เลือกชนิดพาร์ทใหม่',
                 showCancelButton: true,
                 confirmButtonText: 'บันทึกการแก้ไข',
                 cancelButtonText: 'ยกเลิก',
@@ -437,17 +418,12 @@
                 cancelButtonColor: '#d33'
             }).then((result) => {
                 if (result.isConfirmed && result.value) {
-                    Swal.fire({
-                        title: 'Updating...',
-                        allowOutsideClick: false,
-                        didOpen: () => { Swal.showLoading(); }
-                    });
+                    Swal.fire({ title: 'Updating...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
                     executeAction({ action: "update", id: id, partType: result.value });
                 }
             });
         }
 
-        // ยืนยันการลบข้อมูลประวัติระดับองค์กร เพื่อความโปร่งใส
         function deleteItem(id) {
             Swal.fire({
                 title: 'ยืนยันการลบข้อมูลสถิติ?',
@@ -460,43 +436,60 @@
                 cancelButtonText: 'ยกเลิก'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    Swal.fire({
-                        title: 'Deleting...',
-                        allowOutsideClick: false,
-                        didOpen: () => { Swal.showLoading(); }
-                    });
+                    Swal.fire({ title: 'Deleting...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
                     executeAction({ action: "delete", id: id });
                 }
             });
         }
 
-        // ดึงรายงานออก Excel (.csv) ป้องกันบั๊กภาษาต่างด้าวและไม่มี Box ID เกะกะ
+        // 🌟 ฟังก์ชันหลักในการกรองช่วงวันที่ (Date Range Filter Logic)
+        function getFilteredLogsByRange(startDateInput, endDateInput) {
+            if (!startDateInput || !endDateInput) return [];
+
+            // ตั้งค่าเวลาเริ่มต้นให้เป็น 00:00:00 และ เวลาสิ้นสุดให้เป็น 23:59:59 ของวันนั้นๆ เพื่อคลุมข้อมูลทั้งวัน
+            const startLimit = new Date(startDateInput + 'T00:00:00').getTime();
+            const endLimit = new Date(endDateInput + 'T23:59:59').getTime();
+
+            return globalLogs.filter(item => {
+                if (!item.timestamp) return false;
+                
+                let logTime = null;
+                const tsStr = item.timestamp.toString().trim();
+
+                // เคสที่ 1: ตรวจสอบรูปฟอร์แมต ISO สากล (YYYY-MM-DD)
+                if (tsStr.includes('-')) {
+                    logTime = new Date(tsStr).getTime();
+                } else if (tsStr.includes('/')) {
+                    // เคสที่ 2: ตรวจสอบรูปฟอร์แมต MM/DD/YYYY หรือ DD/MM/YYYY ของ Sheets
+                    const parts = tsStr.split(' ')[0].split('/');
+                    if (parts.length === 3) {
+                        let year = parseInt(parts[2]);
+                        let month = parseInt(parts[0]) - 1;
+                        let day = parseInt(parts[1]);
+
+                        // สลับตำแหน่งกรณี Sheets แสดงผลเป็น วัน/เดือน/ปี
+                        if (parseInt(parts[0]) > 12) {
+                            day = parseInt(parts[0]);
+                            month = parseInt(parts[1]) - 1;
+                        }
+                        logTime = new Date(year, month, day).getTime();
+                    }
+                }
+
+                // คืนค่าข้อมูลที่อยู่ "ระหว่าง" ช่วงเวลาที่เราเลือกเท่านั้น
+                return logTime && logTime >= startLimit && logTime <= endLimit;
+            });
+        }
+
+        // ดาวน์โหลดรายงาน Excel (.csv) ตามช่วงวันที่อย่างถูกต้อง
         function exportToExcelByDate() {
             const startInput = document.getElementById('start-date').value; 
             const endInput = document.getElementById('end-date').value;
 
-            if (!startInput || !endInput) {
-                Swal.fire({ icon: 'warning', title: 'โปรดกรอกช่วงเวลาวันที่ต้องการคัดกรอง' });
-                return;
-            }
-
-            const [sYear, sMonth, sDay] = startInput.split('-');
-            const sheetMonth = parseInt(sMonth).toString();
-            const sheetDay = parseInt(sDay).toString();
-
-            const filteredLogs = globalLogs.filter(item => {
-                if (!item.timestamp) return false;
-                const tsStr = item.timestamp.toString().trim();
-                const formatStandard = `${sheetMonth}/${sheetDay}/${sYear}`;
-                if (tsStr.includes(formatStandard)) return true;
-                const formatReverse = `${sheetDay}/${sheetMonth}/${sYear}`;
-                if (tsStr.includes(formatReverse)) return true;
-                if (tsStr.includes(startInput)) return true;
-                return false;
-            });
+            const filteredLogs = getFilteredLogsByRange(startInput, endInput);
 
             if (filteredLogs.length === 0) {
-                Swal.fire({ icon: 'info', title: 'ไม่พบข้อมูลในช่วงเวลาที่เลือก' });
+                Swal.fire({ icon: 'info', title: 'ไม่พบข้อมูลในช่วงเวลาที่เลือก', text: `ช่วงวันที่ ${startInput} ถึง ${endInput} ยังไม่มีประวัติบันทึก` });
                 return;
             }
 
@@ -511,31 +504,21 @@
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             link.setAttribute("href", URL.createObjectURL(blob));
-            link.setAttribute("download", `SpareParts_DefectReport_${startInput}.csv`);
+            link.setAttribute("download", `SpareParts_Report_${startInput}_to_${endInput}.csv`);
             link.click();
         }
 
-        // สั่งปริ้นใบรายงาน PDF 
+        // จัดพิมพ์รายงาน PDF คัดกรองแบบเลือกช่วงวันที่สมบูรณ์แบบ
         function printReport() {
             const startInput = document.getElementById('start-date').value;
             const endInput = document.getElementById('end-date').value;
+
+            const printLogs = getFilteredLogsByRange(startInput, endInput);
 
             if (!startInput || !endInput) { 
                 Swal.fire({ icon: 'warning', title: 'โปรดเลือกช่วงวันที่ก่อนจัดพิมพ์รายงาน' });
                 return; 
             }
-
-            const [sYear, sMonth, sDay] = startInput.split('-');
-            const sheetMonth = parseInt(sMonth).toString();
-            const sheetDay = parseInt(sDay).toString();
-
-            const printLogs = globalLogs.filter(item => {
-                if (!item.timestamp) return false;
-                const tsStr = item.timestamp.toString().trim();
-                const formatStandard = `${sheetMonth}/${sheetDay}/${sYear}`;
-                const formatReverse = `${sheetDay}/${sheetMonth}/${sYear}`;
-                return tsStr.includes(formatStandard) || tsStr.includes(formatReverse) || tsStr.includes(startInput);
-            });
 
             document.getElementById('print-date-subtitle').innerText = `Report Period: ${startInput} to ${endInput}`;
             document.getElementById('current-print-time').innerText = new Date().toLocaleString('th-TH');
@@ -544,7 +527,8 @@
             printTableBody.innerHTML = "";
 
             if (printLogs.length === 0) {
-                printTableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:gray;">ไม่พบประวัติข้อมูลชำรุดในวันนี้สำหรับการพิมพ์</td></tr>`;
+                Swal.fire({ icon: 'info', title: 'ไม่พบประวัติข้อมูลชำรุดในช่วงวันที่เลือก' });
+                return;
             } else {
                 printLogs.forEach(item => {
                     const tr = document.createElement('tr');
@@ -559,9 +543,11 @@
                 });
             }
 
+            // แสดงเฉพาะรายการที่ฟิลเตอร์ในตารางสรุปตอนจะพิมพ์ออกทางกระดาษ
             calculateStatisticsTable(printLogs);
             window.print();
 
+            // คืนค่าแดชบอร์ดหน้าเว็บหลักให้เป็นประวัติข้อมูลหลักทั้งหมดหลังจากปิดหน้าต่างพิมพ์รายงาน
             setTimeout(() => {
                 calculateStatisticsTable(globalLogs);
             }, 1000);
