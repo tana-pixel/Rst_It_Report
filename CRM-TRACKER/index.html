@@ -32,24 +32,28 @@
         .right-panel { flex: 1.2; display: flex; flex-direction: column; overflow-y: auto; background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); padding: 20px; min-width: 380px; }
 
         .card { background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); padding: 20px; margin-bottom: 20px; }
-        .card-title { font-size: 16px; font-weight: 600; margin-bottom: 15px; color: #0f172a; display: flex; align-items: center; gap: 8px; }
+        .card-title { font-size: 16px; font-weight: 600; margin-bottom: 15px; color: #0f172a; display: flex; align-items: center; justify-content: space-between; }
 
         .search-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
         .form-group { display: flex; flex-direction: column; gap: 4px; }
         .form-group label { font-size: 13px; font-weight: 500; color: #475569; }
         .form-control { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 14px; width: 100%; outline: none; background: #fff; }
         .form-control:focus { border-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(2,132,199,0.1); }
+        .form-control:disabled { background-color: #f1f5f9; cursor: not-allowed; }
         
         .search-actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 10px; margin-top: 5px; }
         
         .btn { padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; }
+        .btn:disabled { opacity: 0.7; cursor: not-allowed; }
         .btn-primary { background: #10b981; color: white; }
-        .btn-primary:hover { background: #059669; }
+        .btn-primary:hover:not(:disabled) { background: #059669; }
         .btn-secondary { background: #e2e8f0; color: #475569; }
-        .btn-secondary:hover { background: #cbd5e1; }
+        .btn-secondary:hover:not(:disabled) { background: #cbd5e1; }
         .btn-accent { background: var(--accent-color); color: white; }
-        .btn-accent:hover { background: #ea580c; }
+        .btn-accent:hover:not(:disabled) { background: #ea580c; }
         .btn-warning { background: #eab308; color: #fff; padding: 4px 10px; font-size: 12px; }
+        .btn-danger { background: #ef4444; color: #fff; padding: 4px 10px; font-size: 12px; }
+        .btn-danger:hover { background: #dc2626; }
         .btn-print { background: #0284c7; color: white; }
         .btn-print:hover { background: #0369a1; }
 
@@ -61,6 +65,8 @@
         td { padding: 10px 12px; border-bottom: 1px solid #edf2f7; vertical-align: middle; }
         tr:hover { background-color: #f8fafc; }
 
+        .pagination-container { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid #e2e8f0; }
+
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .full-width { grid-column: 1 / -1; }
         .form-panel-title { font-size: 18px; font-weight: 600; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #f1f5f9; color: #0f172a; }
@@ -71,9 +77,35 @@
         .badge-book { background: #dcfce7; color: #15803d; }
         .badge-track { background: #f3e8ff; color: #6b21a8; }
 
+        /* Dashboard Styles */
+        .dash-card { 
+            background: #ffffff; 
+            border: 1px solid #e2e8f0; 
+            border-radius: 10px; 
+            padding: 14px; 
+            margin-bottom: 20px; 
+            max-height: 280px; 
+            flex-shrink: 0;
+            overflow-y: auto; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02); 
+        }
+        .dash-card::-webkit-scrollbar { width: 4px; }
+        .dash-card::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
+        .dash-title { font-size: 14px; font-weight: 600; color: #0f172a; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
+        .dash-list { list-style: none; font-size: 12px; color: #334155; }
+        .dash-item { display: flex; justify-content: space-between; padding: 6px 8px; margin-bottom: 4px; background: #f8fafc; border-radius: 6px; border: 1px solid #f1f5f9; transition: all 0.2s; }
+        .dash-item:hover { background: #f1f5f9; }
+        .dash-item:last-child { margin-bottom: 0; }
+        .dash-count { font-weight: 600; color: var(--primary-color); background: #e0f2fe; padding: 1px 8px; border-radius: 10px; font-size: 11px; }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         @media print {
             body { background: white; color: black; padding: 0; height: auto; overflow: visible; }
-            .header, .card, .right-panel, .btn-warning, .search-actions { display: none !important; }
+            .header, .card, .right-panel, .btn-warning, .btn-danger, .search-actions, .download-banner, .pagination-container { display: none !important; }
             .main-layout { display: block; overflow: visible; }
             .left-panel { width: 100%; display: block; overflow: visible; }
             .table-container { box-shadow: none; padding: 0; overflow: visible; }
@@ -86,20 +118,12 @@
     </style>
 </head>
 
- <div style="margin: 15px 0;">
-  <a href="https://docs.google.com/spreadsheets/d/1x5BOC2WVysEGB7HN2E5KIxH2c_tyi5PTezo1RtgSwhU/export?format=xlsx" 
-     style="display: inline-flex; align-items: center; gap: 8px; background-color: #107c41; color: white; padding: 12px 20px; text-decoration: none; border-radius: 8px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: all 0.2s;"
-     download="Pretrack_database.xlsx">
-     📊 ดาวน์โหลดฐานข้อมูลทั้งหมด (Pretrack database.xlsx)
-  </a>
-</div>
-
 <body>
 
     <div class="header">
         <h1>CRM-TRACKER ระบบจัดการข้อมูลลูกค้า</h1>
         <div class="stats-container">
-            <div class="stat-item">ฐานข้อมูลทั้งหมด: <span id="stat-total">452,890</span> รายชื่อ</div>
+            <div class="stat-item">ฐานข้อมูลทั้งหมด: <span id="stat-total">0</span> รายชื่อ</div>
             <div class="stat-item">ดึงผลลัพธ์มาได้: <span id="stat-display">0</span> รายชื่อ</div>
         </div>
     </div>
@@ -112,11 +136,11 @@
                 <div class="search-grid">
                     <div class="form-group" style="grid-column: span 2;">
                         <label>พิมพ์คำค้นหาหลัก (ชื่อ / สกุล / เบอร์โทร)</label>
-                        <input type="text" id="filter-keyword" class="form-control" placeholder="พิมพ์แล้วกดปุ่มค้นหาด่วนได้เลย" onkeypress="handleSearchKeyPress(event)">
+                        <input type="text" id="filter-keyword" class="form-control" placeholder="พิมพ์แล้วกด Enter หรือกดปุ่มค้นหา" onkeypress="handleSearchKeyPress(event)">
                     </div>
                     <div class="form-group">
                         <label>ประเภทลูกค้า (Type)</label>
-                        <select id="filter-type" class="form-control" onchange="localFilterData()">
+                        <select id="filter-type" class="form-control" onchange="fetchDataFromServer(1)">
                             <option value="ALL">-- ทั้งหมด --</option>
                             <option value="ลงทะเบียน">ลงทะเบียน</option>
                             <option value="เป้าหมาย">เป้าหมาย</option>
@@ -126,38 +150,50 @@
                     </div>
                     <div class="form-group">
                         <label style="color: var(--accent-color); font-weight: 500;">วันจองนัดหมาย</label>
-                        <input type="date" id="filter-appdate" class="form-control" onchange="localFilterData()">
+                        <input type="date" id="filter-appdate" class="form-control" onchange="fetchDataFromServer(1)">
                     </div>
                     <div class="form-group">
                         <label>สินค้าที่สนใจ</label>
-                        <select id="filter-product" class="form-control" onchange="localFilterData()">
+                        <select id="filter-product" class="form-control" onchange="fetchDataFromServer(1)">
                             <option value="ALL">-- ทุกสินค้า --</option>
+                            <option value="รถแทรกเตอร์">รถแทรกเตอร์</option>
+                            <option value="รถเกี่ยวข้าว">รถเกี่ยวข้าว</option>
+                            <option value="เครื่องอัดฟาง">เครื่องอัดฟาง</option>
+                            <option value="Drone">Drone</option>
+                            <option value="รถขุด">รถขุด</option>
+                            <option value="รถแทรกเตอร์ มือ 2">รถแทรกเตอร์ มือ 2</option>
+                            <option value="รถเกี่ยวข้าว มือ 2">รถเกี่ยวข้าว มือ 2</option>
+                            <option value="เครื่องอัดฟาง มือ 2">เครื่องอัดฟาง มือ 2</option>
+                            <option value="รถขุด มือ 2">รถขุด มือ 2</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label>ตำบล</label>
-                        <input type="text" id="filter-subdistrict" class="form-control" placeholder="ตำบล" oninput="localFilterData()" onkeypress="handleSearchKeyPress(event)">
+                        <input type="text" id="filter-subdistrict" class="form-control" placeholder="ตำบล" onkeypress="handleSearchKeyPress(event)">
                     </div>
                     <div class="form-group">
                         <label>อำเภอ</label>
-                        <input type="text" id="filter-district" class="form-control" placeholder="อำเภอ" oninput="localFilterData()" onkeypress="handleSearchKeyPress(event)">
+                        <input type="text" id="filter-district" class="form-control" placeholder="อำเภอ" onkeypress="handleSearchKeyPress(event)">
                     </div>
                     
                     <div class="form-group" style="grid-column: span 2;">
                         <label style="color: var(--primary-color); font-weight: 500;">🔎 ค้นหาจากหมายเหตุ</label>
-                        <input type="text" id="filter-note" class="form-control" placeholder="พิมพ์คำในหมายเหตุเพื่อกรองข้อมูลด่วน..." oninput="localFilterData()" onkeypress="handleSearchKeyPress(event)">
+                        <input type="text" id="filter-note" class="form-control" placeholder="พิมพ์คำในหมายเหตุ..." onkeypress="handleSearchKeyPress(event)">
                     </div>
                     
                     <div class="search-actions">
                         <button class="btn btn-print" onclick="window.print()">🖨️ พิมพ์รายงานด่วน</button>
                         <button class="btn btn-secondary" onclick="clearFilters()">🔄 ล้างเงื่อนไข</button>
-                        <button class="btn btn-primary" onclick="fetchDataFromServer()">🚀 ค้นหา</button>
+                        <button class="btn btn-primary" onclick="fetchDataFromServer(1)">🚀 ค้นหา</button>
                     </div>
                 </div>
             </div>
 
             <div class="table-container">
-                <div class="card-title">📊 รายการข้อมูลผลลัพธ์ล่าสุดจากระบบ</div>
+                <div class="card-title">
+                    <span>📊 รายการข้อมูลผลลัพธ์ล่าสุดจากระบบ</span>
+                    <span style="font-size: 13px; font-weight: normal; color: #64748b;" id="page-info">หน้า 1</span>
+                </div>
                 <div class="table-responsive">
                     <table id="main-table">
                         <thead>
@@ -181,14 +217,36 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr><td colspan="16" style="text-align: center; padding: 30px; color: #64748b;">🔄 กำลังโหลดข้อมูลเริ่มต้นจากเซิร์ฟเวอร์...</td></tr>
+                            <tr><td colspan="16" style="text-align: center; padding: 30px; color: #64748b;">🔄 กำลังดึงข้อมูลจากระบบ...</td></tr>
                         </tbody>
                     </table>
+                </div>
+
+                <div class="pagination-container">
+                    <span style="font-size: 13px; color: #64748b;">แสดงผลทีละ 50 รายการ</span>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-secondary" id="btn-prev-page" onclick="changePage(-1)" disabled>◀ ย้อนกลับ</button>
+                        <button class="btn btn-secondary" id="btn-next-page" onclick="changePage(1)" disabled>ถัดไป ▶</button>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="right-panel">
+            <div class="dash-card">
+                <div class="dash-title">
+                    <span>📊 สรุปภาพรวมลูกค้า</span>
+                    <button class="btn btn-secondary" style="padding: 2px 6px; font-size: 11px;" onclick="loadDashboardData()">🔄 รีเฟรช</button>
+                </div>
+                <div class="dash-list" id="dash-type-list">
+                    <div style="text-align:center; color:#94a3b8; padding:5px;">กำลังโหลดสรุปประเภท...</div>
+                </div>
+                <div class="dash-title" style="margin-top: 10px; font-size: 13px;">🏆 Top 5 สินค้ายอดนิยม</div>
+                <div class="dash-list" id="dash-prod-list">
+                    <div style="text-align:center; color:#94a3b8; padding:5px;">กำลังโหลดสรุปสินค้า...</div>
+                </div>
+            </div>
+
             <div class="form-panel-title" id="form-title">➕ เพิ่มข้อมูลลูกค้าใหม่</div>
             <form id="customer-form">
                 <input type="hidden" id="form-row-index" value="">
@@ -211,22 +269,31 @@
                         <input type="text" id="cust-lname" class="form-control" required placeholder="นามสกุล">
                     </div>
                     <div class="form-group full-width">
-                        <label>เบอร์โทรศัพท์ (Phone1)</label>
-                        <input type="tel" id="cust-phone" class="form-control" placeholder="0xxxxxxxxx">
+                        <label>เบอร์โทรศัพท์ (Phone) <span id="phone-check-msg" style="font-size:11px; font-weight:normal;"></span></label>
+                        <input type="tel" id="cust-phone" class="form-control" placeholder="0xxxxxxxxx" required onblur="checkDuplicatePhone()">
                     </div>
                     <div class="form-group">
                         <label>ประเภท (Type)</label>
                         <select id="cust-type" class="form-control">
-                            <option>ลงทะเบียน</option>
-                            <option>เป้าหมาย</option>
-                            <option>จอง</option>
-                            <option>ติดตาม</option>
+                            <option value="ลงทะเบียน">ลงทะเบียน</option>
+                            <option value="เป้าหมาย">เป้าหมาย</option>
+                            <option value="จอง">จอง</option>
+                            <option value="ติดตาม">ติดตาม</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label>สินค้าที่สนใจ (Product)</label>
                         <select id="cust-product" class="form-control">
                             <option value="">-- เลือกสินค้า --</option>
+                            <option value="รถแทรกเตอร์">รถแทรกเตอร์</option>
+                            <option value="รถเกี่ยวข้าว">รถเกี่ยวข้าว</option>
+                            <option value="เครื่องอัดฟาง">เครื่องอัดฟาง</option>
+                            <option value="Drone">Drone</option>
+                            <option value="รถขุด">รถขุด</option>
+                            <option value="รถแทรกเตอร์ มือ 2">รถแทรกเตอร์ มือ 2</option>
+                            <option value="รถเกี่ยวข้าว มือ 2">รถเกี่ยวข้าว มือ 2</option>
+                            <option value="เครื่องอัดฟาง มือ 2">เครื่องอัดฟาง มือ 2</option>
+                            <option value="รถขุด มือ 2">รถขุด มือ 2</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -281,14 +348,18 @@
     </div>
 
     <script> 
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyTMBCUK66kmgoRzIZ7hPq4joTQgAEpkLNNzcJpZ5boPPhUnGvcRR0C6qTT00U8YLXw/exec';
-        let masterDataList = [];
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxlu6k0WCl2StzyYqFm_SJqdhgEXp3EKuGI56nuQu27GvN-dwn13lOrbSwAVYfC6TSQ/exec';
+        
+        let currentPage = 1;
+        const pageSize = 50;
+        let totalRecords = 0;
 
         document.addEventListener('DOMContentLoaded', () => {
             try {
                 setDefaultDate();
                 loadInitialMeta();
-                fetchDataFromServer();
+                loadDashboardData();
+                fetchDataFromServer(1);
                 document.getElementById('customer-form').addEventListener('submit', onFormSubmit);
             } catch(e) {
                 console.error("Init Error: ", e);
@@ -303,34 +374,80 @@
         }
 
         function loadInitialMeta() {
-            fetch(`${WEB_APP_URL}?action=getInitialData`)
+            fetch(`${WEB_APP_URL}?action=getInitialData`, { method: 'GET', redirect: 'follow' })
                 .then(res => res.json())
                 .then(data => {
                     if(data && data.totalCount) document.getElementById('stat-total').innerText = data.totalCount.toLocaleString();
-                    if(data && data.goods) setupProductDropdowns(data.goods);
                 }).catch(err => console.log('Meta error:', err));
         }
 
-        function setupProductDropdowns(goods) {
-            try {
-                const filterProd = document.getElementById('filter-product');
-                const custProd = document.getElementById('cust-product');
-                if(!filterProd || !custProd) return;
-                
-                filterProd.innerHTML = '<option value="ALL">-- ทุกสินค้า --</option>';
-                custProd.innerHTML = '<option value="">-- เลือกสินค้า --</option>';
-                
-                goods.forEach(item => {
-                    if(!item || !item[0] || item[0] === 'ProductName' || item[0] === 'ชื่อสินค้า') return;
-                    filterProd.innerHTML += `<option value="${item[0]}">${item[0]}</option>`;
-                    custProd.innerHTML += `<option value="${item[0]}">${item[0]}</option>`;
-                });
-            } catch(e) {}
+        function loadDashboardData() {
+            fetch(`${WEB_APP_URL}?action=getDashboardSummary`, { method: 'GET', redirect: 'follow' })
+                .then(res => res.json())
+                .then(resData => {
+                    if(resData && resData.success) {
+                        const typeList = document.getElementById('dash-type-list');
+                        if (resData.typeSummary && resData.typeSummary.length > 0) {
+                            typeList.innerHTML = resData.typeSummary.map(item => 
+                                `<div class="dash-item">
+                                    <span>${item.type}</span>
+                                    <span class="dash-count">${item.count.toLocaleString()} ราย</span>
+                                </div>`
+                            ).join('');
+                        } else {
+                            typeList.innerHTML = '<div style="text-align:center; color:#94a3b8; padding:5px;">ไม่มีข้อมูล</div>';
+                        }
+
+                        const prodList = document.getElementById('dash-prod-list');
+                        if (resData.topProducts && resData.topProducts.length > 0) {
+                            prodList.innerHTML = resData.topProducts.map(item => 
+                                `<div class="dash-item">
+                                    <span>${item.product}</span>
+                                    <span class="dash-count">${item.count.toLocaleString()} ราย</span>
+                                </div>`
+                            ).join('');
+                        } else {
+                            prodList.innerHTML = '<div style="text-align:center; color:#94a3b8; padding:5px;">ไม่มีข้อมูล</div>';
+                        }
+                    }
+                }).catch(err => console.log('Dashboard error:', err));
+        }
+
+        function checkDuplicatePhone() {
+            const phoneInput = document.getElementById('cust-phone');
+            const msgSpan = document.getElementById('phone-check-msg');
+            const phoneVal = phoneInput.value.trim();
+            const editRowIndex = document.getElementById('form-row-index').value;
+
+            if (editRowIndex || phoneVal.length < 9) {
+                if (msgSpan) msgSpan.innerHTML = '';
+                return;
+            }
+
+            if (msgSpan) msgSpan.innerHTML = '⚡ กำลังเช็กเบอร์ซ้ำ...';
+
+            fetch(WEB_APP_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ action: 'checkDuplicatePhone', payload: { phone: phoneVal } }),
+                redirect: 'follow'
+            })
+            .then(res => res.json())
+            .then(resData => {
+                if (resData && resData.success && resData.isDuplicate) {
+                    if (msgSpan) msgSpan.innerHTML = `<b style="color:#ef4444;">⚠️ มีในระบบแล้ว (${resData.customerName})</b>`;
+                    alert(`⚠️ เบอร์โทรศัพท์นี้ (${phoneVal}) มีในระบบแล้ว!\nเป็นของลูกค้า: ${resData.customerName}`);
+                } else {
+                    if (msgSpan) msgSpan.innerHTML = '<b style="color:#10b981;">✓ เบอร์นี้ใช้งานได้</b>';
+                }
+            }).catch(err => {
+                if (msgSpan) msgSpan.innerHTML = '';
+            });
         }
 
         function handleSearchKeyPress(e) {
             if(e.key === 'Enter') {
-                fetchDataFromServer();
+                fetchDataFromServer(1);
             }
         }
 
@@ -343,31 +460,57 @@
                 document.getElementById('filter-subdistrict').value = '';
                 document.getElementById('filter-district').value = '';
                 document.getElementById('filter-note').value = ''; 
-                fetchDataFromServer();
+                fetchDataFromServer(1);
             } catch(e) {}
         }
 
-        function fetchDataFromServer() {
+        function changePage(direction) {
+            const totalPages = Math.ceil(totalRecords / pageSize) || 1;
+            const newPage = currentPage + direction;
+            if(newPage >= 1 && newPage <= totalPages) {
+                fetchDataFromServer(newPage);
+            }
+        }
+
+        function fetchDataFromServer(page = 1) {
             try {
-                const kw = document.getElementById('filter-keyword').value.trim();
+                currentPage = page;
                 const tbody = document.querySelector('#main-table tbody');
-                if(tbody) tbody.innerHTML = '<tr><td colspan="16" style="text-align: center; padding: 20px;">⚡ กำลังดึงข้อมูลล่าสุดจาก Google Sheets...</td></tr>';
+                if(tbody) tbody.innerHTML = '<tr><td colspan="16" style="text-align: center; padding: 20px;">⚡ กำลังค้นหาข้อมูลจากระบบ BigQuery...</td></tr>';
+
+                const searchParams = {
+                    action: 'search',
+                    page: currentPage,
+                    pageSize: pageSize,
+                    filters: {
+                        keyword: document.getElementById('filter-keyword').value.trim(),
+                        type: document.getElementById('filter-type').value,
+                        appdate: document.getElementById('filter-appdate').value,
+                        product: document.getElementById('filter-product').value,
+                        subdistrict: document.getElementById('filter-subdistrict').value.trim(),
+                        district: document.getElementById('filter-district').value.trim(),
+                        note: document.getElementById('filter-note').value.trim()
+                    }
+                };
 
                 fetch(WEB_APP_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: 'searchCustomers', keyword: kw })
+                    body: JSON.stringify(searchParams),
+                    redirect: 'follow'
                 })
                 .then(res => res.json())
                 .then(resData => {
                     if(resData && resData.success) {
-                        masterDataList = resData.data || [];
-                        localFilterData();
+                        totalRecords = resData.totalCount || (resData.data ? resData.data.length : 0);
+                        document.getElementById('stat-display').innerText = totalRecords.toLocaleString();
+                        renderTableRows(resData.data || []);
+                        updatePaginationControls();
                     } else {
-                        if(tbody) tbody.innerHTML = `<tr><td colspan="16" style="text-align: center; color: red;">❌ ค้นหาขัดข้อง: ${resData? resData.message : 'ไม่ทราบสาเหตุ'}</td></tr>`;
+                        if(tbody) tbody.innerHTML = `<tr><td colspan="16" style="text-align: center; color: red;">❌ ค้นหาขัดข้อง: ${resData ? resData.message : 'ไม่ทราบสาเหตุ'}</td></tr>`;
                     }
                 }).catch(err => {
-                    if(tbody) tbody.innerHTML = '<tr><td colspan="16" style="text-align: center; color: red;">🛑 การเชื่อมต่อกับเซิร์ฟเวอร์ชีตล้มเหลว</td></tr>';
+                    if(tbody) tbody.innerHTML = '<tr><td colspan="16" style="text-align: center; color: red;">🛑 การเชื่อมต่อกับเซิร์ฟเวอร์ล้มเหลว</td></tr>';
                 });
             } catch(e) {
                 console.error(e);
@@ -420,55 +563,19 @@
             return dStr;
         }
 
-        function localFilterData() {
-            try {
-                const sType = document.getElementById('filter-type').value;
-                const sAppDate = document.getElementById('filter-appdate').value; 
-                const sProd = document.getElementById('filter-product').value;
-                const sSub = document.getElementById('filter-subdistrict').value.trim().toLowerCase();
-                const sDist = document.getElementById('filter-district').value.trim().toLowerCase();
-                const sNote = document.getElementById('filter-note').value.trim().toLowerCase(); 
-
-                let matches = masterDataList.filter(item => {
-                    if(!item) return false;
-                    if(sType !== 'ALL' && (item.type || '').toString() !== sType) return false;
-                    
-                    if(sAppDate !== '') {
-                        let cleanItemDate = parseDateString(item.appdate || '');
-                        if(cleanItemDate !== sAppDate) return false;
-                    }
-
-                    if(sProd !== 'ALL' && (item.product || '').toString() !== sProd) return false;
-                    if(sSub !== '' && !(item.subdistrict || '').toString().toLowerCase().includes(sSub)) return false;
-                    if(sDist !== '' && !(item.district || '').toString().toLowerCase().includes(sDist)) return false;
-                    if(sNote !== '' && !(item.note || '').toString().toLowerCase().includes(sNote)) return false;
-                    
-                    return true;
-                });
-
-                document.getElementById('stat-display').innerText = matches.length.toLocaleString();
-                renderTableRows(matches);
-            } catch(e) {
-                console.error("Filter Error: ", e);
-            }
-        }
-
-        // 🎯 ฟังก์ชันที่ปรับแต่งการสร้างแถวข้อมูลใหม่แบบ High-Performance บัฟเฟอร์ความเร็วสูง
         function renderTableRows(data) {
             const tbody = document.querySelector('#main-table tbody');
             if(!tbody) return;
             tbody.innerHTML = '';
 
             if(!data || data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="16" style="text-align: center; padding: 20px; color: #94a3b8;">❌ ไม่พบข้อมูลรายชื่อลูกค้าที่ตรงเงื่อนไขในกลุ่มล่าสุดนี้</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="16" style="text-align: center; padding: 20px; color: #94a3b8;">❌ ไม่พบข้อมูลรายชื่อลูกค้าที่ตรงเงื่อนไข</td></tr>';
                 return;
             }
 
-            // 🔓 เปิดล็อกการโชว์ผลลัพธ์สุทธิให้เต็มโควตาตามเป้าหมายสูงสุด 10,000 คน
-            const maxLimit = Math.min(data.length, 10000);
             let htmlArr = [];
             
-            for (let i = 0; i < maxLimit; i++) {
+            for (let i = 0; i < data.length; i++) {
                 let row = data[i];
                 if(!row) continue;
                 
@@ -478,14 +585,21 @@
                 if(row.type === 'ติดตาม') badgeClass = 'badge-track';
 
                 let displayDate = row.date || '-';
-                let displayAppDate = row.appdate || '-';
+                let displayAppDate = row.appdate || row.booking_date || '-';
+                let fullName = row.name || ((row.firstname || '') + ' ' + (row.lastname || '')).trim() || '-';
+                let phoneNum = row.phone || row.phone1 || '-';
+                let remarkText = row.note || row.remark || '-';
+                let rowIndexId = row.sheetRowIndex || row.id || phoneNum;
 
                 htmlArr.push(`<tr>
-                    <td><button class="btn btn-warning" onclick="loadSingleRowForEdit(${row.sheetRowIndex})">✏️ แก้ไข</button></td>
+                    <td>
+                        <button class="btn btn-warning" onclick="loadSingleRowForEdit('${rowIndexId}')">✏️ แก้ไข</button>
+                        <button class="btn btn-danger" onclick="deleteCustomerRow('${rowIndexId}')">🗑️ ลบ</button>
+                    </td>
                     <td>${displayDate}</td>
                     <td style="color: var(--accent-color); font-weight: 600;">${displayAppDate}</td>
-                    <td><b>${row.name || '-'}</b></td>
-                    <td>${row.phone || '-'}</td>
+                    <td><b>${fullName}</b></td>
+                    <td>${phoneNum}</td>
                     <td><span class="badge ${badgeClass}">${row.type || 'ลงทะเบียน'}</span></td>
                     <td>${row.product || '-'}</td>
                     <td>${row.addressno || '-'}</td>
@@ -496,12 +610,18 @@
                     <td>${row.province || '-'}</td>
                     <td>${row.line || '-'}</td>
                     <td>${row.facebook || '-'}</td>
-                    <td>${row.note || '-'}</td>
+                    <td>${remarkText}</td>
                 </tr>`);
             }
             
-            // ใช้เทคนิค ดันก้อนโค้ดสตริงลงหน้าเว็บทีเดียวเพื่อป้องกันปัญหาเบราว์เซอร์กระตุกค้าง
             tbody.innerHTML = htmlArr.join('');
+        }
+
+        function updatePaginationControls() {
+            const totalPages = Math.ceil(totalRecords / pageSize) || 1;
+            document.getElementById('page-info').innerText = `หน้า ${currentPage} จาก ${totalPages}`;
+            document.getElementById('btn-prev-page').disabled = (currentPage <= 1);
+            document.getElementById('btn-next-page').disabled = (currentPage >= totalPages);
         }
 
         function loadSingleRowForEdit(rid) {
@@ -512,49 +632,95 @@
             fetch(WEB_APP_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({ action: 'getCustomerByRow', rowIndex: rid })
+                body: JSON.stringify({ action: 'getByPhone', payload: { phoneKey: rid } }),
+                redirect: 'follow'
             })
             .then(res => res.json())
             .then(resData => {
-                if(resData && resData.success && Array.isArray(resData.data)) {
+                if(resData && resData.success && resData.data) {
                     const d = resData.data;
                     
-                    document.getElementById('cust-date').value = parseDateString(d[0]);
-                    document.getElementById('cust-fname').value = d[1] || '';
-                    document.getElementById('cust-lname').value = d[2] || '';
-                    
-                    let p = (d[3] || '').toString().trim();
-                    if(p && !p.startsWith('0') && p !== '-') p = '0' + p;
-                    document.getElementById('cust-phone').value = p;
-                    
-                    document.getElementById('cust-appdate').value = parseDateString(d[4]);
-                    document.getElementById('cust-type').value = d[5] || 'ลงทะเบียน';
-                    document.getElementById('cust-product').value = d[6] || '';
-                    document.getElementById('cust-addressno').value = d[7] || '';
-                    document.getElementById('cust-moo').value = d[8] || '';
-                    document.getElementById('cust-village').value = d[9] || '';
-                    document.getElementById('cust-subdistrict').value = d[10] || '';
-                    document.getElementById('cust-district').value = d[11] || '';
-                    document.getElementById('cust-province').value = d[12] || 'อุบลฯ';
-                    document.getElementById('cust-zipcode').value = d[13] || '';
-                    document.getElementById('cust-note').value = d[14] || '';
-                    document.getElementById('cust-line').value = d[15] || '';
-                    document.getElementById('cust-facebook').value = d[16] || '';
+                    document.getElementById('cust-date').value = parseDateString(d.date);
+                    document.getElementById('cust-fname').value = d.firstname || '';
+                    document.getElementById('cust-lname').value = d.lastname || '';
+                    document.getElementById('cust-phone').value = d.phone1 || d.phone || '';
+                    document.getElementById('cust-appdate').value = parseDateString(d.booking_date || d.appdate);
+                    document.getElementById('cust-type').value = d.type || 'ลงทะเบียน';
+                    document.getElementById('cust-product').value = d.product || '';
+                    document.getElementById('cust-addressno').value = d.addressno || '';
+                    document.getElementById('cust-moo').value = d.moo || '';
+                    document.getElementById('cust-village').value = d.village || '';
+                    document.getElementById('cust-subdistrict').value = d.subdistrict || '';
+                    document.getElementById('cust-district').value = d.district || '';
+                    document.getElementById('cust-province').value = d.province || 'อุบลฯ';
+                    document.getElementById('cust-zipcode').value = d.zipcode || '';
+                    document.getElementById('cust-note').value = d.remark || d.note || '';
+                    document.getElementById('cust-line').value = d.line || '';
+                    document.getElementById('cust-facebook').value = d.facebook || '';
 
-                    document.getElementById('form-title').innerText = `📝 แก้ไขข้อมูลลูกค้า (แถวที่ ${rid})`;
+                    document.getElementById('phone-check-msg').innerHTML = '';
+                    document.getElementById('form-title').innerText = `📝 แก้ไขข้อมูลลูกค้า (${rid})`;
                     document.getElementById('btn-submit').innerText = '💾 อัปเดตข้อมูล';
                 }
             }).catch(err => console.log(err));
+        }
+
+        function deleteCustomerRow(rid) {
+            if(!rid || !confirm('คุณต้องการลบข้อมูลลูกค้ารายนี้ใช่หรือไม่?')) return;
+
+            fetch(WEB_APP_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ action: 'delete', payload: { phoneKey: rid } }),
+                redirect: 'follow'
+            })
+            .then(res => res.json())
+            .then(resData => {
+                if(resData && resData.success) {
+                    alert('🗑️ ลบข้อมูลลูกค้าสำเร็จเรียบร้อย!');
+                    fetchDataFromServer(currentPage);
+                    loadDashboardData();
+                    loadInitialMeta();
+                } else {
+                    alert('❌ ไม่สามารถลบข้อมูลได้: ' + (resData.message || 'เกิดข้อผิดพลาด'));
+                }
+            }).catch(err => alert('🛑 เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์'));
         }
 
         function resetFormState() {
             try {
                 document.getElementById('customer-form').reset();
                 document.getElementById('form-row-index').value = '';
+                document.getElementById('phone-check-msg').innerHTML = '';
                 document.getElementById('form-title').innerText = '➕ เพิ่มข้อมูลลูกค้าใหม่';
                 document.getElementById('btn-submit').innerText = '💾 บันทึกข้อมูล';
                 setDefaultDate();
             } catch(e) {}
+        }
+
+        function showLoadingAlert(msg) {
+            let overlay = document.getElementById('custom-loading-overlay');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.id = 'custom-loading-overlay';
+                overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;display:flex;justify-content:center;align-items:center;color:#fff;font-family:sans-serif;backdrop-filter: blur(2px);';
+                overlay.innerHTML = `
+                <div style="background:#ffffff;padding:30px 40px;border-radius:12px;text-align:center;box-shadow:0 10px 25px rgba(0,0,0,0.2);border:1px solid #e2e8f0;">
+                    <div style="width: 40px; height: 40px; border: 4px solid #e2e8f0; border-top: 4px solid #0284c7; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 15px auto;"></div>
+                    <div id="loading-msg" style="font-size:16px;font-weight:600;color:#1e293b;">${msg}</div>
+                    <div style="font-size:13px;color:#64748b;margin-top:8px;">กรุณารอสักครู่...</div>
+                </div>
+                `;
+                document.body.appendChild(overlay);
+            } else {
+                document.getElementById('loading-msg').innerText = msg;
+                overlay.style.display = 'flex';
+            }
+        }
+
+        function hideLoadingAlert() {
+            const overlay = document.getElementById('custom-loading-overlay');
+            if (overlay) overlay.style.display = 'none';
         }
 
         function onFormSubmit(e) {
@@ -563,9 +729,10 @@
                 const rid = document.getElementById('form-row-index').value;
                 const packData = {
                     date: document.getElementById('cust-date').value,
-                    firstName: document.getElementById('cust-fname').value,
-                    lastName: document.getElementById('cust-lname').value,
+                    firstname: document.getElementById('cust-fname').value,
+                    lastname: document.getElementById('cust-lname').value,
                     phone1: document.getElementById('cust-phone').value,
+                    phone: document.getElementById('cust-phone').value,
                     appdate: document.getElementById('cust-appdate').value,
                     type: document.getElementById('cust-type').value,
                     product: document.getElementById('cust-product').value,
@@ -576,35 +743,48 @@
                     district: document.getElementById('cust-district').value,
                     province: document.getElementById('cust-province').value,
                     zipcode: document.getElementById('cust-zipcode').value,
+                    remark: document.getElementById('cust-note').value,
                     note: document.getElementById('cust-note').value,
                     line: document.getElementById('cust-line').value,
                     facebook: document.getElementById('cust-facebook').value
                 };
 
-                const actionType = rid ? 'editCustomer' : 'addCustomer';
+                const actionType = rid ? 'update' : 'add';
+                const payloadReq = rid ? { rowIndex: rid, cust: packData } : packData;
                 const alertMsg = rid ? '✏️ อัปเดตข้อมูลลูกค้าสำเร็จเรียบร้อย!' : '➕ บันทึกข้อมูลลูกค้าใหม่สำเร็จ!';
+
+                showLoadingAlert(rid ? 'กำลังอัปเดตข้อมูลลงฐานข้อมูล...' : 'กำลังบันทึกข้อมูลใหม่...');
+                const btnSubmit = document.getElementById('btn-submit');
+                if(btnSubmit) btnSubmit.disabled = true;
 
                 fetch(WEB_APP_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: actionType, rowIndex: rid, data: packData })
+                    body: JSON.stringify({ action: actionType, payload: payloadReq }),
+                    redirect: 'follow'
                 })
                 .then(res => res.json())
                 .then(resData => {
                     if(resData && resData.success) {
                         alert(alertMsg);
                         resetFormState();
-                        fetchDataFromServer();
+                        fetchDataFromServer(currentPage);
+                        loadDashboardData();
+                        loadInitialMeta();
                     } else {
                         alert('❌ ข้อผิดพลาดจากระบบ: ' + (resData.message || 'ไม่ทราบสาเหตุ'));
                     }
                 }).catch((err) => {
                     alert('🛑 การส่งข้อมูลผิดพลาดหรือเซิร์ฟเวอร์ไม่ตอบสนอง');
                     resetFormState();
-                    fetchDataFromServer();
+                    fetchDataFromServer(currentPage);
+                }).finally(() => {
+                    hideLoadingAlert();
+                    if(btnSubmit) btnSubmit.disabled = false;
                 });
             } catch(err) {
                 console.error(err);
+                hideLoadingAlert();
             }
         }
     </script>
