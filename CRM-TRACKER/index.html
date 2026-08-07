@@ -60,6 +60,7 @@
         .btn-accent:hover { background: #ea580c; }
         .btn-warning { background: #eab308; color: #fff; padding: 3px 8px; font-size: 11px; }
         .btn-danger { background: #ef4444; color: #fff; padding: 3px 8px; font-size: 11px; }
+        .btn-info { background: #0284c7; color: #fff; padding: 3px 8px; font-size: 11px; }
         .btn-export { background: #0284c7; color: white; }
 
         .table-container { flex-grow: 1; background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); padding: 15px; display: flex; flex-direction: column; overflow: hidden; }
@@ -77,8 +78,8 @@
         .dash-item { display: flex; justify-content: space-between; padding: 4px 6px; margin-bottom: 3px; background: #f8fafc; border-radius: 4px; font-size: 11px; }
         .dash-count { font-weight: 600; color: var(--primary-color); background: #e0f2fe; padding: 1px 6px; border-radius: 8px; }
 
-        /* Floating Action Button (FAB) */
-        .fab-container { position: fixed; bottom: 25px; right: 25px; z-index: 999; }
+        /* Floating Action Button (FAB) ย้ายไปด้านซ้ายเพื่อไม่ให้บังปุ่มบันทึก */
+        .fab-container { position: fixed; bottom: 25px; left: 25px; z-index: 999; }
         .fab-btn { width: 55px; height: 55px; border-radius: 50%; background: #16a34a; color: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.25); cursor: pointer; border: none; font-size: 22px; transition: transform 0.2s; }
         .fab-btn:hover { transform: scale(1.08); background: #15803d; }
 
@@ -95,7 +96,12 @@
         .badge-contract { background: #ccfbf1; color: #0f766e; }
         .badge-deliver { background: #fae8ff; color: #86198f; }
 
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        /* สไตล์สำหรับ Print */
+        @media print {
+            body * { visibility: hidden; }
+            #print-area, #print-area * { visibility: visible; }
+            #print-area { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; }
+        }
     </style>
 </head>
 
@@ -283,7 +289,7 @@
                     </div>
                     <div class="form-group" style="grid-column: span 2;">
                         <label>เบอร์โทรศัพท์ <span id="phone-check-msg" style="font-size:11px;"></span></label>
-                        <input type="tel" id="cust-phone" class="form-control" placeholder="0xxxxxxxxx" required onblur="checkDuplicatePhone()">
+                        <input type="tel" id="cust-phone" class="form-control" placeholder="0xxxxxxxxx" inputmode="numeric" autocomplete="tel" required onblur="checkDuplicatePhone()">
                     </div>
                     <div class="form-group">
                         <label>ประเภทลูกค้า</label>
@@ -292,6 +298,8 @@
                             <option value="เป้าหมาย">เป้าหมาย</option>
                             <option value="จอง">จอง</option>
                             <option value="ติดตาม">ติดตาม</option>
+                            <option value="ทำสัญญา">ทำสัญญา</option>
+                            <option value="ส่งมอบ">ส่งมอบ</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -303,6 +311,8 @@
                             <option value="เครื่องอัดฟาง">เครื่องอัดฟาง</option>
                             <option value="Drone">Drone</option>
                             <option value="รถขุด">รถขุด</option>
+                            <option value="รถแทรกเตอร์ มือ 2">รถแทรกเตอร์ มือ 2</option>
+                            <option value="รถเกี่ยวข้าว มือ 2">รถเกี่ยวข้าว มือ 2</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -365,13 +375,16 @@
 
     </div>
 
-    <!-- Floating Action Button for Excel Download -->
+    <!-- Floating Action Button for Excel Download (ย้ายไปซ้ายล่าง) -->
     <div class="fab-container">
         <button class="fab-btn" onclick="exportFullExcel()" title="ดาวน์โหลดฐานข้อมูลทั้งหมดเป็น Excel">📗</button>
     </div>
 
+    <!-- พื้นที่ซ่อนสำหรับการสั่งพิมพ์ข้อมูลลูกค้า -->
+    <div id="print-area"></div>
+
     <script>
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwIvywtlJoX9vTgBNXleCoDRn8Ou4jDdOIz87gK-J7K21c6gs7j_89gB2FY7yLep1dV/exec';
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyOPXdg7HXAKUDQV_UN0PTyqAYGx1kuHSbc0RRy_0eAoswaF-5DeXEfM-o_rRmOFKsR/exec';
         
         let currentPage = 1;
         let totalRecords = 0;
@@ -555,7 +568,6 @@
             });
         }
 
-        /* ฟังก์ชันแสดงสรุปสถิติแบบลงตัว ใส่คอมม่าให้สวยงาม */
         function fetchDashboardSummary(filters) {
             fetch(WEB_APP_URL, {
                 method: 'POST',
@@ -603,8 +615,9 @@
 
                 return `<tr>
                     <td>
-                        <button class="btn btn-warning" onclick="loadSingleRowForEdit('${row.sheetRowIndex}')">✏️ Edit</button>
-                        <button class="btn btn-danger" onclick="deleteCustomerRow('${row.sheetRowIndex}')">🗑️ Del</button>
+                        <button class="btn btn-warning" onclick="loadSingleRowForEdit('${row.sheetRowIndex}')">✏️ แก้ไข</button>
+                        <button class="btn btn-info" onclick="printSingleCustomer('${row.sheetRowIndex}')">🖨️ ปริ้น</button>
+                        <button class="btn btn-danger" onclick="deleteCustomerRow('${row.sheetRowIndex}')">🗑️ ลบ</button>
                     </td>
                     <td>${row.date || '-'}</td>
                     <td style="color: var(--accent-color); font-weight: 600;">${row.booking_date || '-'}</td>
@@ -625,6 +638,40 @@
             }).join('');
 
             tbody.innerHTML = html;
+        }
+
+        /* ฟังก์ชันปริ้นท์ข้อมูลลูกค้าเฉพาะคน */
+        function printSingleCustomer(rid) {
+            const cust = currentRenderedData.find(item => item.sheetRowIndex == rid);
+            if(!cust) {
+                alert('ไม่พบข้อมูลสำหรับสั่งพิมพ์');
+                return;
+            }
+
+            const printArea = document.getElementById('print-area');
+            printArea.innerHTML = `
+                <div style="border: 2px solid #0f172a; padding: 25px; border-radius: 10px; max-width: 700px; margin: 0 auto; font-family: 'Prompt', sans-serif;">
+                    <div style="display: flex; justify-content: space-between; border-bottom: 2px solid #0f172a; padding-bottom: 10px; margin-bottom: 15px;">
+                        <h2 style="margin: 0; color: #0f172a;">📋 ใบข้อมูลลูกค้า (RST CRM)</h2>
+                        <span style="font-size: 14px; color: #64748b;">วันที่พิมพ์: ${new Date().toLocaleDateString('th-TH')}</span>
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 14px;">
+                        <tr><td style="padding: 6px; font-weight: bold; width: 30%;">ชื่อ-นามสกุล:</td><td style="padding: 6px;">${cust.name || '-'}</td></tr>
+                        <tr><td style="padding: 6px; font-weight: bold;">เบอร์โทรศัพท์:</td><td style="padding: 6px;">${cust.phone || '-'}</td></tr>
+                        <tr><td style="padding: 6px; font-weight: bold;">สถานะ/ประเภทลูกค้า:</td><td style="padding: 6px;">${cust.type || '-'}</td></tr>
+                        <tr><td style="padding: 6px; font-weight: bold;">สินค้าที่สนใจ:</td><td style="padding: 6px;">${cust.product || '-'}</td></tr>
+                        <tr><td style="padding: 6px; font-weight: bold;">วันนัดหมาย (Booking):</td><td style="padding: 6px; color: #ea580c; font-weight: bold;">${cust.booking_date || '-'}</td></tr>
+                        <tr><td style="padding: 6px; font-weight: bold;">วันที่ลงบันทึก:</td><td style="padding: 6px;">${cust.date || '-'}</td></tr>
+                        <tr><td style="padding: 6px; font-weight: bold;">ที่อยู่:</td><td style="padding: 6px;">บ้านเลขที่ ${cust.addressno || '-'} หมู่ ${cust.moo || '-'} หมู่บ้าน ${cust.village || '-'} ต.${cust.subdistrict || '-'} อ.${cust.district || '-'} จ.${cust.province || '-'}</td></tr>
+                        <tr><td style="padding: 6px; font-weight: bold;">LINE ID / Facebook:</td><td style="padding: 6px;">${cust.line || '-'} / ${cust.facebook || '-'}</td></tr>
+                    </table>
+                    <div style="border-top: 1px dashed #cbd5e1; padding-top: 10px;">
+                        <p style="font-weight: bold; font-size: 14px; margin-bottom: 5px;">หมายเหตุ / บันทึกการติดตาม:</p>
+                        <div style="background: #f8fafc; padding: 12px; border-radius: 6px; min-height: 80px; font-size: 13px; white-space: pre-line; border: 1px solid #e2e8f0;">${cust.remark || '-'}</div>
+                    </div>
+                </div>
+            `;
+            window.print();
         }
 
         function updatePaginationControls() {
@@ -760,39 +807,38 @@
         }
 
         function loadSingleRowForEdit(rid) {
-            document.getElementById('form-row-index').value = rid;
-            fetch(WEB_APP_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({ action: 'getByPhone', payload: { phoneKey: rid } })
-            })
-            .then(res => res.json())
-            .then(resData => {
-                if(resData && resData.success && resData.data) {
-                    const d = resData.data;
-                    document.getElementById('cust-date').value = d.date;
-                    document.getElementById('cust-fname').value = d.firstname;
-                    document.getElementById('cust-lname').value = d.lastname;
-                    document.getElementById('cust-phone').value = d.phone;
-                    document.getElementById('cust-appdate').value = d.appdate;
-                    document.getElementById('cust-type').value = d.type || 'ลงทะเบียน';
-                    document.getElementById('cust-product').value = d.product || '';
-                    document.getElementById('cust-addressno').value = d.addressno || '';
-                    document.getElementById('cust-moo').value = d.moo || '';
-                    document.getElementById('cust-village').value = d.village || '';
-                    document.getElementById('cust-subdistrict').value = d.subdistrict || '';
-                    document.getElementById('cust-district').value = d.district || '';
-                    document.getElementById('cust-province').value = d.province || 'อุบลราชธานี';
-                    document.getElementById('cust-zipcode').value = d.zipcode || '';
-                    document.getElementById('cust-line').value = d.line || '';
-                    document.getElementById('cust-facebook').value = d.facebook || '';
-                    document.getElementById('cust-note').value = d.remark || '';
+    // 1. ค้นหาข้อมูลจาก Data ในหน้าปัจจุบัน
+    const cust = currentRenderedData.find(item => item.sheetRowIndex == rid || item.raw_key == rid || item.phone == rid);
+    
+    if (cust) {
+        // กำหนด Key อ้างอิง (MD5 Hash จาก BigQuery) ลงใน hidden input
+        document.getElementById('form-row-index').value = cust.sheetRowIndex || cust.raw_key || cust.phone;
 
-                    document.getElementById('form-title').innerText = `📝 แก้ไขข้อมูลลูกค้า`;
-                    document.getElementById('btn-submit').innerText = '💾 อัปเดตข้อมูล';
-                }
-            });
-        }
+        document.getElementById('cust-date').value = cust.date || '';
+        document.getElementById('cust-fname').value = cust.firstname || '';
+        document.getElementById('cust-lname').value = cust.lastname || '';
+        document.getElementById('cust-phone').value = cust.phone || '';
+        document.getElementById('cust-appdate').value = cust.booking_date || cust.appdate || '';
+        document.getElementById('cust-type').value = cust.type || 'ลงทะเบียน';
+        document.getElementById('cust-product').value = cust.product || '';
+        document.getElementById('cust-addressno').value = cust.addressno || '';
+        document.getElementById('cust-moo').value = cust.moo || '';
+        document.getElementById('cust-village').value = cust.village || '';
+        document.getElementById('cust-subdistrict').value = cust.subdistrict || '';
+        document.getElementById('cust-district').value = cust.district || '';
+        document.getElementById('cust-province').value = cust.province || 'อุบลราชธานี';
+        document.getElementById('cust-zipcode').value = cust.zipcode || '';
+        document.getElementById('cust-line').value = cust.line || '';
+        document.getElementById('cust-facebook').value = cust.facebook || '';
+        document.getElementById('cust-note').value = cust.remark || cust.note || '';
+
+        document.getElementById('form-title').innerText = '📝 แก้ไขข้อมูลลูกค้า';
+        document.getElementById('btn-submit').innerText = '🔄 อัปเดตข้อมูล';
+    } else {
+        alert('❌ ไม่พบข้อมูลลูกค้ารายนี้ในระบบ');
+    }
+}
+
 
         function deleteCustomerRow(rid) {
             if(!confirm('คุณต้องการลบข้อมูลลูกค้ารายนี้ใช่หรือไม่?')) return;
@@ -816,50 +862,79 @@
             document.getElementById('phone-check-msg').innerHTML = '';
             document.getElementById('form-title').innerText = '➕ เพิ่มข้อมูลลูกค้าใหม่';
             document.getElementById('btn-submit').innerText = '💾 บันทึกข้อมูล';
+            document.getElementById('btn-submit').disabled = false;
             setDefaultDate();
         }
 
         function onFormSubmit(e) {
-            e.preventDefault();
-            const rid = document.getElementById('form-row-index').value;
-            const packData = {
-                date: document.getElementById('cust-date').value,
-                firstname: document.getElementById('cust-fname').value,
-                lastname: document.getElementById('cust-lname').value,
-                phone: document.getElementById('cust-phone').value,
-                appdate: document.getElementById('cust-appdate').value,
-                type: document.getElementById('cust-type').value,
-                product: document.getElementById('cust-product').value,
-                addressno: document.getElementById('cust-addressno').value,
-                moo: document.getElementById('cust-moo').value,
-                village: document.getElementById('cust-village').value,
-                subdistrict: document.getElementById('cust-subdistrict').value,
-                district: document.getElementById('cust-district').value,
-                province: document.getElementById('cust-province').value,
-                zipcode: document.getElementById('cust-zipcode').value,
-                remark: document.getElementById('cust-note').value,
-                line: document.getElementById('cust-line').value,
-                facebook: document.getElementById('cust-facebook').value
-            };
+    e.preventDefault();
+    
+    const rid = document.getElementById('form-row-index').value;
+    
+    const phone = document.getElementById('cust-phone').value.replace(/\D/g, '');
+    if (!phone) {
+        alert('กรุณาระบุเบอร์โทรศัพท์');
+        document.getElementById('cust-phone').focus();
+        return;
+    }
 
-            const actionType = rid ? 'update' : 'add';
-            const payloadReq = rid ? { rowIndex: rid, cust: packData } : packData;
+    const packData = {
+        date: document.getElementById('cust-date').value,
+        firstname: document.getElementById('cust-fname').value,
+        lastname: document.getElementById('cust-lname').value,
+        phone: phone,
+        appdate: document.getElementById('cust-appdate').value,
+        type: document.getElementById('cust-type').value,
+        product: document.getElementById('cust-product').value,
+        addressno: document.getElementById('cust-addressno').value,
+        moo: document.getElementById('cust-moo').value,
+        village: document.getElementById('cust-village').value,
+        subdistrict: document.getElementById('cust-subdistrict').value,
+        district: document.getElementById('cust-district').value,
+        province: document.getElementById('cust-province').value,
+        zipcode: document.getElementById('cust-zipcode').value,
+        remark: document.getElementById('cust-note').value,
+        line: document.getElementById('cust-line').value,
+        facebook: document.getElementById('cust-facebook').value
+    };
 
-            fetch(WEB_APP_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({ action: actionType, payload: payloadReq })
-            })
-            .then(res => res.json())
-            .then(resData => {
-                if(resData && resData.success) {
-                    alert('💾 บันทึกข้อมูลสำเร็จ!');
-                    resetFormState();
-                    fetchDataFromServer(currentPage);
-                }
-            });
+    const actionType = rid ? 'update' : 'add';
+    
+    // โครงสร้าง Payload ที่ตรงกับ Code.gs (ส่งทั้ง phoneKey และ rowIndex)
+    const payloadReq = rid 
+        ? { phoneKey: rid, rowIndex: rid, cust: packData } 
+        : packData;
+
+    const btnSubmit = document.getElementById('btn-submit');
+    const originalText = btnSubmit.innerText;
+    btnSubmit.innerText = rid ? '⏳ กำลังอัปเดตข้อมูล...' : '⏳ กำลังบันทึกข้อมูล...';
+    btnSubmit.disabled = true;
+
+    fetch(WEB_APP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: actionType, payload: payloadReq })
+    })
+    .then(res => res.json())
+    .then(resData => {
+        btnSubmit.disabled = false;
+        btnSubmit.innerText = originalText;
+
+        if (resData && resData.success) {
+            alert(rid ? '🔄 อัปเดตข้อมูลสำเร็จ!' : '💾 บันทึกข้อมูลสำเร็จ!');
+            resetFormState();
+            fetchDataFromServer(currentPage);
+        } else {
+            alert('❌ เกิดข้อผิดพลาด: ' + (resData.message || 'ไม่สามารถบันทึกได้'));
         }
-
+    })
+    .catch(err => {
+        btnSubmit.disabled = false;
+        btnSubmit.innerText = originalText;
+        alert('🛑 การเชื่อมต่อเซิร์ฟเวอร์ล้มเหลว');
+        console.error(err);
+    });
+}
         /* Export Features */
         function exportFilteredCSV() {
             if(!currentRenderedData || currentRenderedData.length === 0) {
