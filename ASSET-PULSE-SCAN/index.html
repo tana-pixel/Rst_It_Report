@@ -267,7 +267,7 @@
                 </button>
                 
                 <button class="btn btn-submit" id="btn-submit-all" onclick="submitAllBasketToSheet()" disabled style="background: #cbd5e1; color: #64748b; cursor: not-allowed;">
-                    🚀 ส่งข้อมูลใบขอซื้อทั้งหมดลง Google Sheets (แถว A-I)
+                    🚀 ส่งข้อมูลใบขอซื้อทั้งหมดลง Database แล้ว
                 </button>
 
                 <a href="https://docs.google.com/spreadsheets/d/1OULfZUQ6ZZYwp1ayOvjbi-IOlXaq-MCT_b68Sm-BJnI/edit?gid=795258232#gid=795258232&fvid=582747468" 
@@ -309,7 +309,7 @@
 <!-- ======================================= -->
 <div id="print-paper">
     <div class="print-header">
-        <div class="print-doc-no" id="print-doc-code">TK69/35</div>
+        <div class="print-doc-no" id="print-doc-code">TK69/1</div>
         <div class="print-title">ใบขอซื้ออะไหล่มาตรฐาน (MO 30 วัน)</div>
     </div>
 
@@ -358,11 +358,11 @@
 </div>
 
 <script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz1XgL7ctqghpXX70M1tZjxIM5F-R_h9nOlRwUNZGZiAQmv7aBN64P_y0DIA2XR6cVz/exec";
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzHwQiZKtCo0hgS-8SGHual6WBPnAi6PF2M2MduE98IKH0sP1LC3FSCWVBVLxhumR8Z/exec";
 
     let masterParts = {};  
     let branchMap = {};
-    let nextSeq = 1;
+    let branchSeqMap = {}; // 📌 เก็บเลขรันล่าสุดของแต่ละสาขา { "เดชอุดม": 3, "ขุขันธ์": 1 }
     let basketItems = [];
     let html5QrScanner;
 
@@ -370,34 +370,40 @@
         try {
             const resp = await fetch(WEB_APP_URL);
             const data = await resp.json();
-            masterParts = data.masterParts;
+            masterParts = data.masterParts || {};
             branchMap = data.branchMap || {};
-            nextSeq = data.nextSeq || 1;
+            branchSeqMap = data.branchSeqMap || {}; // ดึง Map เลขรันแยกสาขามาเก็บไว้
 
             const recSel = document.getElementById('recorder');
             recSel.innerHTML = '<option value="">-- เลือกพนักงานผู้คีย์ --</option>';
-            data.smeList.forEach(n => { let o = document.createElement('option'); o.value = o.text = n; recSel.add(o); });
+            (data.smeList || []).forEach(n => { let o = document.createElement('option'); o.value = o.text = n; recSel.add(o); });
 
             const brSel = document.getElementById('branch');
             brSel.innerHTML = '<option value="">-- เลือกสาขา --</option>';
-            data.branchList.forEach(b => { let o = document.createElement('option'); o.value = o.text = b; brSel.add(o); });
+            (data.branchList || []).forEach(b => { let o = document.createElement('option'); o.value = o.text = b; brSel.add(o); });
             
             document.getElementById('status-text').innerHTML = "● ออนไลน์พร้อมใช้งาน";
         } catch (e) { alert("❌ เชื่อมต่อหลังบ้านไม่ได้ เช็ค WEB_APP_URL ครับ"); }
     }
 
-    // คำนวณรหัสเลขที่เอกสารมุมขวาบน เช่น TK69/35
+    // 📌 คำนวณรหัสเลขที่เอกสารมุมขวาบน แบบแยกรายสาขาอัตโนมัติ (เช่น DE69/4)
     function generateDocCode(branchName) {
+        if (!branchName) return "TK69/1";
+
         let code = branchMap[branchName] || "TK"; 
-        
-        // แปลงปี ค.ศ. เป็น พ.ศ. 2 หลัก (เช่น 2026 -> 2569 -> 69)
         let currentYearBE = (new Date().getFullYear() + 543).toString().slice(-2);
         
-        return `${code}${currentYearBE}/${nextSeq}`;
+        // ดึงเลขล่าสุดของสาขานั้นๆ จาก branchSeqMap แล้ว + 1
+        let lastSeq = parseInt(branchSeqMap[branchName] || 0, 10);
+        let nextBranchSeq = lastSeq + 1;
+        
+        return `${code}${currentYearBE}/${nextBranchSeq}`;
     }
 
     function updateDocNumberPreview() {
-        // อัปเดตพรีวิวรหัสเอกสารตามสาขาที่เลือก
+        if (basketItems.length > 0) {
+            renderBasketTable();
+        }
     }
 
     function lookupPartName(val) {
@@ -462,6 +468,9 @@
         const excelBtn = document.getElementById('btn-export-excel');
         const printBtn = document.getElementById('btn-print-pdf');
         
+        // คืนค่าข้อความปุ่มส่งข้อมูลให้เป็นปกติเสมอ
+        submitBtn.innerHTML = "🚀 ส่งข้อมูลใบขอซื้อทั้งหมดลง database แล้ว";
+        
         tbody.innerHTML = "";
         countBadge.innerHTML = `${basketItems.length} รายการ`;
 
@@ -501,7 +510,6 @@
         renderBasketTable();
     }
 
-    // 🖨️ ฟังก์ชันเตรียมและเปิดพรีวิวพิมพ์ใบขอซื้อ MO 30 วัน
     function openPrintPreview() {
         if(basketItems.length === 0) return;
         
@@ -529,7 +537,6 @@
             tbody.appendChild(tr);
         });
 
-        // คัดลอกไปใส่ในกล่อง Preview
         document.getElementById('print-paper-preview').innerHTML = document.getElementById('print-paper').innerHTML;
         togglePrintModal(true);
     }
@@ -539,74 +546,113 @@
     }
 
     function toggleManualModal(show) {
-        // เปิด/ปิด Modal คู่มือการใช้งาน
+        // สำหรับ modal คู่มือ
     }
 
-    // 📥 ฟังก์ชัน Export Excel ผ่าน ExcelJS (พร้อมตีเส้นตารางและจัดระเบียบสวยงาม)
+    // 📥 ฟังก์ชัน Export Excel พร้อมส่งคำสั่งอัปเดตเลขรันเฉพาะสาขานั้นในคอลัมน์ D
     async function exportBasketToExcel() {
         if (basketItems.length === 0) return;
 
         let firstItem = basketItems[0];
-        let docCode = generateDocCode(firstItem.branch);
+        let targetBranch = firstItem.branch;
+        let docCode = generateDocCode(targetBranch);
         let todayStr = new Date().toLocaleDateString('th-TH');
 
-        // สร้าง Workbook และ Worksheet ใหม่
+        // บันทึกลำดับตัวนับประจำสาขาลง Google Sheets
+        try {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = WEB_APP_URL;
+            form.target = 'hidden_iframe_worker';
+
+            const exportPayload = basketItems.map(item => ({
+                ...item,
+                docCode: docCode,
+                action: 'export_excel',
+                targetBranch: targetBranch // ส่งชื่อสาขาไปอัปเดต คอลัมน์ D
+            }));
+
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'contents';
+            input.value = JSON.stringify(exportPayload);
+            form.appendChild(input);
+
+            let iframe = document.getElementById('hidden_iframe_worker');
+            if (!iframe) {
+                iframe = document.createElement('iframe');
+                iframe.id = 'hidden_iframe_worker';
+                iframe.name = 'hidden_iframe_worker';
+                iframe.style.display = 'none';
+                document.body.appendChild(iframe);
+            }
+
+            document.body.appendChild(form);
+            form.submit();
+            setTimeout(() => { if (document.body.contains(form)) document.body.removeChild(form); }, 1000);
+        } catch (e) {
+            console.log("บันทึกตัวนับหลังบ้านล้มเหลว:", e);
+        }
+
+        // อัปเดต Memory ฝั่งหน้าจอทันที
+        branchSeqMap[targetBranch] = (parseInt(branchSeqMap[targetBranch] || 0, 10) + 1);
+
+        // สร้างไฟล์ Excel
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('ใบขอซื้อ');
 
-        // กำหนดความกว้างคอลัมน์ A - F
         worksheet.columns = [
-            { width: 10 }, // A: ลำดับ
-            { width: 22 }, // B: รหัสอะไหล่
-            { width: 42 }, // C: ชื่ออะไหล่
-            { width: 12 }, // D: Stock
-            { width: 16 }, // E: จำนวนขอซื้อ
-            { width: 30 }  // F: หมายเหตุ
+            { width: 10 },
+            { width: 22 },
+            { width: 42 },
+            { width: 12 },
+            { width: 16 },
+            { width: 30 }
         ];
 
-        // 1. เลขที่เอกสารมุมขวาบน (A1:F1)
+        // 1. เลขที่เอกสารมุมขวาบน
         const r1 = worksheet.addRow(['', '', '', '', '', docCode]);
         r1.getCell(6).font = { bold: true, size: 14, name: 'Sarabun' };
         r1.getCell(6).alignment = { horizontal: 'right', vertical: 'middle' };
 
-        // 2. ชื่อหัวข้อเอกสาร (A2:F2)
+        // 2. ชื่อเอกสาร
         const r2 = worksheet.addRow(['ใบขอซื้ออะไหล่มาตรฐาน (MO 30 วัน)']);
         worksheet.mergeCells('A2:F2');
         r2.getCell(1).font = { bold: true, size: 16, name: 'Sarabun' };
         r2.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
 
-        // 3. ข้อมูลผู้สั่งซื้อ
-        worksheet.addRow([]); // เว้นบรรทัด
+        worksheet.addRow([]);
         
-        const r4 = worksheet.addRow([`สาขา: ${firstItem.branch}`, '', '', `วันที่: ${todayStr}`]);
-        r4.getCell(1).font = { name: 'Sarabun' };
-        r4.getCell(4).font = { name: 'Sarabun' };
+        worksheet.mergeCells('A4:C4');
+        worksheet.mergeCells('D4:F4');
+        const cellA4 = worksheet.getCell('A4');
+        const cellD4 = worksheet.getCell('D4');
+        cellA4.value = `สาขา: ${firstItem.branch}`;
+        cellD4.value = `วันที่: ${todayStr}`;
+        cellA4.font = { name: 'Sarabun', size: 11 };
+        cellD4.font = { name: 'Sarabun', size: 11 };
 
-        const r5 = worksheet.addRow([`ผู้ขอซื้อ: ${firstItem.recorder}`, '', '', 'เบอร์โทร: -']);
-        r5.getCell(1).font = { name: 'Sarabun' };
-        r5.getCell(4).font = { name: 'Sarabun' };
+        worksheet.mergeCells('A5:C5');
+        worksheet.mergeCells('D5:F5');
+        const cellA5 = worksheet.getCell('A5');
+        const cellD5 = worksheet.getCell('D5');
+        cellA5.value = `ผู้ขอซื้อ: ${firstItem.recorder}`;
+        cellD5.value = `เบอร์โทร: -`;
+        cellA5.font = { name: 'Sarabun', size: 11 };
+        cellD5.font = { name: 'Sarabun', size: 11 };
 
-        worksheet.addRow([]); // เว้นบรรทัด
+        worksheet.addRow([]);
 
-        // 4. หัวตาราง (Row 7)
+        // หัวตาราง
         const headerRow = worksheet.addRow(['ลำดับ', 'รหัสอะไหล่', 'ชื่ออะไหล่', 'Stock', 'จำนวนขอซื้อ', 'หมายเหตุ']);
         headerRow.eachCell((cell) => {
             cell.font = { bold: true, size: 11, name: 'Sarabun' };
-            cell.fill = {
-                type: 'pattern',
-                pattern: 'solid',
-                fgColor: { argb: 'F1F5F9' } // พื้นหลังสีเทาอ่อน
-            };
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'F1F5F9' } };
             cell.alignment = { horizontal: 'center', vertical: 'middle' };
-            cell.border = {
-                top: { style: 'thin' },
-                left: { style: 'thin' },
-                bottom: { style: 'thin' },
-                right: { style: 'thin' }
-            };
+            cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
         });
 
-        // 5. รายการสินค้าพร้อมตีเส้นตารางทุกช่อง
+        // รายการสินค้า
         basketItems.forEach((item, idx) => {
             const row = worksheet.addRow([
                 idx + 1,
@@ -619,14 +665,8 @@
 
             row.eachCell((cell, colNumber) => {
                 cell.font = { name: 'Sarabun', size: 11 };
-                cell.border = {
-                    top: { style: 'thin' },
-                    left: { style: 'thin' },
-                    bottom: { style: 'thin' },
-                    right: { style: 'thin' }
-                };
+                cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
                 
-                // จัดตำแหน่งคอลัมน์
                 if (colNumber === 1 || colNumber === 4 || colNumber === 5) {
                     cell.alignment = { horizontal: 'center', vertical: 'middle' };
                 } else {
@@ -639,7 +679,6 @@
             });
         });
 
-        // 6. บันทึกและส่งไฟล์ดาวน์โหลดให้อัตโนมัติ (.xlsx)
         const buffer = await workbook.xlsx.writeBuffer();
         const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
         saveAs(blob, `ใบขอซื้อ_${docCode.replace('/', '-')}_${firstItem.branch}.xlsx`);
@@ -648,9 +687,14 @@
     function submitAllBasketToSheet() {
         if(basketItems.length === 0) return;
         const submitBtn = document.getElementById('btn-submit-all');
+        const firstItem = basketItems[0];
+        const docCode = generateDocCode(firstItem.branch);
         
         submitBtn.innerHTML = `⏳ กำลังส่งข้อมูลแบบรวดเดียว ${basketItems.length} รายการ...`;
         submitBtn.disabled = true;
+
+        // แนบ docCode ไปทุกแถว
+        const payload = basketItems.map(item => ({ ...item, docCode }));
 
         const form = document.createElement('form');
         form.method = 'POST';
@@ -660,7 +704,7 @@
         const input = document.createElement('input');
         input.type = 'hidden';
         input.name = 'contents';
-        input.value = JSON.stringify(basketItems);
+        input.value = JSON.stringify(payload);
         form.appendChild(input);
 
         let iframe = document.getElementById('hidden_iframe_worker');
@@ -675,8 +719,11 @@
         document.body.appendChild(form);
         form.submit();
 
+        // เพิ่มเลขรันสาขานี้ในระบบหน้าจอ
+        branchSeqMap[firstItem.branch] = (parseInt(branchSeqMap[firstItem.branch] || 0, 10) + 1);
+
         setTimeout(() => {
-            document.body.removeChild(form);
+            if (document.body.contains(form)) document.body.removeChild(form);
             alert(`🎉 ส่งข้อมูลใบขอซื้อทั้งหมดเข้าคอลัมน์ระบบออนไลน์เรียบร้อยแล้วครับ!`);
             clearWholeForm();
         }, 1500);
