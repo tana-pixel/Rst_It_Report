@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="theme-color" content="#081b3a" />
+<title>RST GROUP | ภาพรวมบริษัทและตำแหน่งงาน</title>
+<style>
+:root{--red:#c8102e;--red2:#e11d2e;--navy:#081b3a;--ink:#152238;--muted:#6b7280;--bg:#f4f6f9;--card:#fff;--line:#e5e7eb}
+*{box-sizing:border-box} html,body{margin:0;min-height:100%;font-family:"Noto Sans Thai","Tahoma",system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+button{font:inherit} .app{min-height:100vh;display:flex;flex-direction:column}
+.top{height:66px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:0 18px;position:sticky;top:0;z-index:20}
+.logoMini{display:flex;align-items:center;gap:9px} .logoMark{font-weight:1000;font-size:28px;letter-spacing:-2px;color:#111;line-height:1} .logoMark b{color:var(--red)}
+.brand{font-weight:900;font-size:17px;letter-spacing:.2px;color:#111} .brand-sub{font-size:11px;color:var(--muted);line-height:1.2}
+.spacer{flex:1} .pill{background:#f8fafc;border:1px solid var(--line);border-radius:999px;padding:8px 12px;font-size:13px;color:#334155;max-width:40vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.menuBtn,.iconBtn{border:0;background:#fff;border-radius:10px;padding:9px 11px;cursor:pointer} .menuBtn:hover,.iconBtn:hover{background:#f3f4f6}
+.progressWrap{height:5px;background:#eceff3;position:sticky;top:66px;z-index:18} .progress{height:100%;width:0;background:linear-gradient(90deg,var(--red),#f04444);transition:.25s}
+.main{flex:1;display:grid;grid-template-columns:280px 1fr;min-height:0}
+.sidebar{background:#0b1830;color:#fff;padding:20px 14px;overflow:auto;position:sticky;top:71px;height:calc(100vh - 71px)}
+.sideTitle{font-weight:800;font-size:14px;opacity:.8;margin:2px 10px 12px} .toc{display:flex;flex-direction:column;gap:6px}
+.toc button{width:100%;text-align:left;border:0;background:transparent;color:#cbd5e1;border-radius:10px;padding:10px 11px;cursor:pointer;display:flex;gap:10px;align-items:flex-start}
+.toc button:hover{background:#132a50;color:#fff} .toc button.active{background:#fff;color:var(--navy);font-weight:800} .num{min-width:26px;height:26px;border-radius:8px;background:#dbe3ef;color:#0b1830;display:grid;place-items:center;font-size:12px;font-weight:900} .toc button.active .num{background:var(--red);color:#fff} .ttext{font-size:13px;line-height:1.35;padding-top:4px}
+.stage{padding:26px 28px 110px;display:flex;flex-direction:column;align-items:center;min-width:0}
+.kicker{width:min(1180px,100%);display:flex;align-items:center;gap:10px;margin-bottom:12px} .sectionNo{font-size:13px;font-weight:800;color:var(--red)} .sectionTitle{font-size:16px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slideCard{width:min(1180px,100%);background:#fff;border-radius:18px;box-shadow:0 16px 45px rgba(15,23,42,.10);overflow:hidden;border:1px solid #e8ebef}
+.slideCard img{width:100%;display:block;background:#fff;aspect-ratio:16/9;object-fit:contain}
+.navbar{position:fixed;left:280px;right:0;bottom:0;background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:13px 24px calc(13px + env(safe-area-inset-bottom));display:flex;align-items:center;justify-content:center;gap:12px;z-index:25}
+.btn{border:1px solid #d1d5db;background:#fff;color:#1f2937;border-radius:12px;padding:11px 18px;font-weight:800;cursor:pointer;min-width:120px} .btn:hover{background:#f8fafc} .btn.primary{background:var(--red);color:#fff;border-color:var(--red)} .btn.primary:hover{filter:brightness(.95)} .btn:disabled{opacity:.4;cursor:not-allowed}
+.counter{font-size:13px;color:#64748b;min-width:85px;text-align:center}
+.welcome,.finish{position:fixed;inset:0;z-index:50;background:linear-gradient(135deg,#071a37 0%,#101a31 48%,#7d0a19 100%);display:grid;place-items:center;padding:22px}
+.welcomeCard,.finishCard{width:min(740px,100%);background:#fff;border-radius:26px;padding:42px;box-shadow:0 30px 80px rgba(0,0,0,.30);text-align:center}
+.logoText{font-size:64px;font-weight:1000;letter-spacing:-5px;color:#0b0f16;line-height:1} .logoText span{color:var(--red)}
+.welcome h1,.finish h1{font-size:34px;margin:20px 0 10px} .welcome p,.finish p{color:#5b6472;line-height:1.8;margin:0 auto 24px;max-width:580px}
+.startBtn{border:0;background:var(--red);color:#fff;border-radius:14px;padding:14px 28px;font-size:18px;font-weight:900;cursor:pointer;box-shadow:0 10px 25px rgba(200,16,46,.25)} .startBtn:hover{filter:brightness(.95)}
+.tags{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:16px 0 28px} .tag{background:#f3f4f6;border-radius:999px;padding:7px 11px;font-size:12px;color:#475569}
+.hint{font-size:12px;color:#94a3b8;margin-top:18px} .hidden{display:none!important}
+@media (max-width:900px){.main{display:block} .sidebar{position:fixed;left:-310px;top:71px;width:280px;z-index:30;transition:.25s;box-shadow:10px 0 35px rgba(0,0,0,.18)} .sidebar.open{left:0} .navbar{left:0;padding-left:12px;padding-right:12px} .stage{padding:18px 12px 100px} .brand-sub,.pill{display:none} .btn{min-width:0;flex:1;padding:10px 12px} .counter{min-width:62px} .welcomeCard,.finishCard{padding:30px 20px} .welcome h1,.finish h1{font-size:28px} .logoText{font-size:52px}}
+@media (min-width:901px){.menuBtn{display:none}}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+@media (max-width:600px){
+  .top{height:56px;padding:0 10px;gap:8px}.progressWrap{top:56px}.sidebar{top:61px;height:calc(100vh - 61px);width:86vw;left:-90vw}.stage{padding:10px 8px 86px}.kicker{margin-bottom:8px}.sectionTitle{font-size:14px}.slideCard{border-radius:10px;box-shadow:0 8px 24px rgba(15,23,42,.10)}.slideCard img{aspect-ratio:auto;max-height:calc(100vh - 150px);object-fit:contain}.navbar{padding:8px 8px calc(8px + env(safe-area-inset-bottom));gap:8px}.btn{padding:10px 8px;font-size:14px;border-radius:10px}.counter{font-size:12px;min-width:52px}.welcome,.finish{padding:12px}.welcomeCard,.finishCard{padding:24px 16px;border-radius:18px}.logoText{font-size:44px}.welcome h1,.finish h1{font-size:24px;line-height:1.35}.welcome p,.finish p{font-size:14px;line-height:1.65}.startBtn{width:100%;padding:13px 18px;font-size:16px}.iconBtn{display:none}
+}
+</style>
+</head>
+<body>
+<div class="welcome" id="welcome">
+  <div class="welcomeCard">
+    <div class="logoText">R<span>S</span>T</div>
+    <div class="tags"><span class="tag">กลุ่มบริษัท RST</span><span class="tag">ฝ่ายบุคคล</span><span class="tag">Recruitment Presentation</span></div>
+    <h1>ภาพรวมบริษัทและตำแหน่งงานที่เปิดรับ</h1>
+    <p>แนะนำกลุ่มบริษัท RST ธุรกิจในเครือ ตำแหน่งงานที่เปิดรับ และช่องทางการสมัครงาน เพื่อให้ผู้สมัครเห็นภาพรวมขององค์กรได้อย่างชัดเจน</p>
+    <button class="startBtn" onclick="startPresentation()">เริ่มดูข้อมูล</button>
+    <div class="hint">รองรับคอมพิวเตอร์ โทรศัพท์ และแท็บเล็ต</div>
+  </div>
+</div>
+<div class="app">
+  <header class="top">
+    <button class="menuBtn" onclick="toggleSidebar()" aria-label="เมนู">☰</button>
+    <div class="logoMini"><div class="logoMark">R<b>S</b>T</div><div><div class="brand">RST GROUP</div><div class="brand-sub">Company & Recruitment</div></div></div>
+    <div class="spacer"></div>
+    <div class="pill" id="sectionPill">ภาพรวมบริษัทและตำแหน่งงาน</div>
+    <button class="iconBtn" onclick="toggleFullscreen()" title="เต็มจอ">⛶</button>
+  </header>
+  <div class="progressWrap"><div class="progress" id="progress"></div></div>
+  <div class="main">
+    <aside class="sidebar" id="sidebar"><div class="sideTitle">หัวข้อการนำเสนอ</div><div class="toc" id="toc"></div></aside>
+    <main class="stage">
+      <div class="kicker"><span class="sectionNo" id="sectionNo">01</span><span class="sectionTitle" id="sectionTitle"></span></div>
+      <div class="slideCard"><img id="slideImage" alt="สไลด์ RST" decoding="async" fetchpriority="high" /></div>
+    </main>
+  </div>
+  <nav class="navbar">
+    <button class="btn" id="prevBtn" onclick="prevSlide()">← ก่อนหน้า</button>
+    <div class="counter" id="counter"></div>
+    <button class="btn primary" id="nextBtn" onclick="nextSlide()">ถัดไป →</button>
+  </nav>
+</div>
+<div class="finish hidden" id="finish">
+  <div class="finishCard">
+    <div class="logoText">R<span>S</span>T</div>
+    <h1>สนใจร่วมงานกับ RST</h1>
+    <p>ดูช่องทางติดต่อและ QR Code ได้ที่หน้าสุดท้ายของการนำเสนอ สามารถกลับไปดูข้อมูลแต่ละบริษัทได้จากเมนูด้านซ้าย</p>
+    <button class="startBtn" onclick="restart()">ดูข้อมูลอีกครั้ง</button>
+  </div>
+</div>
+<script>
+const slides=["assets/slide_01.b64","assets/slide_02.b64","assets/slide_03.b64","assets/slide_04.b64","assets/slide_05.b64","assets/slide_06.b64","assets/slide_07.b64","assets/slide_08.b64","assets/slide_09.b64"];
+const slideCache=new Map();
+async function getSlide(i){if(slideCache.has(i)) return slideCache.get(i); const t=(await fetch(slides[i],{cache:"force-cache"})).text().then(x=>"data:image/webp;base64,"+x.trim()); slideCache.set(i,t); return t;}
+const titles=["บริษัทในเครือ RST และตำแหน่งงานที่เปิดรับ","แนะนำองค์กร","วิสัยทัศน์และพันธกิจ","ผลิตภัณฑ์และบริการ","โครงสร้างองค์กรและผู้บริหาร","หจก. บ้านและที่ดินรวมสินไทย","หจก. อาร์ เอส ที เอเชียแปซิฟิค","บริษัท อาร์ เอส ที โรโบติกส์ จำกัด","สมัครงานและช่องทางติดต่อ"];
+let current=0;
+const img=document.getElementById('slideImage'), toc=document.getElementById('toc');
+function buildToc(){toc.innerHTML=''; titles.forEach((t,i)=>{const b=document.createElement('button'); b.innerHTML=`<span class="num">${String(i+1).padStart(2,'0')}</span><span class="ttext">${t}</span>`; b.onclick=()=>goTo(i); toc.appendChild(b)})}
+async function render(){const n=current; img.alt="กำลังโหลดสไลด์..."; try{img.src=await getSlide(n); img.alt="สไลด์ RST"; if(n+1<slides.length) getSlide(n+1);}catch(e){img.removeAttribute("src"); img.alt="โหลดสไลด์ไม่สำเร็จ กรุณารีเฟรชหน้า";} document.getElementById('sectionNo').textContent=String(current+1).padStart(2,'0'); document.getElementById('sectionTitle').textContent=titles[current]; document.getElementById('sectionPill').textContent=titles[current]; document.getElementById('counter').textContent=`${current+1} / ${slides.length}`; document.getElementById('progress').style.width=`${((current+1)/slides.length)*100}%`; document.getElementById('prevBtn').disabled=current===0; const nb=document.getElementById('nextBtn'); nb.textContent=current===slides.length-1?'เสร็จสิ้น ✓':'ถัดไป →'; [...toc.children].forEach((b,i)=>b.classList.toggle('active',i===current)); const a=toc.children[current]; if(a) a.scrollIntoView({block:'nearest'}); window.scrollTo({top:0,behavior:'smooth'});}
+function goTo(i){current=i; render(); closeSidebar()}
+function nextSlide(){if(current<slides.length-1){current++;render()}else{document.getElementById('finish').classList.remove('hidden')}}
+function prevSlide(){if(current>0){current--;render()}}
+function startPresentation(){document.getElementById('welcome').classList.add('hidden'); render()}
+function restart(){current=0;document.getElementById('finish').classList.add('hidden');render()}
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')} function closeSidebar(){document.getElementById('sidebar').classList.remove('open')}
+function toggleFullscreen(){if(!document.fullscreenElement) document.documentElement.requestFullscreen?.(); else document.exitFullscreen?.()}
+document.addEventListener('keydown',e=>{if(!document.getElementById('welcome').classList.contains('hidden')) return; if(e.key==='ArrowRight'||e.key==='PageDown') nextSlide(); if(e.key==='ArrowLeft'||e.key==='PageUp') prevSlide();})
+let touchX=0,touchY=0;
+document.addEventListener('touchstart',e=>{const t=e.changedTouches[0];touchX=t.clientX;touchY=t.clientY},{passive:true});
+document.addEventListener('touchend',e=>{const t=e.changedTouches[0],dx=t.clientX-touchX,dy=t.clientY-touchY;if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.2){if(dx<0) nextSlide(); else prevSlide();}},{passive:true});
+window.addEventListener('resize',()=>closeSidebar());
+buildToc(); render();
+</script>
+</body>
+</html>
